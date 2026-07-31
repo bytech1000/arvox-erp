@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head"><div><h1>Editar producto</h1><p>{{ product.brand }} · {{ product.model }}</p></div></div>
+<section class="panel">
+<form method="post" class="form-grid">
+  <label>Código<input name="code" value="{{ product.code }}" required></label>
+  <label>Marca<input name="brand" value="{{ product.brand }}" required></label>
+  <label>Modelo<input name="model" value="{{ product.model }}" required></label>
+  <label>Año<input name="year" type="number" value="{{ product.year or '' }}"></label>
+  <label>Categoría<select name="category">{% for c in ['Paleta','Pelotas','Grip','Accesorio','Indumentaria'] %}<option {% if product.category==c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></label>
+  <label>Precio venta USD<input name="sale_price" type="number" step="0.01" value="{{ product.sale_price }}"></label>
+  <label>Stock mínimo<input name="min_stock" type="number" value="{{ product.min_stock }}"></label>
+  <label>URL de foto<input name="image_url" type="url" value="{{ product.image_url or '' }}"></label>
+  <label>Forma<input name="shape" value="{{ product.shape or '' }}"></label>
+  <label>Balance<input name="balance" value="{{ product.balance or '' }}"></label>
+  <label>Nivel<input name="level" value="{{ product.level or '' }}"></label>
+  <label>Peso<input name="weight" value="{{ product.weight or '' }}"></label>
+  <label class="full">Descripción<textarea name="description">{{ product.description or '' }}</textarea></label>
+  <label class="full">Observaciones<textarea name="notes">{{ product.notes or '' }}</textarea></label>
+  <button>Guardar cambios</button>
+  <a class="button secondary" href="{{ url_for('products.detail', product_id=product.id) }}">Cancelar</a>
+</form>
+</section>
+{% endblock %}

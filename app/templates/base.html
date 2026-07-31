@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{% block title %}ARVOX Gestión{% endblock %}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body>
+{% if session.get("user_id") %}
+<div class="app-shell">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-mark">A</div>
+      <div>
+        <strong>ARVOX</strong>
+        <small>Donde juega la calidad.</small>
+      </div>
+    </div>
+    <nav>
+      <a href="{{ url_for('dashboard.index') }}">Inicio</a>
+      <a class="active" href="{{ url_for('products.index') }}">Productos</a>
+      <span>Proveedores <em>próximamente</em></span>
+      <span>Compras <em>próximamente</em></span>
+      <span>Stock <em>próximamente</em></span>
+      <span>Ventas <em>próximamente</em></span>
+      <span>Cuenta corriente <em>próximamente</em></span>
+    </nav>
+    <a class="logout" href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+  </aside>
+  <section class="workspace">
+    <header class="topbar">
+      <span>ARVOX Gestión</span>
+      <span>{{ session.get("username") }}</span>
+    </header>
+    <main>
+{% else %}
+<main class="public-main">
+{% endif %}
+
+{% with messages = get_flashed_messages(with_categories=true) %}
+  {% for category, message in messages %}
+    <div class="flash {{ category }}">{{ message }}</div>
+  {% endfor %}
+{% endwith %}
+
+{% block content %}{% endblock %}
+
+{% if session.get("user_id") %}
+    </main>
+  </section>
+</div>
+{% else %}
+</main>
+{% endif %}
+</body>
+</html>

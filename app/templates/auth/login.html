@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% block title %}Ingresar · ARVOX{% endblock %}
+{% block content %}
+<section class="login-screen">
+  <div class="login-card">
+    <div class="login-logo">ARVOX</div>
+    <p>Donde juega la calidad.</p>
+    <form method="post">
+      <label>Usuario<input name="username" autocomplete="username" required></label>
+      <label>Contraseña<input type="password" name="password" autocomplete="current-password" required></label>
+      <button>Ingresar</button>
+    </form>
+    <small>Acceso privado</small>
+  </div>
+</section>
+{% endblock %}

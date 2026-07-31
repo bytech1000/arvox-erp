@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head"><div><h1>Inicio</h1><p>Resumen general de ARVOX.</p></div></div>
+<div class="stats">
+  <article><span>Productos activos</span><strong>{{ totals.products }}</strong></article>
+  <article><span>Unidades en stock</span><strong>{{ totals.stock }}</strong></article>
+  <article><span>Capital en stock</span><strong>USD {{ "%.2f"|format(totals.stock_value) }}</strong></article>
+  <article><span>Stock bajo</span><strong>{{ totals.low_stock }}</strong></article>
+</div>
+<section class="panel">
+  <div class="panel-head"><h2>Productos</h2><a class="button" href="{{ url_for('products.index') }}">Ver todos</a></div>
+  <div class="mini-products">
+  {% for p in products %}
+    <a href="{{ url_for('products.detail', product_id=p.id) }}">
+      <span>{{ p.code }}</span><strong>{{ p.brand }} · {{ p.model }}</strong><em>Stock {{ p.stock }}</em>
+    </a>
+  {% endfor %}
+  </div>
+</section>
+{% endblock %}

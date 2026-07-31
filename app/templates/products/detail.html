@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <a class="back" href="{{ url_for('products.index') }}">← Productos</a>
+    <h1>{{ product.brand }} · {{ product.model }}</h1>
+    <p>{{ product.code }} · {{ product.category }} · {% if product.active %}Activo{% else %}Inactivo{% endif %}</p>
+  </div>
+  <a class="button" href="{{ url_for('products.edit', product_id=product.id) }}">Editar</a>
+</div>
+
+<div class="detail-grid">
+  <section class="panel hero">
+    <div class="detail-image">
+      {% if product.image_url %}<img src="{{ product.image_url }}" alt="{{ product.model }}">
+      {% else %}<div class="placeholder large">ARVOX</div>{% endif %}
+    </div>
+    <div>
+      {% if product.description %}<p>{{ product.description }}</p>{% endif %}
+      <div class="stats compact">
+        <article><span>Stock</span><strong>{{ product.stock }}</strong></article>
+        <article><span>Costo promedio</span><strong>USD {{ "%.2f"|format(product.avg_cost) }}</strong></article>
+        <article><span>Precio venta</span><strong>USD {{ "%.2f"|format(product.sale_price) }}</strong></article>
+        <article><span>Margen</span><strong>USD {{ "%.2f"|format(product.margin) }} · {{ "%.1f"|format(margin_pct) }}%</strong></article>
+      </div>
+    </div>
+  </section>
+
+  <section class="panel">
+    <h2>Información</h2>
+    <div class="info-grid">
+      <div><span>Año</span><strong>{{ product.year or '-' }}</strong></div>
+      <div><span>Categoría</span><strong>{{ product.category or '-' }}</strong></div>
+      <div><span>Stock mínimo</span><strong>{{ product.min_stock }}</strong></div>
+      <div><span>Forma</span><strong>{{ product.shape or '-' }}</strong></div>
+      <div><span>Balance</span><strong>{{ product.balance or '-' }}</strong></div>
+      <div><span>Nivel</span><strong>{{ product.level or '-' }}</strong></div>
+      <div><span>Peso</span><strong>{{ product.weight or '-' }}</strong></div>
+    </div>
+    {% if product.notes %}<div class="note"><b>Observaciones internas</b><p>{{ product.notes }}</p></div>{% endif %}
+  </section>
+</div>
+
+<section class="panel">
+  <h2>Historial de compras</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Fecha</th><th>Proveedor</th><th>Cantidad</th><th>Costo</th><th>Estado</th></tr>
+    {% for x in product.purchases %}
+      <tr><td>{{ x.date }}</td><td>{{ x.supplier.name if x.supplier else '-' }}</td><td>{{ x.quantity }}</td><td>USD {{ "%.2f"|format(x.unit_cost) }}</td><td>{{ x.status }}</td></tr>
+    {% else %}<tr><td colspan="5">Todavía no hay compras.</td></tr>{% endfor %}
+  </table></div>
+</section>
+
+<section class="panel">
+  <h2>Historial de ventas</h2>
+  <div class="table-wrap"><table>
+    <tr><th>Fecha</th><th>Cliente</th><th>Cantidad</th><th>Precio</th><th>Estado</th></tr>
+    {% for x in product.sales %}
+      <tr><td>{{ x.date }}</td><td>{{ x.customer }}</td><td>{{ x.quantity }}</td><td>USD {{ "%.2f"|format(x.unit_price) }}</td><td>{{ x.status }}</td></tr>
+    {% else %}<tr><td colspan="5">Todavía no hay ventas.</td></tr>{% endfor %}
+  </table></div>
+</section>
+{% endblock %}
