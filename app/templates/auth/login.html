@@ -2,15 +2,27 @@
 {% block title %}Ingresar · ARVOX{% endblock %}
 {% block content %}
 <section class="login-screen">
-  <div class="login-card">
-    <div class="login-logo">ARVOX</div>
-    <p>Donde juega la calidad.</p>
-    <form method="post">
-      <label>Usuario<input name="username" autocomplete="username" required></label>
-      <label>Contraseña<input type="password" name="password" autocomplete="current-password" required></label>
-      <button>Ingresar</button>
-    </form>
-    <small>Acceso privado</small>
+  <div class="login-visual">
+    <div class="login-brand">
+      <div class="brand-symbol large"><span></span><span></span></div>
+      <h1>ARVOX</h1>
+      <p>Donde juega la calidad.</p>
+      <small>Gestión privada de productos, compras, stock y ventas.</small>
+    </div>
+  </div>
+
+  <div class="login-panel">
+    <div class="login-card">
+      <span class="eyebrow">ACCESO PRIVADO</span>
+      <h2>Bienvenido</h2>
+      <p>Ingresá para administrar ARVOX.</p>
+      <form method="post">
+        <label>Usuario<input name="username" autocomplete="username" required></label>
+        <label>Contraseña<input type="password" name="password" autocomplete="current-password" required></label>
+        <button>Ingresar</button>
+      </form>
+      <small>© 2026 ARVOX</small>
+    </div>
   </div>
 </section>
 {% endblock %}

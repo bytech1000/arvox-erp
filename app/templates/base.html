@@ -9,30 +9,73 @@
 <body>
 {% if session.get("user_id") %}
 <div class="app-shell">
-  <aside class="sidebar">
+  <aside class="sidebar" id="sidebar">
     <div class="brand">
-      <div class="brand-mark">A</div>
+      <div class="brand-symbol">
+        <span></span><span></span>
+      </div>
       <div>
         <strong>ARVOX</strong>
         <small>Donde juega la calidad.</small>
       </div>
     </div>
-    <nav>
-      <a href="{{ url_for('dashboard.index') }}">Inicio</a>
-      <a class="active" href="{{ url_for('products.index') }}">Productos</a>
-      <span>Proveedores <em>próximamente</em></span>
-      <span>Compras <em>próximamente</em></span>
-      <span>Stock <em>próximamente</em></span>
-      <span>Ventas <em>próximamente</em></span>
-      <span>Cuenta corriente <em>próximamente</em></span>
+
+    <nav class="main-nav">
+      <a class="{% if request.endpoint == 'dashboard.index' %}active{% endif %}" href="{{ url_for('dashboard.index') }}">
+        <span class="nav-icon">⌂</span> Inicio
+      </a>
+      <a class="{% if request.blueprint == 'products' %}active{% endif %}" href="{{ url_for('products.index') }}">
+        <span class="nav-icon">▦</span> Productos
+      </a>
+      <a class="{% if request.blueprint == 'suppliers' %}active{% endif %}" href="{{ url_for('suppliers.index') }}">
+        <span class="nav-icon">◇</span> Proveedores
+      </a>
+      <span><span class="nav-icon">＋</span> Compras <em>próximamente</em></span>
+      <span><span class="nav-icon">▤</span> Stock <em>próximamente</em></span>
+      <span><span class="nav-icon">$</span> Ventas <em>próximamente</em></span>
+      <span><span class="nav-icon">◎</span> Clientes <em>próximamente</em></span>
+      <span><span class="nav-icon">≡</span> Cuenta corriente <em>próximamente</em></span>
+      <span><span class="nav-icon">↗</span> Reportes <em>próximamente</em></span>
     </nav>
-    <a class="logout" href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+
+    <div class="sidebar-footer">
+      <span>ARVOX Gestión</span>
+      <a class="logout" href="{{ url_for('auth.logout') }}">Cerrar sesión</a>
+    </div>
   </aside>
+
   <section class="workspace">
     <header class="topbar">
-      <span>ARVOX Gestión</span>
-      <span>{{ session.get("username") }}</span>
+      <div class="topbar-left">
+        <button class="mobile-menu" type="button" onclick="document.getElementById('sidebar').classList.toggle('open')">☰</button>
+        <div>
+          <strong>{% block module_title %}ARVOX Gestión{% endblock %}</strong>
+          <small>{% block module_subtitle %}Control total de tu negocio{% endblock %}</small>
+        </div>
+      </div>
+
+      <div class="topbar-actions">
+        <form class="global-search" action="{{ url_for('products.index') }}" method="get">
+          <input name="q" placeholder="Buscar producto...">
+        </form>
+
+        <details class="quick-actions">
+          <summary>+ Nueva operación</summary>
+          <div class="quick-menu">
+            <a href="{{ url_for('products.index') }}#new-product">Nuevo producto</a>
+            <span>Nueva compra</span>
+            <span>Nueva venta</span>
+            <a href="{{ url_for('suppliers.index') }}#new-supplier">Nuevo proveedor</a>
+          </div>
+        </details>
+
+        <div class="user-chip">
+          <span>{{ (session.get("username") or "J")[:1]|upper }}</span>
+          <div><strong>{{ session.get("username") }}</strong><small>Administrador</small></div>
+        </div>
+      </div>
     </header>
+
     <main>
 {% else %}
 <main class="public-main">
@@ -48,6 +91,7 @@
 
 {% if session.get("user_id") %}
     </main>
+    <footer class="app-footer">ARVOX · Donde juega la calidad.</footer>
   </section>
 </div>
 {% else %}

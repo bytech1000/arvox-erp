@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Editar {{ supplier.name }} · ARVOX{% endblock %}
+{% block module_title %}Proveedores{% endblock %}
+{% block module_subtitle %}Editar información comercial{% endblock %}
+
+{% block content %}
+<div class="page-head">
+  <div>
+    <a class="back" href="{{ url_for('suppliers.detail', supplier_id=supplier.id) }}">← Volver a la ficha</a>
+    <span class="eyebrow">EDITAR PROVEEDOR</span>
+    <h1>{{ supplier.name }}</h1>
+  </div>
+</div>
+
+<section class="panel">
+  <form method="post" class="form-grid supplier-form">
+    <label>Nombre comercial<input name="name" value="{{ supplier.name }}" required></label>
+    <label>Persona de contacto<input name="contact" value="{{ supplier.contact or '' }}"></label>
+    <label>WhatsApp<input name="whatsapp" value="{{ supplier.whatsapp or '' }}"></label>
+    <label>Email<input name="email" type="email" value="{{ supplier.email or '' }}"></label>
+    <label>Ciudad / País<input name="city" value="{{ supplier.city or '' }}"></label>
+    <label>Sitio web<input name="website" type="url" value="{{ supplier.website or '' }}"></label>
+    <label>Condición de pago<input name="payment_terms" value="{{ supplier.payment_terms or '' }}"></label>
+    <label>Moneda
+      <select name="currency">
+        {% for currency in ["USD", "ARS", "EUR"] %}
+        <option value="{{ currency }}" {% if supplier.currency == currency %}selected{% endif %}>{{ currency }}</option>
+        {% endfor %}
+      </select>
+    </label>
+    <label class="full">Observaciones internas<textarea name="notes">{{ supplier.notes or "" }}</textarea></label>
+    <button>Guardar cambios</button>
+    <a class="button secondary" href="{{ url_for('suppliers.detail', supplier_id=supplier.id) }}">Cancelar</a>
+  </form>
+</section>
+{% endblock %}

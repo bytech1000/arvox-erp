@@ -61,11 +61,43 @@ class Product(db.Model):
 
 class Supplier(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(150), unique=True, nullable=False)
+    name = db.Column(db.String(150), unique=True, nullable=False, index=True)
     contact = db.Column(db.String(120))
     whatsapp = db.Column(db.String(80))
     email = db.Column(db.String(180))
+    city = db.Column(db.String(140))
+    website = db.Column(db.String(300))
+    payment_terms = db.Column(db.String(120))
+    currency = db.Column(db.String(20), default="USD")
     notes = db.Column(db.Text)
+    active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    purchases = db.relationship("Purchase", backref="supplier_record", lazy=True)
+
+    @property
+    def total_purchased(self):
+        return sum(
+            x.quantity * x.unit_cost
+            for x in self.purchases
+            if x.status != "Cancelada"
+        )
+
+    @property
+    def total_paid(self):
+        return sum(
+            (x.paid or 0)
+            for x in self.purchases
+            if x.status != "Cancelada"
+        )
+
+    @property
+    def balance(self):
+        return self.total_purchased - self.total_paid
+
+    @property
+    def purchase_count(self):
+        return sum(1 for x in self.purchases if x.status != "Cancelada")
 
 class Purchase(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -75,7 +107,8 @@ class Purchase(db.Model):
     quantity = db.Column(db.Integer, nullable=False)
     unit_cost = db.Column(db.Float, nullable=False)
     status = db.Column(db.String(30), default="Recibida")
-    supplier = db.relationship("Supplier")
+    paid = db.Column(db.Float, default=0)
+    supplier = db.relationship("Supplier", overlaps="purchases,supplier_record")
 
 class Sale(db.Model):
     id = db.Column(db.Integer, primary_key=True)

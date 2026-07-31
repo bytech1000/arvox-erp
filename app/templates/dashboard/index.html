@@ -1,20 +1,77 @@
 {% extends "base.html" %}
+{% block module_title %}Inicio{% endblock %}
+{% block module_subtitle %}Resumen general de ARVOX{% endblock %}
 {% block content %}
-<div class="page-head"><div><h1>Inicio</h1><p>Resumen general de ARVOX.</p></div></div>
-<div class="stats">
-  <article><span>Productos activos</span><strong>{{ totals.products }}</strong></article>
-  <article><span>Unidades en stock</span><strong>{{ totals.stock }}</strong></article>
-  <article><span>Capital en stock</span><strong>USD {{ "%.2f"|format(totals.stock_value) }}</strong></article>
-  <article><span>Stock bajo</span><strong>{{ totals.low_stock }}</strong></article>
-</div>
-<section class="panel">
-  <div class="panel-head"><h2>Productos</h2><a class="button" href="{{ url_for('products.index') }}">Ver todos</a></div>
-  <div class="mini-products">
-  {% for p in products %}
-    <a href="{{ url_for('products.detail', product_id=p.id) }}">
-      <span>{{ p.code }}</span><strong>{{ p.brand }} · {{ p.model }}</strong><em>Stock {{ p.stock }}</em>
-    </a>
-  {% endfor %}
+<div class="welcome">
+  <div>
+    <span class="eyebrow">ARVOX GESTIÓN</span>
+    <h1>Buenos días, {{ session.get("username") }}.</h1>
+    <p>Este es el estado actual de tu negocio.</p>
   </div>
-</section>
+  <a class="button" href="{{ url_for('products.index') }}#new-product">+ Nuevo producto</a>
+</div>
+
+<div class="stats dashboard-stats">
+  <article><span>Productos activos</span><strong>{{ totals.products }}</strong><small>Catálogo vigente</small></article>
+  <article><span>Unidades en stock</span><strong>{{ totals.stock }}</strong><small>Disponibles para vender</small></article>
+  <article><span>Capital en stock</span><strong>USD {{ "%.2f"|format(totals.stock_value) }}</strong><small>Según costo promedio</small></article>
+  <article class="{% if totals.low_stock %}alert-card{% endif %}"><span>Stock bajo</span><strong>{{ totals.low_stock }}</strong><small>Productos para revisar</small></article>
+</div>
+
+<div class="dashboard-grid">
+  <section class="panel">
+    <div class="panel-head">
+      <div><span class="eyebrow">ALERTAS</span><h2>Productos con poco stock</h2></div>
+      <a href="{{ url_for('products.index') }}">Ver productos</a>
+    </div>
+    <div class="stock-alert-list">
+      {% for p in low_stock_products %}
+      <a href="{{ url_for('products.detail', product_id=p.id) }}">
+        <div class="small-product-image">
+          {% if p.image_url %}<img src="{{ p.image_url }}" alt="{{ p.model }}">
+          {% else %}<span>AR</span>{% endif %}
+        </div>
+        <div><strong>{{ p.brand }} · {{ p.model }}</strong><small>{{ p.code }}</small></div>
+        <b class="{% if p.stock == 0 %}bad{% else %}warn{% endif %}">Stock {{ p.stock }}</b>
+      </a>
+      {% else %}
+      <div class="empty-state">No hay productos con stock bajo.</div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head">
+      <div><span class="eyebrow">CATÁLOGO</span><h2>Productos destacados</h2></div>
+      <a href="{{ url_for('products.index') }}">Ver todos</a>
+    </div>
+    <div class="mini-products">
+    {% for p in products %}
+      <a href="{{ url_for('products.detail', product_id=p.id) }}">
+        <span>{{ p.code }}</span><strong>{{ p.brand }} · {{ p.model }}</strong><em>Stock {{ p.stock }}</em>
+      </a>
+    {% endfor %}
+    </div>
+  </section>
+</div>
+
+<div class="dashboard-grid">
+  <section class="panel">
+    <div class="panel-head"><div><span class="eyebrow">MOVIMIENTOS</span><h2>Últimas compras</h2></div></div>
+    <div class="movement-list">
+      {% for x in recent_purchases %}
+      <div><span>{{ x.date }}</span><strong>{{ x.product.brand }} · {{ x.product.model }}</strong><em>{{ x.quantity }} u. · USD {{ "%.2f"|format(x.unit_cost) }}</em></div>
+      {% else %}<div class="empty-state">Todavía no hay compras cargadas.</div>{% endfor %}
+    </div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-head"><div><span class="eyebrow">MOVIMIENTOS</span><h2>Últimas ventas</h2></div></div>
+    <div class="movement-list">
+      {% for x in recent_sales %}
+      <div><span>{{ x.date }}</span><strong>{{ x.product.brand }} · {{ x.product.model }}</strong><em>{{ x.quantity }} u. · USD {{ "%.2f"|format(x.unit_price) }}</em></div>
+      {% else %}<div class="empty-state">Todavía no hay ventas cargadas.</div>{% endfor %}
+    </div>
+  </section>
+</div>
 {% endblock %}

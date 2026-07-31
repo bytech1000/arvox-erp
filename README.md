@@ -40,3 +40,39 @@ python run.py
 ```
 
 Abrir `http://localhost:5000`.
+
+
+## Interfaz ARVOX
+
+- Identidad visual negra, blanca y naranja
+- Menú lateral
+- Barra superior con búsqueda y acciones rápidas
+- Dashboard ejecutivo
+- Vista de productos en tarjetas y tabla
+- Diseño responsive para celular
+- Login renovado
+
+
+## v1.2 — Módulo 2: Proveedores
+
+- Alta de proveedores
+- Búsqueda y filtros
+- Edición
+- Activación/desactivación
+- Ficha comercial
+- Acceso directo a WhatsApp
+- Condiciones de pago y moneda
+- Total comprado
+- Total pagado
+- Saldo pendiente
+- Historial de compras
+- Integración preparada para el Módulo Compras
+
+
+## Corrección de despliegue Render
+
+- Python 3.11.11 fijado en `.python-version`
+- Dependencias compatibles con la prueba gratuita
+- Build: `pip install -r requirements.txt`
+- Start: `gunicorn run:app`
+- Persistencia temporal con SQLite durante la prueba

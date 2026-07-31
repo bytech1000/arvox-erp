@@ -13,10 +13,12 @@ def create_app():
     from .auth import auth_bp
     from .dashboard import dashboard_bp
     from .products import products_bp
+    from .suppliers import suppliers_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(products_bp)
+    app.register_blueprint(suppliers_bp)
 
     with app.app_context():
         db.create_all()
@@ -25,7 +27,7 @@ def create_app():
     return app
 
 def _seed_data(app):
-    from .models import User, Product
+    from .models import User, Product, Supplier
 
     if not User.query.first():
         user = User(username=app.config["ADMIN_USER"])
@@ -44,5 +46,18 @@ def _seed_data(app):
             Product(code="HD0001", brand="Head", model="Coello Pro 2025", year=2025, category="Paleta", sale_price=440, active=True, min_stock=1),
         ]
         db.session.add_all(products)
+
+
+    if not Supplier.query.first():
+        supplier = Supplier(
+            name="Padel Goats",
+            contact="Santiago",
+            whatsapp="+54 9 11 5343-4308",
+            city="Buenos Aires, Argentina",
+            currency="USD",
+            notes="Proveedor utilizado en la compra inicial. Buena página con valores. No posee local físico.",
+            active=True,
+        )
+        db.session.add(supplier)
 
     db.session.commit()

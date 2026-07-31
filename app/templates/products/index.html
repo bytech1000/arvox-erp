@@ -1,10 +1,17 @@
 {% extends "base.html" %}
+{% block module_title %}Productos{% endblock %}
+{% block module_subtitle %}Catálogo maestro, precios y stock{% endblock %}
 {% block content %}
 <div class="page-head">
-  <div><h1>Productos</h1><p>Catálogo maestro, precios y stock disponible.</p></div>
+  <div>
+    <span class="eyebrow">MÓDULO 1</span>
+    <h1>Productos</h1>
+    <p>Administrá el catálogo maestro de ARVOX.</p>
+  </div>
+  <a class="button" href="#new-product">+ Nuevo producto</a>
 </div>
 
-<section class="panel">
+<section class="panel" id="new-product">
   <details>
     <summary class="button">+ Nuevo producto</summary>
     <form method="post" class="form-grid">
@@ -31,20 +38,27 @@
 </section>
 
 <section class="panel">
-  <form method="get" class="filters">
-    <input name="q" value="{{ q }}" placeholder="Buscar código, marca o modelo">
-    <select name="brand">
-      <option value="">Todas las marcas</option>
-      {% for b in brands %}<option {% if selected_brand==b %}selected{% endif %}>{{ b }}</option>{% endfor %}
-    </select>
-    <select name="active">
-      <option value="1" {% if selected_active=='1' %}selected{% endif %}>Activos</option>
-      <option value="0" {% if selected_active=='0' %}selected{% endif %}>Inactivos</option>
-      <option value="" {% if selected_active=='' %}selected{% endif %}>Todos</option>
-    </select>
-    <button>Filtrar</button>
-    <a class="button secondary" href="{{ url_for('products.index') }}">Limpiar</a>
-  </form>
+  <div class="toolbar">
+    <form method="get" class="filters">
+      <input name="q" value="{{ q }}" placeholder="Buscar código, marca o modelo">
+      <select name="brand">
+        <option value="">Todas las marcas</option>
+        {% for b in brands %}<option {% if selected_brand==b %}selected{% endif %}>{{ b }}</option>{% endfor %}
+      </select>
+      <select name="active">
+        <option value="1" {% if selected_active=='1' %}selected{% endif %}>Activos</option>
+        <option value="0" {% if selected_active=='0' %}selected{% endif %}>Inactivos</option>
+        <option value="" {% if selected_active=='' %}selected{% endif %}>Todos</option>
+      </select>
+      <button>Filtrar</button>
+      <a class="button secondary" href="{{ url_for('products.index') }}">Limpiar</a>
+    </form>
+
+    <div class="view-switch">
+      <button class="secondary" type="button" onclick="document.body.classList.remove('table-mode')">Tarjetas</button>
+      <button class="secondary" type="button" onclick="document.body.classList.add('table-mode')">Tabla</button>
+    </div>
+  </div>
 </section>
 
 <div class="product-grid">
@@ -78,4 +92,20 @@
 <section class="panel">No encontramos productos.</section>
 {% endfor %}
 </div>
+
+<section class="panel product-table-panel">
+  <div class="table-wrap">
+    <table>
+      <tr><th>Código</th><th>Marca</th><th>Modelo</th><th>Stock</th><th>Costo</th><th>Venta</th><th>Estado</th><th></th></tr>
+      {% for p in rows %}
+      <tr>
+        <td>{{ p.code }}</td><td>{{ p.brand }}</td><td>{{ p.model }}</td>
+        <td>{{ p.stock }}</td><td>USD {{ "%.2f"|format(p.avg_cost) }}</td><td>USD {{ "%.2f"|format(p.sale_price) }}</td>
+        <td>{% if p.active %}Activo{% else %}Inactivo{% endif %}</td>
+        <td><a href="{{ url_for('products.detail', product_id=p.id) }}">Ver</a></td>
+      </tr>
+      {% endfor %}
+    </table>
+  </div>
+</section>
 {% endblock %}

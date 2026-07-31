@@ -2,6 +2,7 @@ services:
   - type: web
     name: arvox-erp
     runtime: python
+    plan: free
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn run:app
     envVars:
@@ -11,11 +12,3 @@ services:
         value: admin
       - key: ADMIN_PASSWORD
         sync: false
-      - key: DATABASE_URL
-        fromDatabase:
-          name: arvox-db
-          property: connectionString
-
-databases:
-  - name: arvox-db
-    plan: free
