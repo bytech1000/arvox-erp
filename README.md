@@ -272,3 +272,11 @@ Abrir `http://localhost:5000`.
 - Los despliegues ya no crean proveedores de ejemplo.
 - El reinicio conserva solamente el usuario administrador.
 - Después de reiniciar una vez, el inventario permanece vacío en futuras versiones.
+
+
+## v5.2.4 — Pesos argentinos
+
+- Moneda única ARS en toda la aplicación
+- Se eliminaron los selectores USD/EUR
+- Compras, ventas, cotizaciones, caja, gastos, stock y reportes en pesos
+- Normalización automática de registros existentes a ARS

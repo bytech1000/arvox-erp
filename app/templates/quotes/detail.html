@@ -16,10 +16,10 @@
 </div>
 
 <div class="stats">
-  <article><span>Subtotal</span><strong>{{ quote.currency }} {{ "%.2f"|format(quote.subtotal) }}</strong><small>Antes de descuentos</small></article>
-  <article><span>Descuento</span><strong>{{ quote.currency }} {{ "%.2f"|format(quote.discount_total) }}</strong><small>Total aplicado</small></article>
-  <article><span>Total</span><strong>{{ quote.currency }} {{ "%.2f"|format(quote.total) }}</strong><small>Cotización</small></article>
-  <article><span>Margen esperado</span><strong>{{ quote.currency }} {{ "%.2f"|format(quote.expected_profit) }}</strong><small>{{ "%.1f"|format(quote.margin_pct) }}%</small></article>
+  <article><span>Subtotal</span><strong>ARS {{ "%.2f"|format(quote.subtotal) }}</strong><small>Antes de descuentos</small></article>
+  <article><span>Descuento</span><strong>ARS {{ "%.2f"|format(quote.discount_total) }}</strong><small>Total aplicado</small></article>
+  <article><span>Total</span><strong>ARS {{ "%.2f"|format(quote.total) }}</strong><small>Cotización</small></article>
+  <article><span>Margen esperado</span><strong>ARS {{ "%.2f"|format(quote.expected_profit) }}</strong><small>{{ "%.1f"|format(quote.margin_pct) }}%</small></article>
 </div>
 
 <section class="panel">
@@ -37,7 +37,7 @@
   </div>
   <div class="info-grid">
     <div><span>Cliente</span><strong>{{ quote.customer }}</strong></div>
-    <div><span>Moneda</span><strong>{{ quote.currency }}</strong></div>
+    <div><span>Moneda</span><strong>ARS</strong></div>
     <div><span>Creada</span><strong>{{ quote.created_at.strftime("%d/%m/%Y %H:%M") }}</strong></div>
     <div><span>Venta vinculada</span>{% if quote.converted_sale_id %}<a href="{{ url_for('sales.detail', sale_id=quote.converted_sale_id) }}">Venta #{{ quote.converted_sale_id }}</a>{% else %}<strong>-</strong>{% endif %}</div>
   </div>
@@ -61,8 +61,8 @@
     {% for item in quote.items %}
     <tr>
       <td>{{ item.product.brand }} · {{ item.product.model }}</td><td>{{ item.product.available_stock }}</td><td>{{ item.quantity }}</td>
-      <td>{{ quote.currency }} {{ "%.2f"|format(item.unit_price) }}</td><td>{{ "%.2f"|format(item.discount_pct or 0) }}%</td>
-      <td>{{ quote.currency }} {{ "%.2f"|format(item.subtotal) }}</td><td>{{ quote.currency }} {{ "%.2f"|format(item.expected_profit) }}</td>
+      <td>ARS {{ "%.2f"|format(item.unit_price) }}</td><td>{{ "%.2f"|format(item.discount_pct or 0) }}%</td>
+      <td>ARS {{ "%.2f"|format(item.subtotal) }}</td><td>ARS {{ "%.2f"|format(item.expected_profit) }}</td>
     </tr>
     {% endfor %}
   </table></div>

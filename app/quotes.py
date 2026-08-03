@@ -123,7 +123,7 @@ def index():
             valid_until=valid_until,
             customer_id=customer.id,
             customer=customer.name,
-            currency=request.form.get("currency") or "USD",
+            currency="ARS",
             status=request.form.get("status") or "Borrador",
             notes=request.form.get("notes", "").strip() or None,
         )
@@ -213,7 +213,7 @@ def edit(quote_id):
 
         quote.customer_id = customer.id
         quote.customer = customer.name
-        quote.currency = request.form.get("currency") or "USD"
+        quote.currency = "ARS"
         quote.status = request.form.get("status") or "Borrador"
         quote.notes = request.form.get("notes", "").strip() or None
         apply_items(quote, items)

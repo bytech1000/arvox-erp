@@ -8,7 +8,7 @@
   <article><span>Stock físico</span><strong>{{ product.stock }}</strong><small>Incluye ajustes</small></article>
   <article><span>Reservado</span><strong>{{ product.reserved_units }}</strong><small>Ventas reservadas</small></article>
   <article><span>Disponible</span><strong>{{ product.available_stock }}</strong><small>Para nuevas ventas</small></article>
-  <article><span>Valor stock</span><strong>{{ product.currency }} {{ "%.2f"|format(product.stock * product.avg_cost) }}</strong><small>A costo promedio</small></article>
+  <article><span>Valor stock</span><strong>ARS {{ "%.2f"|format(product.stock * product.avg_cost) }}</strong><small>A costo promedio</small></article>
 </div>
 <section class="panel"><div class="panel-head"><div><span class="eyebrow">KARDEX</span><h2>Historial de movimientos</h2></div></div><div class="table-wrap"><table>
 <tr><th>Fecha</th><th>Movimiento</th><th>Referencia</th><th>Cantidad</th><th>Detalle</th></tr>

@@ -11,7 +11,7 @@
     <label>Cliente<select name="customer_id" required>{% for customer in customers %}<option value="{{ customer.id }}" {% if quote.customer_id == customer.id %}selected{% endif %}>{{ customer.name }}</option>{% endfor %}</select></label>
     <label>Fecha<input type="date" name="date" value="{{ quote.date.isoformat() }}" required></label>
     <label>Válida hasta<input type="date" name="valid_until" value="{{ quote.valid_until.isoformat() if quote.valid_until else '' }}" required></label>
-    <label>Moneda<select name="currency">{% for currency in ["USD","ARS","EUR"] %}<option {% if quote.currency == currency %}selected{% endif %}>{{ currency }}</option>{% endfor %}</select></label>
+    <input type="hidden" name="currency" value="ARS">
     <label>Estado<select name="status">{% for status in ["Borrador","Enviada","Aceptada","Rechazada","Vencida"] %}<option {% if quote.status == status %}selected{% endif %}>{{ status }}</option>{% endfor %}</select></label>
   </div>
 

@@ -9,7 +9,7 @@
   <label>Modelo<input name="model" value="{{ product.model }}" required></label>
   <label>Año<input name="year" type="number" value="{{ product.year or '' }}"></label>
   <label>Categoría<select name="category">{% for c in ['Paleta','Pelotas','Grip','Accesorio','Indumentaria'] %}<option {% if product.category==c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></label>
-  <label>Moneda<select name="currency">{% for c in ['USD','ARS','EUR'] %}<option {% if product.currency==c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></label>
+  <input type="hidden" name="currency" value="ARS">
   <label>Costo unitario inicial<input name="opening_cost" type="number" min="0" step="0.01" value="{{ product.opening_cost or 0 }}"></label>
   <label>Stock inicial<input name="opening_stock" type="number" min="0" value="{{ product.opening_stock or 0 }}"></label>
   <label>Precio de venta<input name="sale_price" type="number" min="0" step="0.01" value="{{ product.sale_price }}"></label>

@@ -9,6 +9,7 @@ def prepare_database(app: Flask) -> None:
     with app.app_context():
         db.create_all()
         migrate_schema()
+        normalize_currency_to_ars()
         seed_data(app)
 
 
@@ -22,7 +23,7 @@ def migrate_schema() -> None:
             column["name"] for column in inspector.get_columns("product")
         }
         additions = {
-            "currency": "VARCHAR(10) DEFAULT 'USD'",
+            "currency": "VARCHAR(10) DEFAULT 'ARS'",
             "opening_stock": "INTEGER DEFAULT 0",
             "opening_cost": "FLOAT DEFAULT 0",
         }
@@ -49,3 +50,19 @@ def seed_data(app: Flask) -> None:
         db.session.add(user)
 
     db.session.commit()
+
+
+def normalize_currency_to_ars():
+    """Force every monetary record to Argentine pesos."""
+    table_names = [
+        "product", "supplier", "purchase", "sales_order",
+        "quote", "cash_movement", "expense"
+    ]
+    with db.engine.begin() as conn:
+        inspector = inspect(db.engine)
+        existing = set(inspector.get_table_names())
+        for table in table_names:
+            if table in existing:
+                columns = {c["name"] for c in inspector.get_columns(table)}
+                if "currency" in columns:
+                    conn.exec_driver_sql(f"UPDATE {table} SET currency = 'ARS' WHERE currency IS NULL OR currency <> 'ARS'")

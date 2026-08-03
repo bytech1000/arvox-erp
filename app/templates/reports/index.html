@@ -14,47 +14,47 @@
   </div>
   <input type="date" name="start" value="{{ start.isoformat() }}">
   <input type="date" name="end" value="{{ end.isoformat() }}">
-  <select name="currency">{% for c in ["USD","ARS","EUR"] %}<option {% if currency==c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select>
+  <input type="hidden" name="currency" value="ARS">
   <button>Aplicar</button>
 </form>
-<p class="report-range">Período: <strong>{{ start.strftime('%d/%m/%Y') }}</strong> al <strong>{{ end.strftime('%d/%m/%Y') }}</strong> · {{ currency }}</p>
+<p class="report-range">Período: <strong>{{ start.strftime('%d/%m/%Y') }}</strong> al <strong>{{ end.strftime('%d/%m/%Y') }}</strong> · ARS</p>
 </section>
 
 <div class="stats report-stats">
-  <article><span>Ventas</span><strong>{{ currency }} {{ '%.2f'|format(total_sales) }}</strong><small>{{ sales|length }} operaciones · {{ units }} unidades</small></article>
-  <article><span>Ganancia bruta</span><strong>{{ currency }} {{ '%.2f'|format(gross_profit) }}</strong><small>Margen {{ '%.1f'|format(margin_pct) }}%</small></article>
-  <article><span>Gastos</span><strong>{{ currency }} {{ '%.2f'|format(expense_total) }}</strong><small>{{ expenses|length }} movimientos</small></article>
-  <article class="{% if net_profit < 0 %}alert-card{% endif %}"><span>Ganancia neta</span><strong>{{ currency }} {{ '%.2f'|format(net_profit) }}</strong><small>Bruta menos gastos</small></article>
-  <article><span>Ticket promedio</span><strong>{{ currency }} {{ '%.2f'|format(average_ticket) }}</strong><small>Por venta</small></article>
-  <article><span>Stock valorizado</span><strong>{{ currency }} {{ '%.2f'|format(stock_value) }}</strong><small>{{ critical_count }} productos críticos</small></article>
+  <article><span>Ventas</span><strong>ARS {{ '%.2f'|format(total_sales) }}</strong><small>{{ sales|length }} operaciones · {{ units }} unidades</small></article>
+  <article><span>Ganancia bruta</span><strong>ARS {{ '%.2f'|format(gross_profit) }}</strong><small>Margen {{ '%.1f'|format(margin_pct) }}%</small></article>
+  <article><span>Gastos</span><strong>ARS {{ '%.2f'|format(expense_total) }}</strong><small>{{ expenses|length }} movimientos</small></article>
+  <article class="{% if net_profit < 0 %}alert-card{% endif %}"><span>Ganancia neta</span><strong>ARS {{ '%.2f'|format(net_profit) }}</strong><small>Bruta menos gastos</small></article>
+  <article><span>Ticket promedio</span><strong>ARS {{ '%.2f'|format(average_ticket) }}</strong><small>Por venta</small></article>
+  <article><span>Stock valorizado</span><strong>ARS {{ '%.2f'|format(stock_value) }}</strong><small>{{ critical_count }} productos críticos</small></article>
 </div>
 
 <div class="report-grid">
 <section class="panel">
   <div class="panel-head"><div><span class="eyebrow">RANKING</span><h2>Productos más vendidos</h2></div><a href="{{ url_for('reports.export_csv', kind='products', period=period, start=start, end=end, currency=currency) }}">Exportar CSV</a></div>
-  <div class="ranking-list">{% for row in products[:10] %}<div><b>{{ loop.index }}</b><span><strong>{{ row.brand }} · {{ row.model }}</strong><small>{{ row.quantity }} u. · {{ currency }} {{ '%.2f'|format(row.sales) }}</small></span><em>{{ currency }} {{ '%.2f'|format(row.profit) }}</em></div>{% else %}<p>Sin ventas en el período.</p>{% endfor %}</div>
+  <div class="ranking-list">{% for row in products[:10] %}<div><b>{{ loop.index }}</b><span><strong>{{ row.brand }} · {{ row.model }}</strong><small>{{ row.quantity }} u. · ARS {{ '%.2f'|format(row.sales) }}</small></span><em>ARS {{ '%.2f'|format(row.profit) }}</em></div>{% else %}<p>Sin ventas en el período.</p>{% endfor %}</div>
 </section>
 <section class="panel">
   <div class="panel-head"><div><span class="eyebrow">MARCAS</span><h2>Rendimiento por marca</h2></div></div>
-  <div class="ranking-list">{% for row in brands[:10] %}<div><b>{{ loop.index }}</b><span><strong>{{ row.name }}</strong><small>{{ row.quantity }} unidades</small></span><em>{{ currency }} {{ '%.2f'|format(row.sales) }}</em></div>{% else %}<p>Sin datos.</p>{% endfor %}</div>
+  <div class="ranking-list">{% for row in brands[:10] %}<div><b>{{ loop.index }}</b><span><strong>{{ row.name }}</strong><small>{{ row.quantity }} unidades</small></span><em>ARS {{ '%.2f'|format(row.sales) }}</em></div>{% else %}<p>Sin datos.</p>{% endfor %}</div>
 </section>
 <section class="panel">
   <div class="panel-head"><div><span class="eyebrow">CLIENTES</span><h2>Clientes principales</h2></div></div>
-  <div class="ranking-list">{% for row in customers[:10] %}<div><b>{{ loop.index }}</b><span><strong>{{ row.name }}</strong><small>{{ row.orders }} ventas · {{ row.units }} u.</small></span><em>{{ currency }} {{ '%.2f'|format(row.sales) }}</em></div>{% else %}<p>Sin datos.</p>{% endfor %}</div>
+  <div class="ranking-list">{% for row in customers[:10] %}<div><b>{{ loop.index }}</b><span><strong>{{ row.name }}</strong><small>{{ row.orders }} ventas · {{ row.units }} u.</small></span><em>ARS {{ '%.2f'|format(row.sales) }}</em></div>{% else %}<p>Sin datos.</p>{% endfor %}</div>
 </section>
 <section class="panel">
   <div class="panel-head"><div><span class="eyebrow">GASTOS</span><h2>Gastos por categoría</h2></div><a href="{{ url_for('reports.export_csv', kind='expenses', period=period, start=start, end=end, currency=currency) }}">Exportar CSV</a></div>
-  <div class="ranking-list">{% for row in expense_categories %}<div><b>{{ loop.index }}</b><span><strong>{{ row.name }}</strong><small>{{ '%.1f'|format(row.amount / expense_total * 100 if expense_total else 0) }}% del total</small></span><em>{{ currency }} {{ '%.2f'|format(row.amount) }}</em></div>{% else %}<p>Sin gastos.</p>{% endfor %}</div>
+  <div class="ranking-list">{% for row in expense_categories %}<div><b>{{ loop.index }}</b><span><strong>{{ row.name }}</strong><small>{{ '%.1f'|format(row.amount / expense_total * 100 if expense_total else 0) }}% del total</small></span><em>ARS {{ '%.2f'|format(row.amount) }}</em></div>{% else %}<p>Sin gastos.</p>{% endfor %}</div>
 </section>
 </div>
 
 <section class="panel">
   <div class="panel-head"><div><span class="eyebrow">VENTAS</span><h2>Detalle del período</h2></div><a href="{{ url_for('reports.export_csv', kind='sales', period=period, start=start, end=end, currency=currency) }}">Exportar CSV</a></div>
-  <div class="table-wrap"><table><tr><th>Fecha</th><th>Cliente</th><th>Unidades</th><th>Venta</th><th>Costo</th><th>Ganancia</th><th>Margen</th></tr>{% for sale in sales %}<tr><td>{{ sale.date.strftime('%d/%m/%Y') }}</td><td>{{ sale.customer }}</td><td>{{ sale.units }}</td><td>{{ currency }} {{ '%.2f'|format(sale.total) }}</td><td>{{ currency }} {{ '%.2f'|format(sale.cost_total) }}</td><td>{{ currency }} {{ '%.2f'|format(sale.profit) }}</td><td>{{ '%.1f'|format(sale.profit/sale.total*100 if sale.total else 0) }}%</td></tr>{% else %}<tr><td colspan="7">Sin ventas.</td></tr>{% endfor %}</table></div>
+  <div class="table-wrap"><table><tr><th>Fecha</th><th>Cliente</th><th>Unidades</th><th>Venta</th><th>Costo</th><th>Ganancia</th><th>Margen</th></tr>{% for sale in sales %}<tr><td>{{ sale.date.strftime('%d/%m/%Y') }}</td><td>{{ sale.customer }}</td><td>{{ sale.units }}</td><td>ARS {{ '%.2f'|format(sale.total) }}</td><td>ARS {{ '%.2f'|format(sale.cost_total) }}</td><td>ARS {{ '%.2f'|format(sale.profit) }}</td><td>{{ '%.1f'|format(sale.profit/sale.total*100 if sale.total else 0) }}%</td></tr>{% else %}<tr><td colspan="7">Sin ventas.</td></tr>{% endfor %}</table></div>
 </section>
 
 <section class="panel">
   <div class="panel-head"><div><span class="eyebrow">INVENTARIO</span><h2>Stock valorizado</h2></div><a href="{{ url_for('reports.export_csv', kind='inventory', currency=currency) }}">Exportar CSV</a></div>
-  <div class="table-wrap"><table><tr><th>Código</th><th>Producto</th><th>Stock</th><th>Disponible</th><th>Costo promedio</th><th>Valor</th><th>Estado</th></tr>{% for row in inventory %}<tr><td>{{ row.product.code }}</td><td>{{ row.product.brand }} · {{ row.product.model }}</td><td>{{ row.stock }}</td><td>{{ row.available }}</td><td>{{ currency }} {{ '%.2f'|format(row.avg_cost) }}</td><td>{{ currency }} {{ '%.2f'|format(row.value) }}</td><td><span class="status-pill {% if row.critical %}bad{% else %}ok{% endif %}">{% if row.critical %}Crítico{% else %}Normal{% endif %}</span></td></tr>{% endfor %}</table></div>
+  <div class="table-wrap"><table><tr><th>Código</th><th>Producto</th><th>Stock</th><th>Disponible</th><th>Costo promedio</th><th>Valor</th><th>Estado</th></tr>{% for row in inventory %}<tr><td>{{ row.product.code }}</td><td>{{ row.product.brand }} · {{ row.product.model }}</td><td>{{ row.stock }}</td><td>{{ row.available }}</td><td>ARS {{ '%.2f'|format(row.avg_cost) }}</td><td>ARS {{ '%.2f'|format(row.value) }}</td><td><span class="status-pill {% if row.critical %}bad{% else %}ok{% endif %}">{% if row.critical %}Crítico{% else %}Normal{% endif %}</span></td></tr>{% endfor %}</table></div>
 </section>
 {% endblock %}

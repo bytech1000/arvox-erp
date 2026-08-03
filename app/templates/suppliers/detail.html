@@ -9,7 +9,7 @@
     <a class="back" href="{{ url_for('suppliers.index') }}">← Proveedores</a>
     <span class="eyebrow">FICHA DEL PROVEEDOR</span>
     <h1>{{ supplier.name }}</h1>
-    <p>{{ supplier.city or "Ubicación no informada" }} · {{ supplier.currency }}</p>
+    <p>{{ supplier.city or "Ubicación no informada" }} · ARS</p>
   </div>
   <div class="actions">
     {% if whatsapp_url %}
@@ -21,9 +21,9 @@
 
 <div class="stats supplier-detail-stats">
   <article><span>Compras registradas</span><strong>{{ supplier.purchase_count }}</strong><small>Operaciones no canceladas</small></article>
-  <article><span>Total comprado</span><strong>USD {{ "%.2f"|format(supplier.total_purchased) }}</strong><small>Valor acumulado</small></article>
-  <article><span>Total pagado</span><strong>USD {{ "%.2f"|format(supplier.total_paid) }}</strong><small>Pagos registrados</small></article>
-  <article class="{% if supplier.balance > 0 %}alert-card{% endif %}"><span>Saldo pendiente</span><strong>USD {{ "%.2f"|format(supplier.balance) }}</strong><small>Cuenta corriente</small></article>
+  <article><span>Total comprado</span><strong>ARS {{ "%.2f"|format(supplier.total_purchased) }}</strong><small>Valor acumulado</small></article>
+  <article><span>Total pagado</span><strong>ARS {{ "%.2f"|format(supplier.total_paid) }}</strong><small>Pagos registrados</small></article>
+  <article class="{% if supplier.balance > 0 %}alert-card{% endif %}"><span>Saldo pendiente</span><strong>ARS {{ "%.2f"|format(supplier.balance) }}</strong><small>Cuenta corriente</small></article>
 </div>
 
 <div class="supplier-detail-grid">
@@ -52,11 +52,11 @@
         {% else %}<strong>-</strong>{% endif %}
       </div>
       <div><span>Condición de pago</span><strong>{{ supplier.payment_terms or "-" }}</strong></div>
-      <div><span>Moneda habitual</span><strong>{{ supplier.currency }}</strong></div>
+      <div><span>Moneda habitual</span><strong>ARS</strong></div>
       <div><span>Alta</span><strong>{{ supplier.created_at.strftime("%d/%m/%Y") if supplier.created_at else "-" }}</strong></div>
     </div>
   </section>
 </div>
 
-<section class="panel"><div class="panel-head"><div><span class="eyebrow">HISTORIAL</span><h2>Compras al proveedor</h2></div><a href="{{ url_for('purchases.index') }}#new-purchase">Nueva compra</a></div><div class="table-wrap"><table><tr><th>Fecha</th><th>Referencia</th><th>Productos</th><th>Unidades</th><th>Total</th><th>Pagado</th><th>Saldo</th><th>Estado</th></tr>{% for purchase in purchases %}<tr><td>{{purchase.date.strftime('%d/%m/%Y')}}</td><td><a href="{{url_for('purchases.detail',purchase_id=purchase.id)}}">{{purchase.reference or ('Compra #' ~ purchase.id)}}</a></td><td>{{purchase.items|length}}</td><td>{{purchase.units}}</td><td>{{purchase.currency}} {{"%.2f"|format(purchase.total)}}</td><td>{{purchase.currency}} {{"%.2f"|format(purchase.paid or 0)}}</td><td>{{purchase.currency}} {{"%.2f"|format(purchase.balance)}}</td><td>{{purchase.status}}</td></tr>{% else %}<tr><td colspan="8">Todavía no hay compras para este proveedor.</td></tr>{% endfor %}</table></div></section>
+<section class="panel"><div class="panel-head"><div><span class="eyebrow">HISTORIAL</span><h2>Compras al proveedor</h2></div><a href="{{ url_for('purchases.index') }}#new-purchase">Nueva compra</a></div><div class="table-wrap"><table><tr><th>Fecha</th><th>Referencia</th><th>Productos</th><th>Unidades</th><th>Total</th><th>Pagado</th><th>Saldo</th><th>Estado</th></tr>{% for purchase in purchases %}<tr><td>{{purchase.date.strftime('%d/%m/%Y')}}</td><td><a href="{{url_for('purchases.detail',purchase_id=purchase.id)}}">{{purchase.reference or ('Compra #' ~ purchase.id)}}</a></td><td>{{purchase.items|length}}</td><td>{{purchase.units}}</td><td>ARS {{"%.2f"|format(purchase.total)}}</td><td>ARS {{"%.2f"|format(purchase.paid or 0)}}</td><td>ARS {{"%.2f"|format(purchase.balance)}}</td><td>{{purchase.status}}</td></tr>{% else %}<tr><td colspan="8">Todavía no hay compras para este proveedor.</td></tr>{% endfor %}</table></div></section>
 {% endblock %}

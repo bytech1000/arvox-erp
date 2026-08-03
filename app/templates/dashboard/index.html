@@ -21,9 +21,7 @@
       <button name="period" value="{{ value }}" class="{% if period == value %}active-period{% else %}secondary{% endif %}">{{ label }}</button>
       {% endfor %}
     </div>
-    <select name="currency" aria-label="Moneda">
-      {% for value in ['USD','ARS','EUR'] %}<option {% if currency == value %}selected{% endif %}>{{ value }}</option>{% endfor %}
-    </select>
+    <input type="hidden" name="currency" value="ARS">
     <input type="date" name="start" value="{{ start_date.isoformat() }}">
     <input type="date" name="end" value="{{ end_date.isoformat() }}">
     <button name="period" value="custom">Aplicar rango</button>
@@ -31,18 +29,18 @@
 </section>
 
 <div class="executive-stats">
-  <article class="executive-card primary-card"><span>Ventas</span><strong>{{ currency }} {{ "%.2f"|format(totals.sales) }}</strong><small>{{ totals.sales_count }} operaciones</small></article>
-  <article class="executive-card"><span>Ganancia bruta</span><strong>{{ currency }} {{ "%.2f"|format(totals.profit) }}</strong><small>Ventas menos costo</small></article>
-  <article class="executive-card"><span>Compras</span><strong>{{ currency }} {{ "%.2f"|format(totals.purchases) }}</strong><small>Sin canceladas</small></article>
-  <article class="executive-card"><span>Stock valorizado</span><strong>{{ currency }} {{ "%.2f"|format(totals.stock_value) }}</strong><small>{{ totals.stock_units }} unidades disponibles</small></article>
+  <article class="executive-card primary-card"><span>Ventas</span><strong>ARS {{ "%.2f"|format(totals.sales) }}</strong><small>{{ totals.sales_count }} operaciones</small></article>
+  <article class="executive-card"><span>Ganancia bruta</span><strong>ARS {{ "%.2f"|format(totals.profit) }}</strong><small>Ventas menos costo</small></article>
+  <article class="executive-card"><span>Compras</span><strong>ARS {{ "%.2f"|format(totals.purchases) }}</strong><small>Sin canceladas</small></article>
+  <article class="executive-card"><span>Stock valorizado</span><strong>ARS {{ "%.2f"|format(totals.stock_value) }}</strong><small>{{ totals.stock_units }} unidades disponibles</small></article>
 </div>
 
 <div class="secondary-stats">
-  <article><span>Caja</span><strong>{{ currency }} {{ "%.2f"|format(totals.cash_balance) }}</strong></article>
-  <article><span>Gastos</span><strong>{{ currency }} {{ "%.2f"|format(totals.expenses) }}</strong></article>
-  <article><span>Ganancia neta</span><strong>{{ currency }} {{ "%.2f"|format(totals.net_profit) }}</strong></article>
-  <article><span>Por cobrar</span><strong>{{ currency }} {{ "%.2f"|format(totals.receivable) }}</strong></article>
-  <article><span>Por pagar</span><strong>{{ currency }} {{ "%.2f"|format(totals.payable) }}</strong></article>
+  <article><span>Caja</span><strong>ARS {{ "%.2f"|format(totals.cash_balance) }}</strong></article>
+  <article><span>Gastos</span><strong>ARS {{ "%.2f"|format(totals.expenses) }}</strong></article>
+  <article><span>Ganancia neta</span><strong>ARS {{ "%.2f"|format(totals.net_profit) }}</strong></article>
+  <article><span>Por cobrar</span><strong>ARS {{ "%.2f"|format(totals.receivable) }}</strong></article>
+  <article><span>Por pagar</span><strong>ARS {{ "%.2f"|format(totals.payable) }}</strong></article>
   <article class="{% if totals.low_stock %}alert-card{% endif %}"><span>Stock crítico</span><strong>{{ totals.low_stock }} productos</strong></article>
 </div>
 
@@ -50,11 +48,11 @@
   <section class="panel chart-panel">
     <div class="panel-head">
       <div><span class="eyebrow">EVOLUCIÓN</span><h2>Ventas diarias</h2></div>
-      <strong>{{ currency }} {{ "%.2f"|format(totals.sales) }}</strong>
+      <strong>ARS {{ "%.2f"|format(totals.sales) }}</strong>
     </div>
     <div class="sales-chart" aria-label="Gráfico de ventas diarias">
       {% for row in chart %}
-      <div class="chart-column" title="{{ row.date.strftime('%d/%m') }} · {{ currency }} {{ '%.2f'|format(row.amount) }}">
+      <div class="chart-column" title="{{ row.date.strftime('%d/%m') }} · ARS {{ '%.2f'|format(row.amount) }}">
         <span style="height:{{ [row.height, 3]|max }}%"></span>
         {% if loop.index0 % 5 == 0 or loop.last %}<small>{{ row.date.strftime("%d/%m") }}</small>{% endif %}
       </div>
@@ -75,7 +73,7 @@
     <div class="panel-head"><div><span class="eyebrow">RANKING</span><h2>Más vendidos</h2></div></div>
     <div class="ranking-list">
       {% for row in top_selling %}
-      <a href="{{ url_for('products.detail', product_id=row.product.id) }}"><b>{{ loop.index }}</b><div><strong>{{ row.product.brand }} · {{ row.product.model }}</strong><small>{{ row.units }} unidades</small></div><em>{{ currency }} {{ "%.2f"|format(row.amount) }}</em></a>
+      <a href="{{ url_for('products.detail', product_id=row.product.id) }}"><b>{{ loop.index }}</b><div><strong>{{ row.product.brand }} · {{ row.product.model }}</strong><small>{{ row.units }} unidades</small></div><em>ARS {{ "%.2f"|format(row.amount) }}</em></a>
       {% else %}<div class="empty-state">Sin ventas en el período.</div>{% endfor %}
     </div>
   </section>
@@ -84,7 +82,7 @@
     <div class="panel-head"><div><span class="eyebrow">RENTABILIDAD</span><h2>Más rentables</h2></div></div>
     <div class="ranking-list">
       {% for row in top_profitable %}
-      <a href="{{ url_for('products.detail', product_id=row.product.id) }}"><b>{{ loop.index }}</b><div><strong>{{ row.product.brand }} · {{ row.product.model }}</strong><small>{{ row.units }} unidades</small></div><em>{{ currency }} {{ "%.2f"|format(row.profit) }}</em></a>
+      <a href="{{ url_for('products.detail', product_id=row.product.id) }}"><b>{{ loop.index }}</b><div><strong>{{ row.product.brand }} · {{ row.product.model }}</strong><small>{{ row.units }} unidades</small></div><em>ARS {{ "%.2f"|format(row.profit) }}</em></a>
       {% else %}<div class="empty-state">Sin ganancias calculadas.</div>{% endfor %}
     </div>
   </section>
@@ -93,7 +91,7 @@
     <div class="panel-head"><div><span class="eyebrow">CLIENTES</span><h2>Mayores compradores</h2></div></div>
     <div class="ranking-list">
       {% for row in top_customers %}
-      <a href="{{ url_for('customers.detail', customer_id=row.customer.id) }}"><b>{{ loop.index }}</b><div><strong>{{ row.customer.name }}</strong><small>{{ row.customer.whatsapp or 'Sin WhatsApp' }}</small></div><em>{{ currency }} {{ "%.2f"|format(row.amount) }}</em></a>
+      <a href="{{ url_for('customers.detail', customer_id=row.customer.id) }}"><b>{{ loop.index }}</b><div><strong>{{ row.customer.name }}</strong><small>{{ row.customer.whatsapp or 'Sin WhatsApp' }}</small></div><em>ARS {{ "%.2f"|format(row.amount) }}</em></a>
       {% else %}<div class="empty-state">Sin clientes en el período.</div>{% endfor %}
     </div>
   </section>
@@ -112,8 +110,8 @@
   <section class="panel">
     <div class="panel-head"><div><span class="eyebrow">CUENTAS CORRIENTES</span><h2>Saldos pendientes</h2></div></div>
     <div class="debt-columns">
-      <div><h3>Clientes</h3>{% for row in debtor_customers %}<a href="{{ url_for('customers.detail', customer_id=row.customer.id) }}"><span>{{ row.customer.name }}</span><strong>{{ currency }} {{ "%.2f"|format(row.balance) }}</strong></a>{% else %}<p>Sin saldos pendientes.</p>{% endfor %}</div>
-      <div><h3>Proveedores</h3>{% for row in supplier_debts %}<a href="{{ url_for('suppliers.detail', supplier_id=row.supplier.id) }}"><span>{{ row.supplier.name }}</span><strong>{{ currency }} {{ "%.2f"|format(row.balance) }}</strong></a>{% else %}<p>Sin saldos pendientes.</p>{% endfor %}</div>
+      <div><h3>Clientes</h3>{% for row in debtor_customers %}<a href="{{ url_for('customers.detail', customer_id=row.customer.id) }}"><span>{{ row.customer.name }}</span><strong>ARS {{ "%.2f"|format(row.balance) }}</strong></a>{% else %}<p>Sin saldos pendientes.</p>{% endfor %}</div>
+      <div><h3>Proveedores</h3>{% for row in supplier_debts %}<a href="{{ url_for('suppliers.detail', supplier_id=row.supplier.id) }}"><span>{{ row.supplier.name }}</span><strong>ARS {{ "%.2f"|format(row.balance) }}</strong></a>{% else %}<p>Sin saldos pendientes.</p>{% endfor %}</div>
     </div>
   </section>
 </div>

@@ -31,7 +31,7 @@ def resolve_period(period, start_raw=None, end_raw=None):
 @login_required
 def index():
     period = request.args.get("period", "month")
-    currency = request.args.get("currency", "USD")
+    currency = "ARS"
     start_date, end_date, period_label = resolve_period(
         period,
         request.args.get("start"),

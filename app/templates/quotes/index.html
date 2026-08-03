@@ -13,8 +13,8 @@
 
 <div class="stats">
   <article><span>Cotizaciones visibles</span><strong>{{ totals.count }}</strong><small>Según filtros</small></article>
-  <article><span>Monto cotizado</span><strong>USD {{ "%.2f"|format(totals.amount) }}</strong><small>Sin rechazadas ni vencidas</small></article>
-  <article><span>Monto aceptado</span><strong>USD {{ "%.2f"|format(totals.accepted) }}</strong><small>Aceptadas y convertidas</small></article>
+  <article><span>Monto cotizado</span><strong>ARS {{ "%.2f"|format(totals.amount) }}</strong><small>Sin rechazadas ni vencidas</small></article>
+  <article><span>Monto aceptado</span><strong>ARS {{ "%.2f"|format(totals.accepted) }}</strong><small>Aceptadas y convertidas</small></article>
   <article><span>Convertidas</span><strong>{{ totals.converted }}</strong><small>Pasadas a ventas</small></article>
 </div>
 
@@ -28,7 +28,7 @@
           <label>Cliente<select name="customer_id" required><option value="">Seleccionar cliente</option>{% for customer in customers %}<option value="{{ customer.id }}">{{ customer.name }}</option>{% endfor %}</select></label>
           <label>Fecha<input type="date" name="date" value="{{ default_date }}" required></label>
           <label>Válida hasta<input type="date" name="valid_until" value="{{ default_valid_until }}" required></label>
-          <label>Moneda<select name="currency"><option>USD</option><option>ARS</option><option>EUR</option></select></label>
+          <input type="hidden" name="currency" value="ARS">
           <label>Estado<select name="status"><option>Borrador</option><option>Enviada</option><option>Aceptada</option><option>Rechazada</option></select></label>
         </div>
       </div>
@@ -79,7 +79,7 @@
     {% for quote in rows %}
     <tr>
       <td>{{ quote.number }}</td><td>{{ quote.date.strftime("%d/%m/%Y") }}</td><td>{{ quote.customer }}</td><td>{{ quote.valid_until.strftime("%d/%m/%Y") if quote.valid_until else "-" }}</td>
-      <td>{{ quote.units }}</td><td>{{ quote.currency }} {{ "%.2f"|format(quote.total) }}</td><td>{{ "%.1f"|format(quote.margin_pct) }}%</td>
+      <td>{{ quote.units }}</td><td>ARS {{ "%.2f"|format(quote.total) }}</td><td>{{ "%.1f"|format(quote.margin_pct) }}%</td>
       <td><span class="quote-status {{ quote.status|lower }}">{{ quote.status }}</span></td>
       <td class="quote-actions-cell">
         <a href="{{ url_for('quotes.detail', quote_id=quote.id) }}">Ver</a>

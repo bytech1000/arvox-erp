@@ -75,7 +75,7 @@ def index():
             customer_id=customer.id,
             customer=customer.name,
             whatsapp=customer.whatsapp or None,
-            currency=request.form.get("currency") or "USD",
+            currency="ARS",
             payment_method=request.form.get("payment_method") or "Transferencia",
             collected=collected,
             status=status,

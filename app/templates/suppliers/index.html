@@ -21,12 +21,12 @@
   </article>
   <article>
     <span>Total comprado</span>
-    <strong>USD {{ "%.2f"|format(totals.purchases) }}</strong>
+    <strong>ARS {{ "%.2f"|format(totals.purchases) }}</strong>
     <small>Compras no canceladas</small>
   </article>
   <article>
     <span>Saldo pendiente</span>
-    <strong>USD {{ "%.2f"|format(totals.balance) }}</strong>
+    <strong>ARS {{ "%.2f"|format(totals.balance) }}</strong>
     <small>Deuda con proveedores</small>
   </article>
   <article>
@@ -47,11 +47,7 @@
       <input name="city" placeholder="Ciudad / País">
       <input name="website" type="url" placeholder="Sitio web">
       <input name="payment_terms" placeholder="Forma o condición de pago">
-      <select name="currency">
-        <option>USD</option>
-        <option>ARS</option>
-        <option>EUR</option>
-      </select>
+      <input type="hidden" name="currency" value="ARS">
       <textarea class="full" name="notes" placeholder="Observaciones internas"></textarea>
       <button>Guardar proveedor</button>
     </form>
@@ -61,12 +57,7 @@
 <section class="panel">
   <form method="get" class="supplier-filters">
     <input name="q" value="{{ q }}" placeholder="Buscar proveedor, contacto, WhatsApp o ciudad">
-    <select name="currency">
-      <option value="">Todas las monedas</option>
-      {% for currency in ["USD", "ARS", "EUR"] %}
-      <option value="{{ currency }}" {% if selected_currency == currency %}selected{% endif %}>{{ currency }}</option>
-      {% endfor %}
-    </select>
+    <input type="hidden" name="currency" value="ARS">
     <select name="active">
       <option value="1" {% if selected_active == "1" %}selected{% endif %}>Activos</option>
       <option value="0" {% if selected_active == "0" %}selected{% endif %}>Inactivos</option>
@@ -83,7 +74,7 @@
     <div class="supplier-card-head">
       <div class="supplier-avatar">{{ supplier.name[:2]|upper }}</div>
       <div>
-        <span class="eyebrow">{{ supplier.currency }}</span>
+        <span class="eyebrow">ARS</span>
         <h2>{{ supplier.name }}</h2>
         <p>{{ supplier.city or "Ubicación no informada" }}</p>
       </div>
@@ -101,8 +92,8 @@
 
     <div class="supplier-numbers">
       <div><span>Compras</span><strong>{{ supplier.purchase_count }}</strong></div>
-      <div><span>Total comprado</span><strong>USD {{ "%.2f"|format(supplier.total_purchased) }}</strong></div>
-      <div><span>Saldo</span><strong class="{% if supplier.balance > 0 %}text-warn{% endif %}">USD {{ "%.2f"|format(supplier.balance) }}</strong></div>
+      <div><span>Total comprado</span><strong>ARS {{ "%.2f"|format(supplier.total_purchased) }}</strong></div>
+      <div><span>Saldo</span><strong class="{% if supplier.balance > 0 %}text-warn{% endif %}">ARS {{ "%.2f"|format(supplier.balance) }}</strong></div>
     </div>
 
     <div class="actions">

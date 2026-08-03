@@ -10,9 +10,9 @@
 
 <div class="stats customer-stats">
   <article><span>Clientes visibles</span><strong>{{ totals.customers }}</strong><small>Según filtros</small></article>
-  <article><span>Total vendido</span><strong>USD {{ "%.2f"|format(totals.sales) }}</strong><small>Sin ventas canceladas</small></article>
-  <article><span>Total cobrado</span><strong>USD {{ "%.2f"|format(totals.collected) }}</strong><small>Cobros registrados</small></article>
-  <article class="{% if totals.balance > 0 %}alert-card{% endif %}"><span>Saldo pendiente</span><strong>USD {{ "%.2f"|format(totals.balance) }}</strong><small>Cuenta corriente</small></article>
+  <article><span>Total vendido</span><strong>ARS {{ "%.2f"|format(totals.sales) }}</strong><small>Sin ventas canceladas</small></article>
+  <article><span>Total cobrado</span><strong>ARS {{ "%.2f"|format(totals.collected) }}</strong><small>Cobros registrados</small></article>
+  <article class="{% if totals.balance > 0 %}alert-card{% endif %}"><span>Saldo pendiente</span><strong>ARS {{ "%.2f"|format(totals.balance) }}</strong><small>Cuenta corriente</small></article>
 </div>
 
 <section class="panel" id="new-customer">
@@ -64,8 +64,8 @@
 
     <div class="customer-numbers">
       <div><span>Ventas</span><strong>{{ customer.sale_count }}</strong></div>
-      <div><span>Total vendido</span><strong>USD {{ "%.2f"|format(customer.total_sold) }}</strong></div>
-      <div><span>Saldo</span><strong class="{% if customer.balance > 0 %}text-warn{% endif %}">USD {{ "%.2f"|format(customer.balance) }}</strong></div>
+      <div><span>Total vendido</span><strong>ARS {{ "%.2f"|format(customer.total_sold) }}</strong></div>
+      <div><span>Saldo</span><strong class="{% if customer.balance > 0 %}text-warn{% endif %}">ARS {{ "%.2f"|format(customer.balance) }}</strong></div>
     </div>
 
     <div class="actions">

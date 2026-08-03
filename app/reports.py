@@ -131,7 +131,7 @@ def report_data(start, end, currency):
 @login_required
 def index():
     period, start, end = period_dates()
-    currency = request.args.get("currency", "USD")
+    currency = "ARS"
     data = report_data(start, end, currency)
     return render_template(
         "reports/index.html",
@@ -147,7 +147,7 @@ def index():
 @login_required
 def export_csv(kind):
     period, start, end = period_dates()
-    currency = request.args.get("currency", "USD")
+    currency = "ARS"
     data = report_data(start, end, currency)
     output = StringIO()
     csv = writer(output)

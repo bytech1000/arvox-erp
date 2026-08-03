@@ -22,7 +22,7 @@ def index():
             year=request.form.get("year") or None,
             category=request.form.get("category") or "Paleta",
             sale_price=float(request.form.get("sale_price") or 0),
-            currency=request.form.get("currency") or "USD",
+            currency="ARS",
             opening_stock=int(request.form.get("opening_stock") or 0),
             opening_cost=float(request.form.get("opening_cost") or 0),
             min_stock=int(request.form.get("min_stock") or 1),
@@ -91,7 +91,7 @@ def edit(product_id):
         product.year = request.form.get("year") or None
         product.category = request.form.get("category") or "Paleta"
         product.sale_price = float(request.form.get("sale_price") or 0)
-        product.currency = request.form.get("currency") or "USD"
+        product.currency = "ARS"
         product.opening_stock = int(request.form.get("opening_stock") or 0)
         product.opening_cost = float(request.form.get("opening_cost") or 0)
         product.min_stock = int(request.form.get("min_stock") or 1)

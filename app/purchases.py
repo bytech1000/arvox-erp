@@ -43,7 +43,7 @@ def index():
         if not supplier or not supplier.active:
             flash('El proveedor seleccionado no está disponible.', 'error'); return redirect(url_for('purchases.index'))
         purchase = Purchase(date=date_value, reference=request.form.get('reference','').strip() or None,
-            supplier_id=supplier_id, currency=request.form.get('currency') or 'USD', paid=paid,
+            supplier_id=supplier_id, currency='ARS', paid=paid,
             status=request.form.get('status') or 'Recibida', notes=request.form.get('notes','').strip() or None)
         for product, qty, cost in lines:
             purchase.items.append(PurchaseItem(product_id=product.id, quantity=qty, unit_cost=cost))

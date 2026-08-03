@@ -11,8 +11,8 @@
 <div class="stats">
   <article><span>Ventas visibles</span><strong>{{ totals.count }}</strong><small>Según filtros</small></article>
   <article><span>Unidades entregadas</span><strong>{{ totals.units }}</strong><small>Descontadas del stock</small></article>
-  <article><span>Total vendido</span><strong>USD {{ "%.2f"|format(totals.amount) }}</strong><small>Sin canceladas</small></article>
-  <article><span>Ganancia</span><strong>USD {{ "%.2f"|format(totals.profit) }}</strong><small>Ventas entregadas</small></article>
+  <article><span>Total vendido</span><strong>ARS {{ "%.2f"|format(totals.amount) }}</strong><small>Sin canceladas</small></article>
+  <article><span>Ganancia</span><strong>ARS {{ "%.2f"|format(totals.profit) }}</strong><small>Ventas entregadas</small></article>
 </div>
 
 <section class="panel" id="new-sale">
@@ -36,7 +36,7 @@
             <a class="button secondary compact-button" href="{{ url_for('customers.index') }}#new-customer">+ Crear cliente</a>
           </label>
           <label>Referencia<input name="reference" placeholder="Pedido o factura"></label>
-          <label>Moneda<select name="currency"><option>USD</option><option>ARS</option><option>EUR</option></select></label>
+          <input type="hidden" name="currency" value="ARS">
           <label>Forma de cobro<select name="payment_method"><option>Transferencia</option><option>Efectivo</option><option>Cuenta corriente</option><option>Tarjeta</option></select></label>
           <label>Cobrado<input name="collected" type="number" min="0" step="0.01" value="0"></label>
           <label>Estado<select name="status"><option>Entregada</option><option>Reservada</option></select></label>
@@ -88,8 +88,8 @@
     {% for sale in rows %}
     <tr>
       <td>{{ sale.date.strftime("%d/%m/%Y") }}</td><td>{{ sale.customer }}</td><td>{{ sale.reference or "-" }}</td><td>{{ sale.units }}</td>
-      <td>{{ sale.currency }} {{ "%.2f"|format(sale.total) }}</td><td>{{ sale.currency }} {{ "%.2f"|format(sale.collected or 0) }}</td>
-      <td>{{ sale.currency }} {{ "%.2f"|format(sale.balance) }}</td><td>{{ sale.currency }} {{ "%.2f"|format(sale.profit) }}</td>
+      <td>ARS {{ "%.2f"|format(sale.total) }}</td><td>ARS {{ "%.2f"|format(sale.collected or 0) }}</td>
+      <td>ARS {{ "%.2f"|format(sale.balance) }}</td><td>ARS {{ "%.2f"|format(sale.profit) }}</td>
       <td><span class="sale-status {{ sale.status|lower }}">{{ sale.status }}</span></td>
       <td><a href="{{ url_for('sales.detail', sale_id=sale.id) }}">Ver</a></td>
     </tr>

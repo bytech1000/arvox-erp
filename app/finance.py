@@ -67,7 +67,7 @@ def index():
             category=category,
             description=description,
             amount=amount,
-            currency=request.form.get("currency") or "USD",
+            currency="ARS",
             payment_method=request.form.get("payment_method") or "Transferencia",
             movement_date=movement_date,
             notes=request.form.get("notes", "").strip() or None,
@@ -76,7 +76,7 @@ def index():
         flash("Movimiento de caja registrado.", "success")
         return redirect(url_for("finance.index"))
 
-    currency = request.args.get("currency", "USD")
+    currency = "ARS"
     q = request.args.get("q", "").strip()
     method = request.args.get("payment_method", "")
     movement_type = request.args.get("movement_type", "")
@@ -153,7 +153,7 @@ def expenses():
             category=request.form.get("category") or "Otros",
             description=description,
             payment_method=request.form.get("payment_method") or "Transferencia",
-            currency=request.form.get("currency") or "USD",
+            currency="ARS",
             amount=amount,
             notes=request.form.get("notes", "").strip() or None,
         )
@@ -169,7 +169,7 @@ def expenses():
         flash("Gasto registrado y descontado de Caja.", "success")
         return redirect(url_for("finance.expenses"))
 
-    currency = request.args.get("currency", "USD")
+    currency = "ARS"
     rows = Expense.query.filter_by(currency=currency).order_by(Expense.date.desc(), Expense.id.desc()).all()
     by_category = defaultdict(float)
     for row in rows:

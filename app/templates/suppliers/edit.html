@@ -21,13 +21,7 @@
     <label>Ciudad / País<input name="city" value="{{ supplier.city or '' }}"></label>
     <label>Sitio web<input name="website" type="url" value="{{ supplier.website or '' }}"></label>
     <label>Condición de pago<input name="payment_terms" value="{{ supplier.payment_terms or '' }}"></label>
-    <label>Moneda
-      <select name="currency">
-        {% for currency in ["USD", "ARS", "EUR"] %}
-        <option value="{{ currency }}" {% if supplier.currency == currency %}selected{% endif %}>{{ currency }}</option>
-        {% endfor %}
-      </select>
-    </label>
+    <input type="hidden" name="currency" value="ARS">
     <label class="full">Observaciones internas<textarea name="notes">{{ supplier.notes or "" }}</textarea></label>
     <button>Guardar cambios</button>
     <a class="button secondary" href="{{ url_for('suppliers.detail', supplier_id=supplier.id) }}">Cancelar</a>

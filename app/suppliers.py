@@ -30,7 +30,7 @@ def index():
             city=request.form.get("city", "").strip() or None,
             website=request.form.get("website", "").strip() or None,
             payment_terms=request.form.get("payment_terms", "").strip() or None,
-            currency=request.form.get("currency") or "USD",
+            currency="ARS",
             notes=request.form.get("notes", "").strip() or None,
             active=True,
         )
@@ -41,7 +41,7 @@ def index():
 
     q = request.args.get("q", "").strip()
     active = request.args.get("active", "1")
-    currency = request.args.get("currency", "").strip()
+    currency = "ARS"
 
     query = Supplier.query
 
@@ -128,7 +128,7 @@ def edit(supplier_id):
         supplier.city = request.form.get("city", "").strip() or None
         supplier.website = request.form.get("website", "").strip() or None
         supplier.payment_terms = request.form.get("payment_terms", "").strip() or None
-        supplier.currency = request.form.get("currency") or "USD"
+        supplier.currency = "ARS"
         supplier.notes = request.form.get("notes", "").strip() or None
 
         db.session.commit()

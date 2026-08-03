@@ -19,10 +19,10 @@
       {% if product.description %}<p>{{ product.description }}</p>{% endif %}
       <div class="stats compact">
         <article><span>Stock</span><strong>{{ product.stock }}</strong></article>
-        <article><span>Último costo</span><strong>{{ product.currency }} {{ "%.2f"|format(product.last_cost) }}</strong></article>
-        <article><span>Costo promedio</span><strong>{{ product.currency }} {{ "%.2f"|format(product.avg_cost) }}</strong></article>
-        <article><span>Precio venta</span><strong>{{ product.currency }} {{ "%.2f"|format(product.sale_price) }}</strong></article>
-        <article><span>Margen</span><strong>{{ product.currency }} {{ "%.2f"|format(product.margin) }} · {{ "%.1f"|format(margin_pct) }}%</strong></article>
+        <article><span>Último costo</span><strong>ARS {{ "%.2f"|format(product.last_cost) }}</strong></article>
+        <article><span>Costo promedio</span><strong>ARS {{ "%.2f"|format(product.avg_cost) }}</strong></article>
+        <article><span>Precio venta</span><strong>ARS {{ "%.2f"|format(product.sale_price) }}</strong></article>
+        <article><span>Margen</span><strong>ARS {{ "%.2f"|format(product.margin) }} · {{ "%.1f"|format(margin_pct) }}%</strong></article>
       </div>
     </div>
   </section>
@@ -33,9 +33,9 @@
       <div><span>Año</span><strong>{{ product.year or '-' }}</strong></div>
       <div><span>Categoría</span><strong>{{ product.category or '-' }}</strong></div>
       <div><span>Stock inicial</span><strong>{{ product.opening_stock or 0 }}</strong></div>
-      <div><span>Costo inicial</span><strong>{{ product.currency }} {{ "%.2f"|format(product.opening_cost or 0) }}</strong></div>
+      <div><span>Costo inicial</span><strong>ARS {{ "%.2f"|format(product.opening_cost or 0) }}</strong></div>
       <div><span>Stock mínimo</span><strong>{{ product.min_stock }}</strong></div>
-      <div><span>Moneda</span><strong>{{ product.currency }}</strong></div>
+      <div><span>Moneda</span><strong>ARS</strong></div>
       <div><span>Forma</span><strong>{{ product.shape or '-' }}</strong></div>
       <div><span>Balance</span><strong>{{ product.balance or '-' }}</strong></div>
       <div><span>Nivel</span><strong>{{ product.level or '-' }}</strong></div>
@@ -60,7 +60,7 @@
   <div class="table-wrap"><table>
     <tr><th>Fecha</th><th>Cliente</th><th>Cantidad</th><th>Precio</th><th>Estado</th></tr>
     {% for x in product.sales %}
-      <tr><td>{{ x.date }}</td><td>{{ x.customer }}</td><td>{{ x.quantity }}</td><td>{{ product.currency }} {{ "%.2f"|format(x.unit_price) }}</td><td>{{ x.status }}</td></tr>
+      <tr><td>{{ x.date }}</td><td>{{ x.customer }}</td><td>{{ x.quantity }}</td><td>ARS {{ "%.2f"|format(x.unit_price) }}</td><td>{{ x.status }}</td></tr>
     {% else %}<tr><td colspan="5">Todavía no hay ventas.</td></tr>{% endfor %}
   </table></div>
 </section>

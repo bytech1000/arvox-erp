@@ -27,7 +27,7 @@
         <span>{{ quote.number }}</span>
         <strong>{{ quote.customer }}</strong>
         <small>{{ quote.date.strftime("%d/%m/%Y") }} · {{ quote.units }} u.</small>
-        <b>{{ quote.currency }} {{ "%.2f"|format(quote.total) }}</b>
+        <b>ARS {{ "%.2f"|format(quote.total) }}</b>
       </a>
       {% else %}
       <div class="kanban-empty">Sin cotizaciones</div>
