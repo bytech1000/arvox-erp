@@ -58,34 +58,5 @@
   </section>
 </div>
 
-<section class="panel">
-  <div class="panel-head">
-    <div><span class="eyebrow">HISTORIAL</span><h2>Compras al proveedor</h2></div>
-    <span class="module-coming">El alta de compras estará disponible en el Módulo 3</span>
-  </div>
-
-  <div class="table-wrap">
-    <table>
-      <tr>
-        <th>Fecha</th><th>Producto</th><th>Cantidad</th><th>Costo unitario</th>
-        <th>Total</th><th>Pagado</th><th>Saldo</th><th>Estado</th>
-      </tr>
-      {% for purchase in purchases %}
-      {% set total = purchase.quantity * purchase.unit_cost %}
-      <tr>
-        <td>{{ purchase.date.strftime("%d/%m/%Y") }}</td>
-        <td>{{ purchase.product.brand }} · {{ purchase.product.model }}</td>
-        <td>{{ purchase.quantity }}</td>
-        <td>USD {{ "%.2f"|format(purchase.unit_cost) }}</td>
-        <td>USD {{ "%.2f"|format(total) }}</td>
-        <td>USD {{ "%.2f"|format(purchase.paid or 0) }}</td>
-        <td>USD {{ "%.2f"|format(total - (purchase.paid or 0)) }}</td>
-        <td>{{ purchase.status }}</td>
-      </tr>
-      {% else %}
-      <tr><td colspan="8">Todavía no hay compras registradas para este proveedor.</td></tr>
-      {% endfor %}
-    </table>
-  </div>
-</section>
+<section class="panel"><div class="panel-head"><div><span class="eyebrow">HISTORIAL</span><h2>Compras al proveedor</h2></div><a href="{{ url_for('purchases.index') }}#new-purchase">Nueva compra</a></div><div class="table-wrap"><table><tr><th>Fecha</th><th>Referencia</th><th>Productos</th><th>Unidades</th><th>Total</th><th>Pagado</th><th>Saldo</th><th>Estado</th></tr>{% for purchase in purchases %}<tr><td>{{purchase.date.strftime('%d/%m/%Y')}}</td><td><a href="{{url_for('purchases.detail',purchase_id=purchase.id)}}">{{purchase.reference or ('Compra #' ~ purchase.id)}}</a></td><td>{{purchase.items|length}}</td><td>{{purchase.units}}</td><td>{{purchase.currency}} {{"%.2f"|format(purchase.total)}}</td><td>{{purchase.currency}} {{"%.2f"|format(purchase.paid or 0)}}</td><td>{{purchase.currency}} {{"%.2f"|format(purchase.balance)}}</td><td>{{purchase.status}}</td></tr>{% else %}<tr><td colspan="8">Todavía no hay compras para este proveedor.</td></tr>{% endfor %}</table></div></section>
 {% endblock %}

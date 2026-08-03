@@ -1,27 +1,6 @@
-{% extends "base.html" %}
-{% block title %}Compra · ARVOX{% endblock %}
-{% block module_title %}Compras{% endblock %}
-{% block module_subtitle %}Detalle de la operación{% endblock %}
-{% block content %}
-<div class="page-head">
-  <div><a class="back" href="{{ url_for('purchases.index') }}">← Compras</a><span class="eyebrow">COMPRA #{{ purchase.id }}</span><h1>{{ purchase.product.brand }} · {{ purchase.product.model }}</h1><p>{{ purchase.supplier.name }} · {{ purchase.date.strftime("%d/%m/%Y") }}</p></div>
-  <div class="actions"><a class="button secondary" href="{{ url_for('purchases.edit', purchase_id=purchase.id) }}">Editar</a>{% if purchase.status != "Cancelada" %}<form method="post" action="{{ url_for('purchases.cancel', purchase_id=purchase.id) }}"><button class="danger-button">Cancelar compra</button></form>{% endif %}</div>
-</div>
-
-<div class="stats">
-  <article><span>Cantidad</span><strong>{{ purchase.quantity }}</strong><small>Unidades</small></article>
-  <article><span>Costo unitario</span><strong>{{ purchase.currency }} {{ "%.2f"|format(purchase.unit_cost) }}</strong><small>Por unidad</small></article>
-  <article><span>Total</span><strong>{{ purchase.currency }} {{ "%.2f"|format(purchase.total) }}</strong><small>Compra</small></article>
-  <article class="{% if purchase.balance > 0 %}alert-card{% endif %}"><span>Saldo</span><strong>{{ purchase.currency }} {{ "%.2f"|format(purchase.balance) }}</strong><small>Pendiente</small></article>
-</div>
-
-<div class="purchase-detail-grid">
-  <section class="panel"><span class="eyebrow">PRODUCTO</span><h2>{{ purchase.product.brand }} · {{ purchase.product.model }}</h2>
-    <div class="info-grid"><div><span>Código</span><strong>{{ purchase.product.code }}</strong></div><div><span>Stock actual</span><strong>{{ purchase.product.stock }}</strong></div><div><span>Último costo</span><strong>{{ purchase.currency }} {{ "%.2f"|format(purchase.product.last_cost) }}</strong></div><div><span>Costo promedio</span><strong>{{ purchase.currency }} {{ "%.2f"|format(purchase.product.avg_cost) }}</strong></div></div>
-  </section>
-  <section class="panel"><span class="eyebrow">OPERACIÓN</span><h2>{{ purchase.reference or "Sin referencia" }}</h2>
-    <div class="info-grid"><div><span>Proveedor</span><strong>{{ purchase.supplier.name }}</strong></div><div><span>Estado</span><strong>{{ purchase.status }}</strong></div><div><span>Pagado</span><strong>{{ purchase.currency }} {{ "%.2f"|format(purchase.paid or 0) }}</strong></div><div><span>Registrada</span><strong>{{ purchase.created_at.strftime("%d/%m/%Y %H:%M") if purchase.created_at else "-" }}</strong></div></div>
-    {% if purchase.notes %}<div class="note"><strong>Observaciones</strong><p>{{ purchase.notes }}</p></div>{% endif %}
-  </section>
-</div>
+{% extends "base.html" %}{% block title %}Compra · ARVOX{% endblock %}{% block module_title %}Compras{% endblock %}{% block module_subtitle %}Detalle de factura multiproducto{% endblock %}{% block content %}
+<div class="page-head"><div><a class="back" href="{{url_for('purchases.index')}}">← Compras</a><span class="eyebrow">COMPRA #{{purchase.id}}</span><h1>{{purchase.reference or 'Compra sin referencia'}}</h1><p>{{purchase.supplier.name}} · {{purchase.date.strftime('%d/%m/%Y')}}</p></div>{% if purchase.status!='Cancelada' %}<form method="post" action="{{url_for('purchases.cancel',purchase_id=purchase.id)}}"><button class="danger-button">Cancelar compra</button></form>{% endif %}</div>
+<div class="stats"><article><span>Productos</span><strong>{{purchase.items|length}}</strong><small>Líneas distintas</small></article><article><span>Unidades</span><strong>{{purchase.units}}</strong><small>Total de unidades</small></article><article><span>Total</span><strong>{{purchase.currency}} {{"%.2f"|format(purchase.total)}}</strong><small>Factura completa</small></article><article class="{% if purchase.balance>0 %}alert-card{% endif %}"><span>Saldo</span><strong>{{purchase.currency}} {{"%.2f"|format(purchase.balance)}}</strong><small>Pendiente</small></article></div>
+<section class="panel"><div class="panel-head"><div><span class="eyebrow">DETALLE</span><h2>Productos comprados</h2></div><span class="purchase-status {{purchase.status|lower}}">{{purchase.status}}</span></div><div class="table-wrap"><table><tr><th>Código</th><th>Producto</th><th>Cantidad</th><th>Costo unitario</th><th>Subtotal</th><th>Stock actual</th></tr>{% for i in purchase.items %}<tr><td>{{i.product.code}}</td><td>{{i.product.brand}} · {{i.product.model}}</td><td>{{i.quantity}}</td><td>{{purchase.currency}} {{"%.2f"|format(i.unit_cost)}}</td><td>{{purchase.currency}} {{"%.2f"|format(i.subtotal)}}</td><td>{{i.product.stock}}</td></tr>{% endfor %}</table></div></section>
+<div class="purchase-detail-grid"><section class="panel"><h2>Proveedor</h2><div class="info-grid"><div><span>Nombre</span><strong>{{purchase.supplier.name}}</strong></div><div><span>Moneda</span><strong>{{purchase.currency}}</strong></div><div><span>Pagado</span><strong>{{purchase.currency}} {{"%.2f"|format(purchase.paid or 0)}}</strong></div><div><span>Estado</span><strong>{{purchase.status}}</strong></div></div></section><section class="panel"><h2>Observaciones</h2><p>{{purchase.notes or 'Sin observaciones.'}}</p></section></div>
 {% endblock %}

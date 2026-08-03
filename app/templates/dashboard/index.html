@@ -60,7 +60,7 @@
     <div class="panel-head"><div><span class="eyebrow">MOVIMIENTOS</span><h2>Últimas compras</h2></div></div>
     <div class="movement-list">
       {% for x in recent_purchases %}
-      <div><span>{{ x.date }}</span><strong>{{ x.product.brand }} · {{ x.product.model }}</strong><em>{{ x.quantity }} u. · USD {{ "%.2f"|format(x.unit_cost) }}</em></div>
+      <div><span>{{ x.date }}</span><strong>{{ x.supplier.name }}</strong><em>{{ x.units }} u. · {{ x.currency }} {{ "%.2f"|format(x.total) }}</em></div>
       {% else %}<div class="empty-state">Todavía no hay compras cargadas.</div>{% endfor %}
     </div>
   </section>
@@ -69,7 +69,7 @@
     <div class="panel-head"><div><span class="eyebrow">MOVIMIENTOS</span><h2>Últimas ventas</h2></div></div>
     <div class="movement-list">
       {% for x in recent_sales %}
-      <div><span>{{ x.date }}</span><strong>{{ x.product.brand }} · {{ x.product.model }}</strong><em>{{ x.quantity }} u. · USD {{ "%.2f"|format(x.unit_price) }}</em></div>
+      <div><span>{{ x.date }}</span><strong>{{ x.supplier.name }}</strong><em>{{ x.quantity }} u. · USD {{ "%.2f"|format(x.unit_price) }}</em></div>
       {% else %}<div class="empty-state">Todavía no hay ventas cargadas.</div>{% endfor %}
     </div>
   </section>

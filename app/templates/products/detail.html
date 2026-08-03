@@ -49,8 +49,8 @@
   <h2>Historial de compras</h2>
   <div class="table-wrap"><table>
     <tr><th>Fecha</th><th>Proveedor</th><th>Cantidad</th><th>Costo</th><th>Estado</th></tr>
-    {% for x in product.purchases %}
-      <tr><td>{{ x.date }}</td><td>{{ x.supplier.name if x.supplier else '-' }}</td><td>{{ x.quantity }}</td><td>{{ product.currency }} {{ "%.2f"|format(x.unit_cost) }}</td><td>{{ x.status }}</td></tr>
+    {% for x in product.purchase_items %}
+      <tr><td>{{ x.purchase.date }}</td><td>{{ x.purchase.supplier.name }}</td><td>{{ x.quantity }}</td><td>{{ x.purchase.currency }} {{ "%.2f"|format(x.unit_cost) }}</td><td>{{ x.purchase.status }}</td></tr>
     {% else %}<tr><td colspan="5">Todavía no hay compras.</td></tr>{% endfor %}
   </table></div>
 </section>

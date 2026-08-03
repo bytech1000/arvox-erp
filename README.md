@@ -100,3 +100,12 @@ Abrir `http://localhost:5000`.
 - Costo promedio ponderado
 - Saldo pendiente
 - Historial, edición y cancelación
+
+
+## v2.2 — Compra completa multiproducto
+
+- Una compra por proveedor y factura
+- Varias líneas de productos
+- Total y saldo general
+- Stock y costos actualizados por cada línea
+- Historial consolidado por compra
