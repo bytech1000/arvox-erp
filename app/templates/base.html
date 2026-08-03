@@ -46,7 +46,9 @@
       <a class="{% if request.blueprint == 'finance' %}active{% endif %}" href="{{ url_for('finance.index') }}">
         <span class="nav-icon">¤</span> Caja y Gastos
       </a>
-      <span><span class="nav-icon">↗</span> Reportes <em>próximamente</em></span>
+      <a class="{% if request.blueprint == 'reports' %}active{% endif %}" href="{{ url_for('reports.index') }}">
+        <span class="nav-icon">↗</span> Reportes
+      </a>
     </nav>
 
     <div class="sidebar-footer">

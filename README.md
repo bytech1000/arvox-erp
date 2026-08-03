@@ -218,3 +218,16 @@ Abrir `http://localhost:5000`.
 - Saldos por cobrar y por pagar
 - Ganancia neta en Dashboard
 - Historial completo de movimientos
+
+
+## v5.1 — Reportes
+
+- Ventas y rentabilidad por período
+- Ganancia bruta y neta
+- Ticket promedio
+- Productos y marcas más vendidos
+- Clientes principales
+- Gastos por categoría
+- Inventario valorizado
+- Alertas de stock crítico
+- Exportación CSV para ventas, productos, gastos e inventario
