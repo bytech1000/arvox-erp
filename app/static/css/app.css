@@ -7,24 +7,29 @@
 html{scroll-behavior:smooth}
 body{margin:0;font-family:Inter,Segoe UI,Arial,sans-serif;background:var(--black-2);color:var(--text)}
 a{color:inherit}
-.app-shell{min-height:100vh;display:grid;grid-template-columns:245px 1fr}
-.sidebar{background:#050505;border-right:1px solid var(--line);padding:24px 16px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;z-index:10}
-.brand{display:flex;gap:13px;align-items:center;padding:3px 8px 27px}
-.brand-symbol{width:44px;height:44px;position:relative;display:grid;place-items:center}
-.brand-symbol span{position:absolute;width:30px;height:11px;border-radius:10px;transform:skewX(-28deg)}
+.app-shell{min-height:100vh;display:grid;grid-template-columns:225px 1fr}
+.sidebar{background:#050505;border-right:1px solid var(--line);padding:18px 12px 12px;display:flex;flex-direction:column;position:sticky;top:0;height:100vh;z-index:10;overflow:hidden}
+.brand{display:flex;gap:11px;align-items:center;padding:2px 7px 16px;flex:0 0 auto}
+.brand-symbol{width:38px;height:38px;position:relative;display:grid;place-items:center}
+.brand-symbol span{position:absolute;width:27px;height:9px;border-radius:10px;transform:skewX(-28deg)}
 .brand-symbol span:first-child{background:#fff;top:10px;left:4px}
 .brand-symbol span:last-child{background:var(--orange);bottom:9px;right:3px}
 .brand-symbol.large{width:84px;height:84px;margin:auto}
 .brand-symbol.large span{width:58px;height:20px}
 .brand-symbol.large span:first-child{top:18px}.brand-symbol.large span:last-child{bottom:18px}
-.brand strong{display:block;letter-spacing:.22em;font-size:18px}
-.brand small{display:block;color:var(--orange);font-size:10px;margin-top:6px}
-.main-nav{display:grid;gap:5px}
-.main-nav a,.main-nav span{padding:12px;border-radius:9px;text-decoration:none;color:#d4d4d4;display:flex;align-items:center;gap:10px}
+.brand strong{display:block;letter-spacing:.2em;font-size:16px}
+.brand small{display:block;color:var(--orange);font-size:9px;margin-top:4px}
+.main-nav{display:grid;gap:3px;overflow-y:auto;overflow-x:hidden;min-height:0;padding-right:5px;scrollbar-width:thin;scrollbar-color:#4a4c52 transparent}
+.main-nav a,.main-nav span{padding:9px 10px;border-radius:8px;text-decoration:none;color:#d4d4d4;display:flex;align-items:center;gap:9px;font-size:13px;line-height:1.15;min-height:36px}
 .main-nav a:hover,.main-nav a.active{background:#1a1b1f;color:#fff;box-shadow:inset 3px 0 var(--orange)}
 .main-nav span{color:#666}.main-nav em{font-style:normal;font-size:9px;margin-left:auto}
-.nav-icon{width:19px;color:var(--orange);text-align:center}
-.sidebar-footer{margin-top:auto;display:grid;gap:8px;padding:14px 8px 0;border-top:1px solid #202126;color:#777;font-size:12px}
+.nav-icon{width:18px;color:var(--orange);text-align:center;flex:0 0 18px}
+.sidebar-footer{margin-top:10px;display:grid;gap:6px;padding:10px 7px 0;border-top:1px solid #202126;color:#777;font-size:11px;flex:0 0 auto}
+.main-nav::-webkit-scrollbar{width:6px}
+.main-nav::-webkit-scrollbar-track{background:transparent}
+.main-nav::-webkit-scrollbar-thumb{background:#3a3c42;border-radius:999px}
+.main-nav::-webkit-scrollbar-thumb:hover{background:#5a5d65}
+
 .logout{text-decoration:none;color:#bbb}
 .workspace{min-width:0;display:flex;flex-direction:column}
 .topbar{min-height:70px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:18px;padding:11px 28px;background:rgba(10,10,10,.96);position:sticky;top:0;z-index:8}
@@ -109,7 +114,7 @@ table{width:100%;border-collapse:collapse}th,td{padding:11px;border-bottom:1px s
 details summary{list-style:none;width:max-content}details summary::-webkit-details-marker{display:none}
 @media(max-width:1050px){.global-search{display:none}.dashboard-grid{grid-template-columns:1fr}.toolbar{align-items:stretch;flex-direction:column}.filters{grid-template-columns:1fr 1fr}}
 @media(max-width:850px){
-  .app-shell{grid-template-columns:1fr}.sidebar{position:fixed;left:-260px;width:245px;transition:.2s}.sidebar.open{left:0}
+  .app-shell{grid-template-columns:1fr}.sidebar{position:fixed;left:-250px;width:225px;transition:.2s}.sidebar.open{left:0}
   .mobile-menu{display:inline-flex}.topbar{padding:11px 18px}.user-chip div{display:none}
   main{padding:20px}.detail-grid,.hero{grid-template-columns:1fr}.stats{grid-template-columns:repeat(2,1fr)}
   .filters{grid-template-columns:1fr}.login-screen{grid-template-columns:1fr}.login-visual{display:none}
