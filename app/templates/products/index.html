@@ -23,7 +23,10 @@
         <option>Paleta</option><option>Pelotas</option><option>Grip</option>
         <option>Accesorio</option><option>Indumentaria</option>
       </select>
-      <input name="sale_price" type="number" step="0.01" placeholder="Precio venta USD">
+      <select name="currency"><option>USD</option><option>ARS</option><option>EUR</option></select>
+      <input name="opening_cost" type="number" step="0.01" min="0" placeholder="Costo unitario inicial">
+      <input name="opening_stock" type="number" min="0" value="0" placeholder="Stock inicial">
+      <input name="sale_price" type="number" step="0.01" min="0" placeholder="Precio de venta">
       <input name="min_stock" type="number" min="0" value="1" placeholder="Stock mínimo">
       <input name="image_url" type="url" placeholder="URL de foto">
       <input name="shape" placeholder="Forma">
@@ -76,8 +79,9 @@
     <h3>{{ p.brand }}</h3>
     <p>{{ p.model }}</p>
     <dl>
-      <div><dt>Costo promedio</dt><dd>USD {{ "%.2f"|format(p.avg_cost) }}</dd></div>
-      <div><dt>Precio venta</dt><dd>USD {{ "%.2f"|format(p.sale_price) }}</dd></div>
+      <div><dt>Último costo</dt><dd>{{ p.currency }} {{ "%.2f"|format(p.last_cost) }}</dd></div>
+      <div><dt>Costo promedio</dt><dd>{{ p.currency }} {{ "%.2f"|format(p.avg_cost) }}</dd></div>
+      <div><dt>Precio venta</dt><dd>{{ p.currency }} {{ "%.2f"|format(p.sale_price) }}</dd></div>
     </dl>
     <div class="actions">
       <a class="button" href="{{ url_for('products.detail', product_id=p.id) }}">Ver ficha</a>
@@ -96,11 +100,11 @@
 <section class="panel product-table-panel">
   <div class="table-wrap">
     <table>
-      <tr><th>Código</th><th>Marca</th><th>Modelo</th><th>Stock</th><th>Costo</th><th>Venta</th><th>Estado</th><th></th></tr>
+      <tr><th>Código</th><th>Marca</th><th>Modelo</th><th>Stock</th><th>Último costo</th><th>Costo promedio</th><th>Venta</th><th>Estado</th><th></th></tr>
       {% for p in rows %}
       <tr>
         <td>{{ p.code }}</td><td>{{ p.brand }}</td><td>{{ p.model }}</td>
-        <td>{{ p.stock }}</td><td>USD {{ "%.2f"|format(p.avg_cost) }}</td><td>USD {{ "%.2f"|format(p.sale_price) }}</td>
+        <td>{{ p.stock }}</td><td>{{ p.currency }} {{ "%.2f"|format(p.last_cost) }}</td><td>{{ p.currency }} {{ "%.2f"|format(p.avg_cost) }}</td><td>{{ p.currency }} {{ "%.2f"|format(p.sale_price) }}</td>
         <td>{% if p.active %}Activo{% else %}Inactivo{% endif %}</td>
         <td><a href="{{ url_for('products.detail', product_id=p.id) }}">Ver</a></td>
       </tr>

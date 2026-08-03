@@ -76,3 +76,15 @@ Abrir `http://localhost:5000`.
 - Build: `pip install -r requirements.txt`
 - Start: `gunicorn run:app`
 - Persistencia temporal con SQLite durante la prueba
+
+
+## v1.3 — Módulo 1 Productos finalizado
+
+- Stock inicial
+- Costo unitario inicial
+- Moneda por producto
+- Último costo calculado
+- Costo promedio ponderado
+- Precio de venta y margen
+- Preparado para actualización automática desde Compras
+- Migración segura de bases SQLite existentes

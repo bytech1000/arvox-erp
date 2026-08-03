@@ -21,6 +21,9 @@ class Product(db.Model):
     year = db.Column(db.Integer)
     category = db.Column(db.String(80), default="Paleta")
     sale_price = db.Column(db.Float, default=0)
+    currency = db.Column(db.String(10), default="USD")
+    opening_stock = db.Column(db.Integer, default=0)
+    opening_cost = db.Column(db.Float, default=0)
     active = db.Column(db.Boolean, default=True)
     min_stock = db.Column(db.Integer, default=1)
     image_url = db.Column(db.String(500))
@@ -45,19 +48,37 @@ class Product(db.Model):
 
     @property
     def stock(self):
-        return self.purchased_units - self.sold_units
+        return (self.opening_stock or 0) + self.purchased_units - self.sold_units
 
     @property
     def avg_cost(self):
         rows = [x for x in self.purchases if x.status == "Recibida"]
-        total_units = sum(x.quantity for x in rows)
+        opening_units = self.opening_stock or 0
+        opening_value = opening_units * (self.opening_cost or 0)
+        purchased_units = sum(x.quantity for x in rows)
+        purchased_value = sum(x.quantity * x.unit_cost for x in rows)
+        total_units = opening_units + purchased_units
         if not total_units:
             return 0
-        return sum(x.quantity * x.unit_cost for x in rows) / total_units
+        return (opening_value + purchased_value) / total_units
+
+    @property
+    def last_cost(self):
+        rows = [x for x in self.purchases if x.status == "Recibida"]
+        if rows:
+            latest = max(rows, key=lambda x: (x.date, x.id or 0))
+            return latest.unit_cost
+        return self.opening_cost or 0
 
     @property
     def margin(self):
-        return self.sale_price - self.avg_cost
+        return (self.sale_price or 0) - self.avg_cost
+
+    @property
+    def margin_pct(self):
+        if not self.sale_price:
+            return 0
+        return self.margin / self.sale_price * 100
 
 class Supplier(db.Model):
     id = db.Column(db.Integer, primary_key=True)

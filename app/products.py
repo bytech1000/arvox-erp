@@ -21,8 +21,11 @@ def index():
             model=request.form["model"].strip(),
             year=request.form.get("year") or None,
             category=request.form.get("category") or "Paleta",
-            sale_price=request.form.get("sale_price") or 0,
-            min_stock=request.form.get("min_stock") or 1,
+            sale_price=float(request.form.get("sale_price") or 0),
+            currency=request.form.get("currency") or "USD",
+            opening_stock=int(request.form.get("opening_stock") or 0),
+            opening_cost=float(request.form.get("opening_cost") or 0),
+            min_stock=int(request.form.get("min_stock") or 1),
             image_url=request.form.get("image_url") or None,
             description=request.form.get("description") or None,
             notes=request.form.get("notes") or None,
@@ -69,8 +72,7 @@ def index():
 @login_required
 def detail(product_id):
     product = Product.query.get_or_404(product_id)
-    margin_pct = (product.margin / product.sale_price * 100) if product.sale_price else 0
-    return render_template("products/detail.html", product=product, margin_pct=margin_pct)
+    return render_template("products/detail.html", product=product, margin_pct=product.margin_pct)
 
 @products_bp.route("/<int:product_id>/edit", methods=["GET", "POST"])
 @login_required
@@ -88,8 +90,11 @@ def edit(product_id):
         product.model = request.form["model"].strip()
         product.year = request.form.get("year") or None
         product.category = request.form.get("category") or "Paleta"
-        product.sale_price = request.form.get("sale_price") or 0
-        product.min_stock = request.form.get("min_stock") or 1
+        product.sale_price = float(request.form.get("sale_price") or 0)
+        product.currency = request.form.get("currency") or "USD"
+        product.opening_stock = int(request.form.get("opening_stock") or 0)
+        product.opening_cost = float(request.form.get("opening_cost") or 0)
+        product.min_stock = int(request.form.get("min_stock") or 1)
         product.image_url = request.form.get("image_url") or None
         product.description = request.form.get("description") or None
         product.notes = request.form.get("notes") or None
