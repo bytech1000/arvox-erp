@@ -109,3 +109,17 @@ Abrir `http://localhost:5000`.
 - Total y saldo general
 - Stock y costos actualizados por cada línea
 - Historial consolidado por compra
+
+
+## v3.0 — Módulo Ventas
+
+- Venta multiproducto
+- Precio automático del producto
+- Descuentos por línea
+- Estados Entregada, Reservada y Cancelada
+- Control de stock
+- Reserva de stock
+- Cobros y saldos
+- Costo congelado al momento de vender
+- Ganancia por producto y por venta
+- Historial y detalle

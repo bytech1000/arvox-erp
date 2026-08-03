@@ -32,17 +32,26 @@ class Product(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     purchase_items = db.relationship('PurchaseItem', backref='product', lazy=True)
-    sales = db.relationship('Sale', backref='product', lazy=True)
+    sale_items = db.relationship('SaleItem', backref='product', lazy=True)
 
     @property
     def purchased_units(self):
         return sum(i.quantity for i in self.purchase_items if i.purchase.status == 'Recibida')
     @property
     def sold_units(self):
-        return sum(x.quantity for x in self.sales if x.status == 'Entregada')
+        return sum(i.quantity for i in self.sale_items if i.sale.status == 'Entregada')
+
+    @property
+    def reserved_units(self):
+        return sum(i.quantity for i in self.sale_items if i.sale.status == 'Reservada')
+
     @property
     def stock(self):
         return (self.opening_stock or 0) + self.purchased_units - self.sold_units
+
+    @property
+    def available_stock(self):
+        return self.stock - self.reserved_units
     @property
     def avg_cost(self):
         rows = [i for i in self.purchase_items if i.purchase.status == 'Recibida']
@@ -112,11 +121,56 @@ class PurchaseItem(db.Model):
     @property
     def subtotal(self): return self.quantity * self.unit_cost
 
-class Sale(db.Model):
+class SalesOrder(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
-    product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
+    reference = db.Column(db.String(80))
     customer = db.Column(db.String(150), nullable=False)
+    whatsapp = db.Column(db.String(80))
+    currency = db.Column(db.String(20), default="USD")
+    payment_method = db.Column(db.String(50), default="Transferencia")
+    collected = db.Column(db.Float, default=0)
+    status = db.Column(db.String(30), default="Entregada")
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    items = db.relationship("SaleItem", backref="sale", lazy=True, cascade="all, delete-orphan")
+
+    @property
+    def total(self):
+        return sum(i.subtotal for i in self.items)
+
+    @property
+    def cost_total(self):
+        return sum(i.cost_snapshot * i.quantity for i in self.items)
+
+    @property
+    def profit(self):
+        return self.total - self.cost_total
+
+    @property
+    def balance(self):
+        return self.total - (self.collected or 0)
+
+    @property
+    def units(self):
+        return sum(i.quantity for i in self.items)
+
+
+class SaleItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    sale_id = db.Column(db.Integer, db.ForeignKey("sales_order.id"), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     unit_price = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(30), default='Entregada')
+    discount_pct = db.Column(db.Float, default=0)
+    cost_snapshot = db.Column(db.Float, default=0)
+
+    @property
+    def subtotal(self):
+        gross = self.quantity * self.unit_price
+        return gross * (1 - (self.discount_pct or 0) / 100)
+
+    @property
+    def profit(self):
+        return self.subtotal - (self.cost_snapshot * self.quantity)

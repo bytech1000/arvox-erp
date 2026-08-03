@@ -1,0 +1,117 @@
+{% extends "base.html" %}
+{% block title %}Ventas · ARVOX{% endblock %}
+{% block module_title %}Ventas{% endblock %}
+{% block module_subtitle %}Ventas multiproducto, stock y rentabilidad{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><span class="eyebrow">MÓDULO 3</span><h1>Ventas</h1><p>Registrá una venta completa y descontá el stock automáticamente.</p></div>
+  <a class="button" href="#new-sale">+ Nueva venta</a>
+</div>
+
+<div class="stats">
+  <article><span>Ventas visibles</span><strong>{{ totals.count }}</strong><small>Según filtros</small></article>
+  <article><span>Unidades entregadas</span><strong>{{ totals.units }}</strong><small>Descontadas del stock</small></article>
+  <article><span>Total vendido</span><strong>USD {{ "%.2f"|format(totals.amount) }}</strong><small>Sin canceladas</small></article>
+  <article><span>Ganancia</span><strong>USD {{ "%.2f"|format(totals.profit) }}</strong><small>Ventas entregadas</small></article>
+</div>
+
+<section class="panel" id="new-sale">
+  <details open>
+    <summary class="button">+ Nueva venta</summary>
+    <form method="post" id="sale-form" class="sale-form">
+      <div class="form-section">
+        <div class="section-title"><span>1</span><div><strong>Datos de la venta</strong><small>Cliente, fecha y cobro</small></div></div>
+        <div class="form-grid">
+          <label>Fecha<input type="date" name="date" required></label>
+          <label>Cliente<input name="customer" placeholder="Nombre del cliente" required></label>
+          <label>WhatsApp<input name="whatsapp" placeholder="+54..."></label>
+          <label>Referencia<input name="reference" placeholder="Pedido o factura"></label>
+          <label>Moneda<select name="currency"><option>USD</option><option>ARS</option><option>EUR</option></select></label>
+          <label>Forma de cobro<select name="payment_method"><option>Transferencia</option><option>Efectivo</option><option>Cuenta corriente</option><option>Tarjeta</option></select></label>
+          <label>Cobrado<input name="collected" type="number" min="0" step="0.01" value="0"></label>
+          <label>Estado<select name="status"><option>Entregada</option><option>Reservada</option></select></label>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-title"><span>2</span><div><strong>Productos</strong><small>Agregá todos los artículos de la venta</small></div></div>
+        <div id="sale-lines">
+          <div class="sale-line">
+            <select name="product_id[]" class="product-select" required>
+              <option value="">Seleccionar producto</option>
+              {% for product in products %}
+              <option value="{{ product.id }}" data-price="{{ product.sale_price }}" data-stock="{{ product.available_stock }}">
+                {{ product.code }} · {{ product.brand }} · {{ product.model }} · stock {{ product.available_stock }}
+              </option>
+              {% endfor %}
+            </select>
+            <input name="quantity[]" type="number" min="1" value="1" required>
+            <input name="unit_price[]" class="price-input" type="number" min="0" step="0.01" placeholder="Precio" required>
+            <input name="discount_pct[]" type="number" min="0" max="100" step="0.01" value="0" placeholder="% desc.">
+            <button type="button" class="secondary remove-line">Quitar</button>
+          </div>
+        </div>
+        <button type="button" class="secondary" id="add-sale-line">+ Agregar producto</button>
+      </div>
+
+      <div class="form-section">
+        <div class="section-title"><span>3</span><div><strong>Observaciones</strong><small>Opcional</small></div></div>
+        <textarea name="notes" placeholder="Entrega, condición comercial, comentarios..."></textarea>
+      </div>
+      <div class="form-actions"><button>Guardar venta</button></div>
+    </form>
+  </details>
+</section>
+
+<section class="panel">
+  <form method="get" class="sale-filters">
+    <input name="q" value="{{ q }}" placeholder="Buscar cliente, WhatsApp o referencia">
+    <select name="status"><option value="">Todos los estados</option>{% for status in ["Entregada","Reservada","Cancelada"] %}<option value="{{ status }}" {% if selected_status == status %}selected{% endif %}>{{ status }}</option>{% endfor %}</select>
+    <button>Filtrar</button><a class="button secondary" href="{{ url_for('sales.index') }}">Limpiar</a>
+  </form>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><div><span class="eyebrow">HISTORIAL</span><h2>Ventas registradas</h2></div></div>
+  <div class="table-wrap"><table>
+    <tr><th>Fecha</th><th>Cliente</th><th>Referencia</th><th>Unidades</th><th>Total</th><th>Cobrado</th><th>Saldo</th><th>Ganancia</th><th>Estado</th><th></th></tr>
+    {% for sale in rows %}
+    <tr>
+      <td>{{ sale.date.strftime("%d/%m/%Y") }}</td><td>{{ sale.customer }}</td><td>{{ sale.reference or "-" }}</td><td>{{ sale.units }}</td>
+      <td>{{ sale.currency }} {{ "%.2f"|format(sale.total) }}</td><td>{{ sale.currency }} {{ "%.2f"|format(sale.collected or 0) }}</td>
+      <td>{{ sale.currency }} {{ "%.2f"|format(sale.balance) }}</td><td>{{ sale.currency }} {{ "%.2f"|format(sale.profit) }}</td>
+      <td><span class="sale-status {{ sale.status|lower }}">{{ sale.status }}</span></td>
+      <td><a href="{{ url_for('sales.detail', sale_id=sale.id) }}">Ver</a></td>
+    </tr>
+    {% else %}<tr><td colspan="10">Todavía no hay ventas registradas.</td></tr>{% endfor %}
+  </table></div>
+</section>
+
+<script>
+const lines = document.getElementById("sale-lines");
+const firstLine = lines.querySelector(".sale-line");
+
+function bindLine(line) {
+  const select = line.querySelector(".product-select");
+  const price = line.querySelector(".price-input");
+  select.addEventListener("change", () => {
+    const option = select.options[select.selectedIndex];
+    if (option.dataset.price) price.value = option.dataset.price;
+  });
+  line.querySelector(".remove-line").addEventListener("click", () => {
+    if (lines.querySelectorAll(".sale-line").length > 1) line.remove();
+  });
+}
+bindLine(firstLine);
+
+document.getElementById("add-sale-line").addEventListener("click", () => {
+  const clone = firstLine.cloneNode(true);
+  clone.querySelectorAll("input").forEach(input => {
+    input.value = input.name === "quantity[]" ? "1" : input.name === "discount_pct[]" ? "0" : "";
+  });
+  clone.querySelector("select").selectedIndex = 0;
+  lines.appendChild(clone);
+  bindLine(clone);
+});
+</script>
+{% endblock %}

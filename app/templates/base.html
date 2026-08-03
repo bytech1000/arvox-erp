@@ -34,7 +34,9 @@
         <span class="nav-icon">＋</span> Compras
       </a>
       <span><span class="nav-icon">▤</span> Stock <em>próximamente</em></span>
-      <span><span class="nav-icon">$</span> Ventas <em>próximamente</em></span>
+      <a class="{% if request.blueprint == 'sales' %}active{% endif %}" href="{{ url_for('sales.index') }}">
+        <span class="nav-icon">$</span> Ventas
+      </a>
       <span><span class="nav-icon">◎</span> Clientes <em>próximamente</em></span>
       <span><span class="nav-icon">≡</span> Cuenta corriente <em>próximamente</em></span>
       <span><span class="nav-icon">↗</span> Reportes <em>próximamente</em></span>
@@ -66,7 +68,7 @@
           <div class="quick-menu">
             <a href="{{ url_for('products.index') }}#new-product">Nuevo producto</a>
             <a href="{{ url_for('purchases.index') }}#new-purchase">Nueva compra</a>
-            <span>Nueva venta</span>
+            <a href="{{ url_for('sales.index') }}#new-sale">Nueva venta</a>
             <a href="{{ url_for('suppliers.index') }}#new-supplier">Nuevo proveedor</a>
           </div>
         </details>

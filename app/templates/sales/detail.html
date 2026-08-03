@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+{% block title %}Venta · ARVOX{% endblock %}
+{% block module_title %}Ventas{% endblock %}
+{% block module_subtitle %}Detalle de la operación{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><a class="back" href="{{ url_for('sales.index') }}">← Ventas</a><span class="eyebrow">VENTA #{{ sale.id }}</span><h1>{{ sale.customer }}</h1><p>{{ sale.date.strftime("%d/%m/%Y") }} · {{ sale.reference or "Sin referencia" }}</p></div>
+  <div class="actions">
+    {% if sale.status != "Entregada" %}<form method="post" action="{{ url_for('sales.change_status', sale_id=sale.id, status='Entregada') }}"><button>Marcar entregada</button></form>{% endif %}
+    {% if sale.status != "Reservada" %}<form method="post" action="{{ url_for('sales.change_status', sale_id=sale.id, status='Reservada') }}"><button class="secondary">Reservar</button></form>{% endif %}
+    {% if sale.status != "Cancelada" %}<form method="post" action="{{ url_for('sales.change_status', sale_id=sale.id, status='Cancelada') }}"><button class="danger-button">Cancelar</button></form>{% endif %}
+  </div>
+</div>
+
+<div class="stats">
+  <article><span>Unidades</span><strong>{{ sale.units }}</strong><small>Productos</small></article>
+  <article><span>Total</span><strong>{{ sale.currency }} {{ "%.2f"|format(sale.total) }}</strong><small>Venta</small></article>
+  <article><span>Ganancia</span><strong>{{ sale.currency }} {{ "%.2f"|format(sale.profit) }}</strong><small>Según costo promedio</small></article>
+  <article class="{% if sale.balance > 0 %}alert-card{% endif %}"><span>Saldo</span><strong>{{ sale.currency }} {{ "%.2f"|format(sale.balance) }}</strong><small>Pendiente</small></article>
+</div>
+
+<section class="panel">
+  <div class="info-grid">
+    <div><span>Cliente</span><strong>{{ sale.customer }}</strong></div><div><span>WhatsApp</span><strong>{{ sale.whatsapp or "-" }}</strong></div>
+    <div><span>Forma de cobro</span><strong>{{ sale.payment_method }}</strong></div><div><span>Estado</span><strong>{{ sale.status }}</strong></div>
+    <div><span>Cobrado</span><strong>{{ sale.currency }} {{ "%.2f"|format(sale.collected or 0) }}</strong></div><div><span>Registrada</span><strong>{{ sale.created_at.strftime("%d/%m/%Y %H:%M") }}</strong></div>
+  </div>
+  {% if sale.notes %}<div class="note"><strong>Observaciones</strong><p>{{ sale.notes }}</p></div>{% endif %}
+</section>
+
+<section class="panel">
+  <div class="panel-head"><div><span class="eyebrow">DETALLE</span><h2>Productos vendidos</h2></div></div>
+  <div class="table-wrap"><table>
+    <tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Descuento</th><th>Subtotal</th><th>Costo</th><th>Ganancia</th></tr>
+    {% for item in sale.items %}
+    <tr>
+      <td>{{ item.product.brand }} · {{ item.product.model }}</td><td>{{ item.quantity }}</td>
+      <td>{{ sale.currency }} {{ "%.2f"|format(item.unit_price) }}</td><td>{{ "%.2f"|format(item.discount_pct or 0) }}%</td>
+      <td>{{ sale.currency }} {{ "%.2f"|format(item.subtotal) }}</td><td>{{ sale.currency }} {{ "%.2f"|format(item.cost_snapshot * item.quantity) }}</td>
+      <td>{{ sale.currency }} {{ "%.2f"|format(item.profit) }}</td>
+    </tr>
+    {% endfor %}
+  </table></div>
+</section>
+{% endblock %}

@@ -1,6 +1,6 @@
 from flask import Blueprint, render_template
 from .auth import login_required
-from .models import Product, Purchase, Sale
+from .models import Product, Purchase, SalesOrder
 
 dashboard_bp = Blueprint("dashboard", __name__)
 
@@ -24,7 +24,7 @@ def index():
     )[:6]
 
     recent_purchases = Purchase.query.order_by(Purchase.id.desc()).limit(5).all()
-    recent_sales = Sale.query.order_by(Sale.id.desc()).limit(5).all()
+    recent_sales = SalesOrder.query.order_by(SalesOrder.id.desc()).limit(5).all()
 
     return render_template(
         "dashboard/index.html",
