@@ -1,6 +1,14 @@
 from datetime import datetime, timedelta
-from flask import Blueprint, render_template, request, redirect, url_for, flash
+from io import BytesIO
+from urllib.parse import quote as url_quote
+from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file
 from sqlalchemy import or_
+from reportlab.lib import colors
+from reportlab.lib.enums import TA_RIGHT
+from reportlab.lib.pagesizes import A4
+from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.lib.units import mm
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, KeepTogether
 from . import db
 from .auth import login_required
 from .models import Quote, QuoteItem, Product, Customer, SalesOrder, SaleItem
@@ -282,3 +290,213 @@ def convert_to_sale(quote_id):
 
     flash("Cotización convertida en venta correctamente.", "success")
     return redirect(url_for("sales.detail", sale_id=sale.id))
+
+
+def money(value):
+    return f"{value:,.2f}".replace(",", "X").replace(".", ",").replace("X", ".")
+
+def build_quote_pdf(quote):
+    buffer = BytesIO()
+    doc = SimpleDocTemplate(
+        buffer,
+        pagesize=A4,
+        rightMargin=18 * mm,
+        leftMargin=18 * mm,
+        topMargin=16 * mm,
+        bottomMargin=16 * mm,
+        title=quote.number,
+        author="ARVOX",
+    )
+
+    styles = getSampleStyleSheet()
+    styles.add(ParagraphStyle(
+        name="ArvoxTitle",
+        parent=styles["Title"],
+        fontName="Helvetica-Bold",
+        fontSize=25,
+        leading=28,
+        textColor=colors.HexColor("#111111"),
+        spaceAfter=1 * mm,
+    ))
+    styles.add(ParagraphStyle(
+        name="ArvoxOrange",
+        parent=styles["Normal"],
+        fontName="Helvetica-Bold",
+        fontSize=9,
+        leading=11,
+        textColor=colors.HexColor("#F58220"),
+        uppercase=True,
+    ))
+    styles.add(ParagraphStyle(
+        name="SmallMuted",
+        parent=styles["Normal"],
+        fontSize=8,
+        leading=10,
+        textColor=colors.HexColor("#666666"),
+    ))
+    styles.add(ParagraphStyle(
+        name="RightStrong",
+        parent=styles["Normal"],
+        fontName="Helvetica-Bold",
+        fontSize=10,
+        leading=12,
+        alignment=TA_RIGHT,
+    ))
+
+    story = []
+
+    header = Table([
+        [
+            [
+                Paragraph("ARVOX", styles["ArvoxTitle"]),
+                Paragraph("DONDE JUEGA LA CALIDAD", styles["ArvoxOrange"]),
+            ],
+            [
+                Paragraph("COTIZACIÓN", styles["RightStrong"]),
+                Paragraph(f"<b>{quote.number}</b>", styles["RightStrong"]),
+                Paragraph(f"Fecha: {quote.date.strftime('%d/%m/%Y')}", styles["SmallMuted"]),
+                Paragraph(
+                    f"Válida hasta: {quote.valid_until.strftime('%d/%m/%Y') if quote.valid_until else '-'}",
+                    styles["SmallMuted"],
+                ),
+            ],
+        ]
+    ], colWidths=[105 * mm, 50 * mm])
+    header.setStyle(TableStyle([
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+        ("ALIGN", (1, 0), (1, 0), "RIGHT"),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+        ("LINEBELOW", (0, 0), (-1, -1), 1.5, colors.HexColor("#F58220")),
+    ]))
+    story.append(header)
+    story.append(Spacer(1, 8 * mm))
+
+    customer_data = [
+        [Paragraph("<b>CLIENTE</b>", styles["ArvoxOrange"]), ""],
+        ["Nombre", quote.customer],
+        ["WhatsApp", quote.customer_record.whatsapp or "-"],
+        ["Email", quote.customer_record.email or "-"],
+        ["Moneda", quote.currency],
+        ["Estado", quote.status],
+    ]
+    customer_table = Table(customer_data, colWidths=[35 * mm, 120 * mm])
+    customer_table.setStyle(TableStyle([
+        ("SPAN", (0, 0), (1, 0)),
+        ("BACKGROUND", (0, 0), (1, 0), colors.HexColor("#F3F3F3")),
+        ("TEXTCOLOR", (0, 1), (0, -1), colors.HexColor("#666666")),
+        ("FONTNAME", (1, 1), (1, -1), "Helvetica-Bold"),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+        ("TOPPADDING", (0, 0), (-1, -1), 5),
+        ("LINEBELOW", (0, 1), (-1, -1), 0.25, colors.HexColor("#DDDDDD")),
+    ]))
+    story.append(customer_table)
+    story.append(Spacer(1, 8 * mm))
+
+    product_rows = [["Producto", "Cant.", "Precio", "Desc.", "Subtotal"]]
+    for item in quote.items:
+        product_rows.append([
+            Paragraph(
+                f"<b>{item.product.brand}</b><br/>{item.product.model}",
+                styles["Normal"],
+            ),
+            str(item.quantity),
+            f"{quote.currency} {money(item.unit_price)}",
+            f"{money(item.discount_pct or 0)}%",
+            f"{quote.currency} {money(item.subtotal)}",
+        ])
+
+    products_table = Table(
+        product_rows,
+        colWidths=[76 * mm, 16 * mm, 28 * mm, 19 * mm, 31 * mm],
+        repeatRows=1,
+    )
+    products_table.setStyle(TableStyle([
+        ("BACKGROUND", (0, 0), (-1, 0), colors.HexColor("#111111")),
+        ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+        ("FONTNAME", (0, 0), (-1, 0), "Helvetica-Bold"),
+        ("ALIGN", (1, 1), (-1, -1), "RIGHT"),
+        ("VALIGN", (0, 0), (-1, -1), "MIDDLE"),
+        ("GRID", (0, 0), (-1, -1), 0.3, colors.HexColor("#D5D5D5")),
+        ("ROWBACKGROUNDS", (0, 1), (-1, -1), [colors.white, colors.HexColor("#F7F7F7")]),
+        ("TOPPADDING", (0, 0), (-1, -1), 6),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 6),
+    ]))
+    story.append(products_table)
+    story.append(Spacer(1, 7 * mm))
+
+    total_table = Table([
+        ["Subtotal", f"{quote.currency} {money(quote.subtotal)}"],
+        ["Descuento", f"{quote.currency} {money(quote.discount_total)}"],
+        ["TOTAL", f"{quote.currency} {money(quote.total)}"],
+    ], colWidths=[120 * mm, 50 * mm])
+    total_table.setStyle(TableStyle([
+        ("ALIGN", (1, 0), (1, -1), "RIGHT"),
+        ("FONTNAME", (0, 0), (-1, 1), "Helvetica"),
+        ("FONTNAME", (0, 2), (-1, 2), "Helvetica-Bold"),
+        ("FONTSIZE", (0, 2), (-1, 2), 14),
+        ("TEXTCOLOR", (0, 2), (-1, 2), colors.HexColor("#F58220")),
+        ("LINEABOVE", (0, 2), (-1, 2), 1, colors.HexColor("#F58220")),
+        ("TOPPADDING", (0, 0), (-1, -1), 5),
+        ("BOTTOMPADDING", (0, 0), (-1, -1), 5),
+    ]))
+    story.append(total_table)
+
+    if quote.notes:
+        story.append(Spacer(1, 8 * mm))
+        story.append(KeepTogether([
+            Paragraph("CONDICIONES Y OBSERVACIONES", styles["ArvoxOrange"]),
+            Spacer(1, 2 * mm),
+            Paragraph(quote.notes.replace("\n", "<br/>"), styles["Normal"]),
+        ]))
+
+    story.append(Spacer(1, 14 * mm))
+    footer = Table([
+        [
+            Paragraph(
+                "Gracias por elegir ARVOX.<br/>Esta cotización está sujeta a disponibilidad de stock.",
+                styles["SmallMuted"],
+            ),
+            Paragraph("ARVOX · Donde juega la calidad.", styles["RightStrong"]),
+        ]
+    ], colWidths=[100 * mm, 70 * mm])
+    footer.setStyle(TableStyle([
+        ("LINEABOVE", (0, 0), (-1, -1), 0.5, colors.HexColor("#CCCCCC")),
+        ("TOPPADDING", (0, 0), (-1, -1), 7),
+        ("VALIGN", (0, 0), (-1, -1), "TOP"),
+    ]))
+    story.append(footer)
+
+    doc.build(story)
+    buffer.seek(0)
+    return buffer
+
+@quotes_bp.get("/<int:quote_id>/pdf")
+@login_required
+def pdf(quote_id):
+    quote = Quote.query.get_or_404(quote_id)
+    buffer = build_quote_pdf(quote)
+    return send_file(
+        buffer,
+        mimetype="application/pdf",
+        as_attachment=True,
+        download_name=f"{quote.number}_{quote.customer.replace(' ', '_')}.pdf",
+    )
+
+@quotes_bp.get("/<int:quote_id>/whatsapp")
+@login_required
+def whatsapp(quote_id):
+    quote = Quote.query.get_or_404(quote_id)
+    customer = quote.customer_record
+    number = "".join(ch for ch in (customer.whatsapp or "") if ch.isdigit())
+
+    if not number:
+        flash("El cliente no tiene un WhatsApp cargado.", "error")
+        return redirect(url_for("quotes.detail", quote_id=quote.id))
+
+    pdf_url = url_for("quotes.pdf", quote_id=quote.id, _external=True)
+    message = (
+        f"Hola {customer.name}. Te envío la cotización {quote.number} de ARVOX "
+        f"por un total de {quote.currency} {money(quote.total)}. "
+        f"Podés descargarla desde: {pdf_url}"
+    )
+    return redirect(f"https://wa.me/{number}?text={url_quote(message)}")

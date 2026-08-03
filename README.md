@@ -168,3 +168,16 @@ Abrir `http://localhost:5000`.
 - Conversión directa a venta
 - Control de stock al convertir
 - Vínculo entre cotización y venta
+
+
+## v4.1 — PDF profesional y WhatsApp
+
+- Generación de PDF por cotización
+- Diseño ARVOX negro, blanco y naranja
+- Datos del cliente
+- Productos, cantidades, precios y descuentos
+- Subtotal, descuento y total
+- Observaciones y condiciones comerciales
+- Botón de descarga
+- Mensaje de WhatsApp prearmado
+- Enlace al PDF dentro del mensaje

@@ -6,6 +6,8 @@
 <div class="page-head">
   <div><a class="back" href="{{ url_for('quotes.index') }}">← Cotizaciones</a><span class="eyebrow">{{ quote.number }}</span><h1>{{ quote.customer }}</h1><p>{{ quote.date.strftime("%d/%m/%Y") }} · válida hasta {{ quote.valid_until.strftime("%d/%m/%Y") if quote.valid_until else "-" }}</p></div>
   <div class="actions">
+    <a class="button secondary" href="{{ url_for('quotes.pdf', quote_id=quote.id) }}">Descargar PDF</a>
+    {% if quote.customer_record.whatsapp %}<a class="button whatsapp-button" href="{{ url_for('quotes.whatsapp', quote_id=quote.id) }}" target="_blank">Enviar por WhatsApp</a>{% endif %}
     {% if quote.status != "Convertida" %}<a class="button secondary" href="{{ url_for('quotes.edit', quote_id=quote.id) }}">Editar</a>{% endif %}
     <form method="post" action="{{ url_for('quotes.duplicate', quote_id=quote.id) }}"><button class="secondary">Duplicar</button></form>
     {% if quote.status in ["Aceptada","Enviada","Borrador"] and quote.status != "Convertida" %}<form method="post" action="{{ url_for('quotes.convert_to_sale', quote_id=quote.id) }}"><button>Convertir en venta</button></form>{% endif %}

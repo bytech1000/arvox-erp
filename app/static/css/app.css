@@ -364,3 +364,8 @@ details summary{list-style:none;width:max-content}details summary::-webkit-detai
 .quote-detail-head{display:flex;justify-content:space-between;gap:16px;align-items:flex-start;margin-bottom:18px}
 @media(max-width:950px){.quote-line{grid-template-columns:1fr 1fr}.quote-filters{grid-template-columns:1fr 1fr}.quote-detail-head{flex-direction:column}}
 @media(max-width:600px){.quote-line,.quote-filters{grid-template-columns:1fr}}
+
+
+/* ARVOX · v4.1 PDF y WhatsApp */
+.quote-actions-cell{display:flex;gap:9px;flex-wrap:wrap}
+.quote-actions-cell a{color:var(--orange);text-decoration:none;font-size:12px}

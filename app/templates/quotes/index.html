@@ -78,7 +78,11 @@
       <td>{{ quote.number }}</td><td>{{ quote.date.strftime("%d/%m/%Y") }}</td><td>{{ quote.customer }}</td><td>{{ quote.valid_until.strftime("%d/%m/%Y") if quote.valid_until else "-" }}</td>
       <td>{{ quote.units }}</td><td>{{ quote.currency }} {{ "%.2f"|format(quote.total) }}</td><td>{{ "%.1f"|format(quote.margin_pct) }}%</td>
       <td><span class="quote-status {{ quote.status|lower }}">{{ quote.status }}</span></td>
-      <td><a href="{{ url_for('quotes.detail', quote_id=quote.id) }}">Ver</a></td>
+      <td class="quote-actions-cell">
+        <a href="{{ url_for('quotes.detail', quote_id=quote.id) }}">Ver</a>
+        <a href="{{ url_for('quotes.pdf', quote_id=quote.id) }}">PDF</a>
+        {% if quote.customer_record.whatsapp %}<a href="{{ url_for('quotes.whatsapp', quote_id=quote.id) }}" target="_blank">WhatsApp</a>{% endif %}
+      </td>
     </tr>
     {% else %}<tr><td colspan="9">Todavía no hay cotizaciones.</td></tr>{% endfor %}
   </table></div>
