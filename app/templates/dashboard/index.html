@@ -1,77 +1,128 @@
 {% extends "base.html" %}
-{% block module_title %}Inicio{% endblock %}
-{% block module_subtitle %}Resumen general de ARVOX{% endblock %}
+{% block module_title %}Dashboard{% endblock %}
+{% block module_subtitle %}Indicadores comerciales y alertas de ARVOX{% endblock %}
 {% block content %}
-<div class="welcome">
+<div class="dashboard-title-row">
   <div>
     <span class="eyebrow">ARVOX GESTIÓN</span>
     <h1>Buenos días, {{ session.get("username") }}.</h1>
-    <p>Este es el estado actual de tu negocio.</p>
+    <p>Resultados de <strong>{{ period_label|lower }}</strong>, del {{ start_date.strftime("%d/%m/%Y") }} al {{ end_date.strftime("%d/%m/%Y") }}.</p>
   </div>
-  <a class="button" href="{{ url_for('products.index') }}#new-product">+ Nuevo producto</a>
+  <div class="dashboard-quick-links">
+    <a class="button secondary" href="{{ url_for('purchases.index') }}#new-purchase">+ Compra</a>
+    <a class="button" href="{{ url_for('sales.index') }}#new-sale">+ Venta</a>
+  </div>
 </div>
 
-<div class="stats dashboard-stats">
-  <article><span>Productos activos</span><strong>{{ totals.products }}</strong><small>Catálogo vigente</small></article>
-  <article><span>Unidades en stock</span><strong>{{ totals.stock }}</strong><small>Disponibles para vender</small></article>
-  <article><span>Capital en stock</span><strong>USD {{ "%.2f"|format(totals.stock_value) }}</strong><small>Según costo promedio</small></article>
-  <article class="{% if totals.low_stock %}alert-card{% endif %}"><span>Stock bajo</span><strong>{{ totals.low_stock }}</strong><small>Productos para revisar</small></article>
-</div>
-
-<div class="dashboard-grid">
-  <section class="panel">
-    <div class="panel-head">
-      <div><span class="eyebrow">ALERTAS</span><h2>Productos con poco stock</h2></div>
-      <a href="{{ url_for('products.index') }}">Ver productos</a>
+<section class="panel dashboard-filter-panel">
+  <form method="get" class="dashboard-filters">
+    <div class="period-buttons">
+      {% for value, label in [('today','Hoy'),('week','Semana'),('month','Mes'),('year','Año')] %}
+      <button name="period" value="{{ value }}" class="{% if period == value %}active-period{% else %}secondary{% endif %}">{{ label }}</button>
+      {% endfor %}
     </div>
-    <div class="stock-alert-list">
-      {% for p in low_stock_products %}
-      <a href="{{ url_for('products.detail', product_id=p.id) }}">
-        <div class="small-product-image">
-          {% if p.image_url %}<img src="{{ p.image_url }}" alt="{{ p.model }}">
-          {% else %}<span>AR</span>{% endif %}
-        </div>
-        <div><strong>{{ p.brand }} · {{ p.model }}</strong><small>{{ p.code }}</small></div>
-        <b class="{% if p.stock == 0 %}bad{% else %}warn{% endif %}">Stock {{ p.stock }}</b>
-      </a>
-      {% else %}
-      <div class="empty-state">No hay productos con stock bajo.</div>
+    <select name="currency" aria-label="Moneda">
+      {% for value in ['USD','ARS','EUR'] %}<option {% if currency == value %}selected{% endif %}>{{ value }}</option>{% endfor %}
+    </select>
+    <input type="date" name="start" value="{{ start_date.isoformat() }}">
+    <input type="date" name="end" value="{{ end_date.isoformat() }}">
+    <button name="period" value="custom">Aplicar rango</button>
+  </form>
+</section>
+
+<div class="executive-stats">
+  <article class="executive-card primary-card"><span>Ventas</span><strong>{{ currency }} {{ "%.2f"|format(totals.sales) }}</strong><small>{{ totals.sales_count }} operaciones</small></article>
+  <article class="executive-card"><span>Ganancia</span><strong>{{ currency }} {{ "%.2f"|format(totals.profit) }}</strong><small>Ventas entregadas</small></article>
+  <article class="executive-card"><span>Compras</span><strong>{{ currency }} {{ "%.2f"|format(totals.purchases) }}</strong><small>Sin canceladas</small></article>
+  <article class="executive-card"><span>Stock valorizado</span><strong>{{ currency }} {{ "%.2f"|format(totals.stock_value) }}</strong><small>{{ totals.stock_units }} unidades disponibles</small></article>
+</div>
+
+<div class="secondary-stats">
+  <article><span>Por cobrar</span><strong>{{ currency }} {{ "%.2f"|format(totals.receivable) }}</strong></article>
+  <article><span>Por pagar</span><strong>{{ currency }} {{ "%.2f"|format(totals.payable) }}</strong></article>
+  <article class="{% if totals.low_stock %}alert-card{% endif %}"><span>Stock crítico</span><strong>{{ totals.low_stock }} productos</strong></article>
+</div>
+
+<div class="dashboard-main-grid">
+  <section class="panel chart-panel">
+    <div class="panel-head">
+      <div><span class="eyebrow">EVOLUCIÓN</span><h2>Ventas diarias</h2></div>
+      <strong>{{ currency }} {{ "%.2f"|format(totals.sales) }}</strong>
+    </div>
+    <div class="sales-chart" aria-label="Gráfico de ventas diarias">
+      {% for row in chart %}
+      <div class="chart-column" title="{{ row.date.strftime('%d/%m') }} · {{ currency }} {{ '%.2f'|format(row.amount) }}">
+        <span style="height:{{ [row.height, 3]|max }}%"></span>
+        {% if loop.index0 % 5 == 0 or loop.last %}<small>{{ row.date.strftime("%d/%m") }}</small>{% endif %}
+      </div>
       {% endfor %}
     </div>
   </section>
 
-  <section class="panel">
-    <div class="panel-head">
-      <div><span class="eyebrow">CATÁLOGO</span><h2>Productos destacados</h2></div>
-      <a href="{{ url_for('products.index') }}">Ver todos</a>
-    </div>
-    <div class="mini-products">
-    {% for p in products %}
-      <a href="{{ url_for('products.detail', product_id=p.id) }}">
-        <span>{{ p.code }}</span><strong>{{ p.brand }} · {{ p.model }}</strong><em>Stock {{ p.stock }}</em>
-      </a>
-    {% endfor %}
+  <section class="panel alert-center">
+    <div class="panel-head"><div><span class="eyebrow">CENTRO DE ACTIVIDAD</span><h2>Alertas</h2></div></div>
+    <div class="smart-alert-list">
+      {% for alert in alerts %}<div class="smart-alert {{ alert.type }}"><span>•</span><p>{{ alert.text }}</p></div>{% endfor %}
     </div>
   </section>
 </div>
 
-<div class="dashboard-grid">
+<div class="dashboard-triple-grid">
+  <section class="panel ranking-panel">
+    <div class="panel-head"><div><span class="eyebrow">RANKING</span><h2>Más vendidos</h2></div></div>
+    <div class="ranking-list">
+      {% for row in top_selling %}
+      <a href="{{ url_for('products.detail', product_id=row.product.id) }}"><b>{{ loop.index }}</b><div><strong>{{ row.product.brand }} · {{ row.product.model }}</strong><small>{{ row.units }} unidades</small></div><em>{{ currency }} {{ "%.2f"|format(row.amount) }}</em></a>
+      {% else %}<div class="empty-state">Sin ventas en el período.</div>{% endfor %}
+    </div>
+  </section>
+
+  <section class="panel ranking-panel">
+    <div class="panel-head"><div><span class="eyebrow">RENTABILIDAD</span><h2>Más rentables</h2></div></div>
+    <div class="ranking-list">
+      {% for row in top_profitable %}
+      <a href="{{ url_for('products.detail', product_id=row.product.id) }}"><b>{{ loop.index }}</b><div><strong>{{ row.product.brand }} · {{ row.product.model }}</strong><small>{{ row.units }} unidades</small></div><em>{{ currency }} {{ "%.2f"|format(row.profit) }}</em></a>
+      {% else %}<div class="empty-state">Sin ganancias calculadas.</div>{% endfor %}
+    </div>
+  </section>
+
+  <section class="panel ranking-panel">
+    <div class="panel-head"><div><span class="eyebrow">CLIENTES</span><h2>Mayores compradores</h2></div></div>
+    <div class="ranking-list">
+      {% for row in top_customers %}
+      <a href="{{ url_for('customers.detail', customer_id=row.customer.id) }}"><b>{{ loop.index }}</b><div><strong>{{ row.customer.name }}</strong><small>{{ row.customer.whatsapp or 'Sin WhatsApp' }}</small></div><em>{{ currency }} {{ "%.2f"|format(row.amount) }}</em></a>
+      {% else %}<div class="empty-state">Sin clientes en el período.</div>{% endfor %}
+    </div>
+  </section>
+</div>
+
+<div class="dashboard-main-grid">
   <section class="panel">
-    <div class="panel-head"><div><span class="eyebrow">MOVIMIENTOS</span><h2>Últimas compras</h2></div></div>
-    <div class="movement-list">
-      {% for x in recent_purchases %}
-      <div><span>{{ x.date }}</span><strong>{{ x.supplier.name }}</strong><em>{{ x.units }} u. · {{ x.currency }} {{ "%.2f"|format(x.total) }}</em></div>
-      {% else %}<div class="empty-state">Todavía no hay compras cargadas.</div>{% endfor %}
+    <div class="panel-head"><div><span class="eyebrow">INVENTARIO</span><h2>Stock crítico</h2></div><a href="{{ url_for('products.index') }}">Ver productos</a></div>
+    <div class="stock-alert-list">
+      {% for p in low_stock_products %}
+      <a href="{{ url_for('products.detail', product_id=p.id) }}"><div class="small-product-image">{% if p.image_url %}<img src="{{ p.image_url }}" alt="{{ p.model }}">{% else %}<span>AR</span>{% endif %}</div><div><strong>{{ p.brand }} · {{ p.model }}</strong><small>Mínimo {{ p.min_stock }} · reservado {{ p.reserved_units }}</small></div><b class="{% if p.available_stock <= 0 %}bad{% else %}warn{% endif %}">Disponible {{ p.available_stock }}</b></a>
+      {% else %}<div class="empty-state">El stock está bajo control.</div>{% endfor %}
     </div>
   </section>
 
   <section class="panel">
-    <div class="panel-head"><div><span class="eyebrow">MOVIMIENTOS</span><h2>Últimas ventas</h2></div></div>
-    <div class="movement-list">
-      {% for x in recent_sales %}
-      <div><span>{{ x.date }}</span><strong>{{ x.supplier.name }}</strong><em>{{ x.quantity }} u. · USD {{ "%.2f"|format(x.unit_price) }}</em></div>
-      {% else %}<div class="empty-state">Todavía no hay ventas cargadas.</div>{% endfor %}
+    <div class="panel-head"><div><span class="eyebrow">CUENTAS CORRIENTES</span><h2>Saldos pendientes</h2></div></div>
+    <div class="debt-columns">
+      <div><h3>Clientes</h3>{% for row in debtor_customers %}<a href="{{ url_for('customers.detail', customer_id=row.customer.id) }}"><span>{{ row.customer.name }}</span><strong>{{ currency }} {{ "%.2f"|format(row.balance) }}</strong></a>{% else %}<p>Sin saldos pendientes.</p>{% endfor %}</div>
+      <div><h3>Proveedores</h3>{% for row in supplier_debts %}<a href="{{ url_for('suppliers.detail', supplier_id=row.supplier.id) }}"><span>{{ row.supplier.name }}</span><strong>{{ currency }} {{ "%.2f"|format(row.balance) }}</strong></a>{% else %}<p>Sin saldos pendientes.</p>{% endfor %}</div>
     </div>
+  </section>
+</div>
+
+<div class="dashboard-main-grid">
+  <section class="panel">
+    <div class="panel-head"><div><span class="eyebrow">MOVIMIENTOS</span><h2>Últimas compras</h2></div><a href="{{ url_for('purchases.index') }}">Ver todas</a></div>
+    <div class="movement-list">{% for x in recent_purchases %}<a href="{{ url_for('purchases.detail', purchase_id=x.id) }}"><span>{{ x.date.strftime('%d/%m/%Y') }}</span><strong>{{ x.supplier.name }}</strong><em>{{ x.units }} u. · {{ x.currency }} {{ "%.2f"|format(x.total) }}</em></a>{% else %}<div class="empty-state">Sin compras en el período.</div>{% endfor %}</div>
+  </section>
+  <section class="panel">
+    <div class="panel-head"><div><span class="eyebrow">MOVIMIENTOS</span><h2>Últimas ventas</h2></div><a href="{{ url_for('sales.index') }}">Ver todas</a></div>
+    <div class="movement-list">{% for x in recent_sales %}<a href="{{ url_for('sales.detail', sale_id=x.id) }}"><span>{{ x.date.strftime('%d/%m/%Y') }}</span><strong>{{ x.customer }}</strong><em>{{ x.units }} u. · {{ x.currency }} {{ "%.2f"|format(x.total) }}</em></a>{% else %}<div class="empty-state">Sin ventas en el período.</div>{% endfor %}</div>
   </section>
 </div>
 {% endblock %}

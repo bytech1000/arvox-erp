@@ -137,3 +137,18 @@ Abrir `http://localhost:5000`.
 - Productos comprados
 - Acceso directo a WhatsApp
 - Nueva venta desde la ficha
+
+
+## v3.2 — Dashboard comercial
+
+- Filtros Hoy, Semana, Mes, Año y rango personalizado
+- Selector de moneda
+- Ventas, ganancias, compras y stock valorizado
+- Por cobrar y por pagar
+- Gráfico diario de ventas
+- Productos más vendidos y rentables
+- Clientes principales y con deuda
+- Proveedores con saldo
+- Stock crítico
+- Alertas comerciales
+- Últimos movimientos
