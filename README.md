@@ -255,3 +255,20 @@ Abrir `http://localhost:5000`.
 - Información de cantidad de registros
 - Verificación básica de integridad de la base
 - Compatible con SQLite y PostgreSQL
+
+
+## v5.2.2 — Menú lateral compacto
+
+- Menú lateral más angosto y compacto
+- Navegación con desplazamiento vertical independiente
+- Barra de desplazamiento discreta
+- Pie del menú siempre visible
+- Mejor visualización en pantallas con poca altura
+
+
+## v5.2.3 — Datos de demostración desactivados
+
+- Los despliegues ya no crean productos de ejemplo.
+- Los despliegues ya no crean proveedores de ejemplo.
+- El reinicio conserva solamente el usuario administrador.
+- Después de reiniciar una vez, el inventario permanece vacío en futuras versiones.
