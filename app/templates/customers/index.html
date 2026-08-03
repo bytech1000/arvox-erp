@@ -1,0 +1,83 @@
+{% extends "base.html" %}
+{% block title %}Clientes · ARVOX{% endblock %}
+{% block module_title %}Clientes{% endblock %}
+{% block module_subtitle %}Historial, saldos y contacto comercial{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><span class="eyebrow">MÓDULO 3.1</span><h1>Clientes</h1><p>Administrá contactos, ventas y cuentas corrientes.</p></div>
+  <a class="button" href="#new-customer">+ Nuevo cliente</a>
+</div>
+
+<div class="stats customer-stats">
+  <article><span>Clientes visibles</span><strong>{{ totals.customers }}</strong><small>Según filtros</small></article>
+  <article><span>Total vendido</span><strong>USD {{ "%.2f"|format(totals.sales) }}</strong><small>Sin ventas canceladas</small></article>
+  <article><span>Total cobrado</span><strong>USD {{ "%.2f"|format(totals.collected) }}</strong><small>Cobros registrados</small></article>
+  <article class="{% if totals.balance > 0 %}alert-card{% endif %}"><span>Saldo pendiente</span><strong>USD {{ "%.2f"|format(totals.balance) }}</strong><small>Cuenta corriente</small></article>
+</div>
+
+<section class="panel" id="new-customer">
+  <details>
+    <summary class="button">+ Nuevo cliente</summary>
+    <form method="post" class="form-grid customer-form">
+      <input name="name" placeholder="Nombre del cliente" required>
+      <input name="whatsapp" placeholder="WhatsApp">
+      <input name="email" type="email" placeholder="Email">
+      <input name="city" placeholder="Ciudad">
+      <textarea class="full" name="notes" placeholder="Observaciones internas"></textarea>
+      <button>Guardar cliente</button>
+    </form>
+  </details>
+</section>
+
+<section class="panel">
+  <form method="get" class="customer-filters">
+    <input name="q" value="{{ q }}" placeholder="Buscar cliente, WhatsApp, email o ciudad">
+    <select name="active">
+      <option value="1" {% if selected_active == "1" %}selected{% endif %}>Activos</option>
+      <option value="0" {% if selected_active == "0" %}selected{% endif %}>Inactivos</option>
+      <option value="" {% if selected_active == "" %}selected{% endif %}>Todos</option>
+    </select>
+    <button>Filtrar</button>
+    <a class="button secondary" href="{{ url_for('customers.index') }}">Limpiar</a>
+  </form>
+</section>
+
+<div class="customer-grid">
+{% for customer in rows %}
+  <article class="customer-card {% if not customer.active %}inactive{% endif %}">
+    <div class="customer-card-head">
+      <div class="customer-avatar">{{ customer.name[:2]|upper }}</div>
+      <div>
+        <span class="eyebrow">CLIENTE</span>
+        <h2>{{ customer.name }}</h2>
+        <p>{{ customer.city or "Ciudad no informada" }}</p>
+      </div>
+      <span class="status-pill {% if customer.active %}ok{% else %}bad{% endif %}">
+        {% if customer.active %}Activo{% else %}Inactivo{% endif %}
+      </span>
+    </div>
+
+    <div class="customer-contact">
+      <div><span>WhatsApp</span><strong>{{ customer.whatsapp or "-" }}</strong></div>
+      <div><span>Email</span><strong>{{ customer.email or "-" }}</strong></div>
+    </div>
+
+    <div class="customer-numbers">
+      <div><span>Ventas</span><strong>{{ customer.sale_count }}</strong></div>
+      <div><span>Total vendido</span><strong>USD {{ "%.2f"|format(customer.total_sold) }}</strong></div>
+      <div><span>Saldo</span><strong class="{% if customer.balance > 0 %}text-warn{% endif %}">USD {{ "%.2f"|format(customer.balance) }}</strong></div>
+    </div>
+
+    <div class="actions">
+      <a class="button" href="{{ url_for('customers.detail', customer_id=customer.id) }}">Ver ficha</a>
+      <a class="button secondary" href="{{ url_for('customers.edit', customer_id=customer.id) }}">Editar</a>
+      <form method="post" action="{{ url_for('customers.toggle', customer_id=customer.id) }}">
+        <button class="secondary">{% if customer.active %}Desactivar{% else %}Activar{% endif %}</button>
+      </form>
+    </div>
+  </article>
+{% else %}
+  <section class="panel empty-state">No encontramos clientes con esos filtros.</section>
+{% endfor %}
+</div>
+{% endblock %}

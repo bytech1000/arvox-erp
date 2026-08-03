@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block title %}Editar {{ customer.name }} · ARVOX{% endblock %}
+{% block module_title %}Clientes{% endblock %}
+{% block module_subtitle %}Editar información comercial{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><a class="back" href="{{ url_for('customers.detail', customer_id=customer.id) }}">← Volver a la ficha</a><span class="eyebrow">EDITAR CLIENTE</span><h1>{{ customer.name }}</h1></div>
+</div>
+<section class="panel">
+<form method="post" class="form-grid customer-form">
+  <label>Nombre<input name="name" value="{{ customer.name }}" required></label>
+  <label>WhatsApp<input name="whatsapp" value="{{ customer.whatsapp or '' }}"></label>
+  <label>Email<input name="email" type="email" value="{{ customer.email or '' }}"></label>
+  <label>Ciudad<input name="city" value="{{ customer.city or '' }}"></label>
+  <label class="full">Observaciones<textarea name="notes">{{ customer.notes or "" }}</textarea></label>
+  <button>Guardar cambios</button>
+  <a class="button secondary" href="{{ url_for('customers.detail', customer_id=customer.id) }}">Cancelar</a>
+</form>
+</section>
+{% endblock %}

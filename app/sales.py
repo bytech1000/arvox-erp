@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from sqlalchemy import or_
 from . import db
 from .auth import login_required
-from .models import Product, SalesOrder, SaleItem
+from .models import Product, SalesOrder, SaleItem, Customer
 
 sales_bp = Blueprint("sales", __name__, url_prefix="/sales")
 
@@ -63,11 +63,18 @@ def index():
             flash(str(exc), "error")
             return redirect(url_for("sales.index"))
 
+        customer_id = int(request.form["customer_id"])
+        customer = Customer.query.get(customer_id)
+        if not customer or not customer.active:
+            flash("El cliente seleccionado no está disponible.", "error")
+            return redirect(url_for("sales.index"))
+
         sale = SalesOrder(
             date=date_value,
             reference=request.form.get("reference", "").strip() or None,
-            customer=request.form["customer"].strip(),
-            whatsapp=request.form.get("whatsapp", "").strip() or None,
+            customer_id=customer.id,
+            customer=customer.name,
+            whatsapp=customer.whatsapp or None,
             currency=request.form.get("currency") or "USD",
             payment_method=request.form.get("payment_method") or "Transferencia",
             collected=collected,
@@ -109,6 +116,7 @@ def index():
 
     rows = query.order_by(SalesOrder.date.desc(), SalesOrder.id.desc()).all()
     products = Product.query.filter_by(active=True).order_by(Product.brand, Product.model).all()
+    customers = Customer.query.filter_by(active=True).order_by(Customer.name).all()
 
     totals = {
         "count": len(rows),
@@ -122,6 +130,7 @@ def index():
         "sales/index.html",
         rows=rows,
         products=products,
+        customers=customers,
         totals=totals,
         q=q,
         selected_status=status,

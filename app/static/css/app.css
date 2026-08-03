@@ -309,3 +309,27 @@ details summary{list-style:none;width:max-content}details summary::-webkit-detai
 .sale-status.entregada{background:#143922;color:#74e39d}.sale-status.reservada{background:#49360c;color:#ffd66f}.sale-status.cancelada{background:#491818;color:#ff8b8b}
 @media(max-width:900px){.sale-line{grid-template-columns:1fr 1fr}.sale-filters{grid-template-columns:1fr}}
 @media(max-width:560px){.sale-line{grid-template-columns:1fr}}
+
+
+/* ARVOX · Módulo 3.1 Clientes */
+.customer-filters{display:grid;grid-template-columns:minmax(260px,1fr) 160px auto auto;gap:10px}
+.customer-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(390px,1fr));gap:16px}
+.customer-card{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;transition:.2s}
+.customer-card:hover{border-color:#4a4d55;transform:translateY(-2px)}.customer-card.inactive{opacity:.55}
+.customer-card-head{display:grid;grid-template-columns:58px 1fr auto;gap:13px;align-items:center;border-bottom:1px solid var(--line);padding-bottom:15px}
+.customer-card-head h2{margin:4px 0;font-size:20px}.customer-card-head p{margin:0;color:var(--muted);font-size:13px}
+.customer-avatar{width:58px;height:58px;border-radius:14px;display:grid;place-items:center;background:linear-gradient(145deg,#2a1a0e,#111);border:1px solid #5b3718;color:var(--orange);font-size:20px;font-weight:900;letter-spacing:.08em}
+.customer-avatar.large{width:86px;height:86px;font-size:27px;border-radius:20px}
+.customer-contact{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:15px 0}
+.customer-contact span,.customer-numbers span{display:block;color:var(--muted);font-size:11px;margin-bottom:5px}
+.customer-contact strong{display:block;font-size:13px;overflow-wrap:anywhere}
+.customer-numbers{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:16px}
+.customer-numbers div{background:#18191d;border:1px solid #282a30;border-radius:9px;padding:11px}
+.customer-detail-grid{display:grid;grid-template-columns:minmax(320px,.75fr) minmax(420px,1.25fr);gap:18px}
+.customer-profile{display:flex;gap:17px;align-items:flex-start}.customer-profile h2{margin:12px 0 7px}.customer-profile p{color:#b8bbc1;line-height:1.55}
+.customer-product-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:9px}
+.customer-product-grid a{display:grid;gap:5px;text-decoration:none;padding:13px;background:#18191d;border-radius:9px}
+.customer-product-grid span,.customer-product-grid em{color:var(--muted);font-style:normal;font-size:12px}
+.compact-button{padding:9px 12px;width:max-content}
+@media(max-width:1050px){.customer-detail-grid{grid-template-columns:1fr}.customer-filters{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.customer-grid{grid-template-columns:1fr}.customer-card-head{grid-template-columns:52px 1fr}.customer-card-head .status-pill{grid-column:1/-1;width:max-content}.customer-contact{grid-template-columns:1fr}.customer-numbers{grid-template-columns:1fr}.customer-filters{grid-template-columns:1fr}.customer-profile{flex-direction:column}}

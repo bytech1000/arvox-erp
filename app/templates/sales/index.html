@@ -23,8 +23,18 @@
         <div class="section-title"><span>1</span><div><strong>Datos de la venta</strong><small>Cliente, fecha y cobro</small></div></div>
         <div class="form-grid">
           <label>Fecha<input type="date" name="date" required></label>
-          <label>Cliente<input name="customer" placeholder="Nombre del cliente" required></label>
-          <label>WhatsApp<input name="whatsapp" placeholder="+54..."></label>
+          <label>Cliente
+            <select name="customer_id" required>
+              <option value="">Seleccionar cliente</option>
+              {% for customer in customers %}
+              <option value="{{ customer.id }}">{{ customer.name }}{% if customer.whatsapp %} · {{ customer.whatsapp }}{% endif %}</option>
+              {% endfor %}
+            </select>
+          </label>
+          <label>
+            Nuevo cliente
+            <a class="button secondary compact-button" href="{{ url_for('customers.index') }}#new-customer">+ Crear cliente</a>
+          </label>
           <label>Referencia<input name="reference" placeholder="Pedido o factura"></label>
           <label>Moneda<select name="currency"><option>USD</option><option>ARS</option><option>EUR</option></select></label>
           <label>Forma de cobro<select name="payment_method"><option>Transferencia</option><option>Efectivo</option><option>Cuenta corriente</option><option>Tarjeta</option></select></label>

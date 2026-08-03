@@ -123,3 +123,17 @@ Abrir `http://localhost:5000`.
 - Costo congelado al momento de vender
 - Ganancia por producto y por venta
 - Historial y detalle
+
+
+## v3.1 — Clientes y cuenta corriente
+
+- Alta, edición y activación de clientes
+- WhatsApp, email, ciudad y notas
+- Selección obligatoria de cliente en Ventas
+- Historial de ventas
+- Total vendido
+- Total cobrado
+- Saldo pendiente
+- Productos comprados
+- Acceso directo a WhatsApp
+- Nueva venta desde la ficha

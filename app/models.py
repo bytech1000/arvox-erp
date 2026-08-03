@@ -121,10 +121,40 @@ class PurchaseItem(db.Model):
     @property
     def subtotal(self): return self.quantity * self.unit_cost
 
+class Customer(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), unique=True, nullable=False, index=True)
+    whatsapp = db.Column(db.String(80))
+    email = db.Column(db.String(180))
+    city = db.Column(db.String(140))
+    notes = db.Column(db.Text)
+    active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    sales = db.relationship("SalesOrder", backref="customer_record", lazy=True)
+
+    @property
+    def total_sold(self):
+        return sum(x.total for x in self.sales if x.status != "Cancelada")
+
+    @property
+    def total_collected(self):
+        return sum((x.collected or 0) for x in self.sales if x.status != "Cancelada")
+
+    @property
+    def balance(self):
+        return self.total_sold - self.total_collected
+
+    @property
+    def sale_count(self):
+        return sum(1 for x in self.sales if x.status != "Cancelada")
+
+
 class SalesOrder(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
     reference = db.Column(db.String(80))
+    customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"), nullable=False)
     customer = db.Column(db.String(150), nullable=False)
     whatsapp = db.Column(db.String(80))
     currency = db.Column(db.String(20), default="USD")
