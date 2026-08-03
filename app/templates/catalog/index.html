@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+{% block title %}Catálogo Maestro · ARVOX{% endblock %}
+{% block module_title %}Catálogo Maestro{% endblock %}
+{% block module_subtitle %}Marcas y modelos disponibles para crear productos{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <span class="eyebrow">BASE MAESTRA</span>
+    <h1>Catálogo Maestro</h1>
+    <p>Administrá los modelos que ARVOX ofrece al crear un producto.</p>
+  </div>
+  <a class="button" href="{{ url_for('products.index') }}#new-product">Crear producto</a>
+</div>
+
+<div class="stats catalog-stats">
+  <article><span>Modelos totales</span><strong>{{ total }}</strong><small>Base completa</small></article>
+  <article><span>Modelos activos</span><strong>{{ active_count }}</strong><small>Disponibles para usar</small></article>
+  <article><span>Marcas</span><strong>{{ brands|length }}</strong><small>Catálogo actual</small></article>
+</div>
+
+<div class="catalog-layout">
+  <section class="panel">
+    <span class="eyebrow">IMPORTAR</span>
+    <h2>Importar desde Excel</h2>
+    <p>El archivo debe contener las columnas <strong>Marca</strong> y <strong>Modelo</strong>. Los duplicados se omiten automáticamente.</p>
+    <form method="post" action="{{ url_for('catalog.import_file') }}" enctype="multipart/form-data" class="catalog-import-form">
+      <input type="file" name="catalog_file" accept=".xlsx,.csv" required>
+      <button>Importar catálogo</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <span class="eyebrow">NUEVO MODELO</span>
+    <h2>Agregar manualmente</h2>
+    <form method="post" action="{{ url_for('catalog.add') }}" class="form-grid">
+      <input name="brand" placeholder="Marca" required>
+      <input name="model" placeholder="Modelo" required>
+      <button>Agregar modelo</button>
+    </form>
+  </section>
+</div>
+
+<section class="panel">
+  <form method="get" class="catalog-filters">
+    <input name="q" value="{{ q }}" placeholder="Buscar marca o modelo">
+    <select name="brand">
+      <option value="">Todas las marcas</option>
+      {% for brand in brands %}
+      <option value="{{ brand }}" {% if selected_brand == brand %}selected{% endif %}>{{ brand }}</option>
+      {% endfor %}
+    </select>
+    <select name="active">
+      <option value="1" {% if selected_active == "1" %}selected{% endif %}>Activos</option>
+      <option value="0" {% if selected_active == "0" %}selected{% endif %}>Inactivos</option>
+      <option value="" {% if selected_active == "" %}selected{% endif %}>Todos</option>
+    </select>
+    <button>Filtrar</button>
+    <a class="button secondary" href="{{ url_for('catalog.index') }}">Limpiar</a>
+  </form>
+</section>
+
+<section class="panel">
+  <div class="panel-head">
+    <div><span class="eyebrow">MODELOS</span><h2>{{ rows|length }} resultados</h2></div>
+  </div>
+  <div class="table-wrap">
+    <table>
+      <tr><th>Marca</th><th>Modelo</th><th>Estado</th><th>Acciones</th></tr>
+      {% for item in rows %}
+      <tr>
+        <td><strong>{{ item.brand }}</strong></td>
+        <td>{{ item.model }}</td>
+        <td><span class="status-pill {% if item.active %}ok{% else %}bad{% endif %}">{% if item.active %}Activo{% else %}Inactivo{% endif %}</span></td>
+        <td class="catalog-actions">
+          <form method="post" action="{{ url_for('catalog.toggle', item_id=item.id) }}">
+            <button class="secondary">{% if item.active %}Desactivar{% else %}Activar{% endif %}</button>
+          </form>
+          <form method="post" action="{{ url_for('catalog.delete', item_id=item.id) }}" onsubmit="return confirm('¿Eliminar este modelo del catálogo?')">
+            <button class="danger-button">Eliminar</button>
+          </form>
+        </td>
+      </tr>
+      {% else %}
+      <tr><td colspan="4">No encontramos modelos.</td></tr>
+      {% endfor %}
+    </table>
+  </div>
+</section>
+{% endblock %}

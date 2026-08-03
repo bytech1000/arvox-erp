@@ -460,3 +460,20 @@ details summary{list-style:none;width:max-content}details summary::-webkit-detai
 .reset-form{display:grid;grid-template-columns:minmax(260px,420px) auto;gap:12px;align-items:end}.reset-form .danger-button{height:44px}
 @media(max-width:1050px){.maintenance-stats{grid-template-columns:1fr 1fr}.maintenance-grid{grid-template-columns:1fr}.maintenance-form{grid-template-columns:1fr 1fr}.maintenance-form button{grid-column:1/-1}.maintenance-count-grid{grid-template-columns:repeat(3,1fr)}}
 @media(max-width:650px){.maintenance-stats,.maintenance-form,.maintenance-count-grid,.reset-form{grid-template-columns:1fr}.maintenance-form button{grid-column:auto}}
+
+
+/* ARVOX · v5.2.5 Catálogo Maestro */
+.catalog-layout{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.catalog-import-form{display:grid;grid-template-columns:1fr auto;gap:10px;margin-top:15px}
+.catalog-filters{display:grid;grid-template-columns:minmax(250px,1fr) 190px 150px auto auto;gap:10px}
+.catalog-actions{display:flex;gap:8px;align-items:center}
+.catalog-actions form{margin:0}
+#master-catalog-select{min-height:44px}
+#product-create-form label small{display:block;color:var(--muted);font-size:11px;margin-top:5px}
+@media(max-width:900px){
+  .catalog-layout{grid-template-columns:1fr}
+  .catalog-filters{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  .catalog-import-form,.catalog-filters{grid-template-columns:1fr}
+}

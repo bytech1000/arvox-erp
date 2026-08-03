@@ -1,6 +1,62 @@
 {% extends "base.html" %}
-{% block module_title %}Productos{% endblock %}
-{% block module_subtitle %}Catálogo maestro, precios y stock{% endblock %}
+{% block module_title %}Productos<script>
+(function () {
+  const select = document.getElementById("master-catalog-select");
+  const brand = document.getElementById("product-brand");
+  const model = document.getElementById("product-model");
+  const code = document.getElementById("product-code");
+  if (!select || !brand || !model || !code) return;
+
+  function slug(value) {
+    return value
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .toUpperCase()
+      .replace(/[^A-Z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 28);
+  }
+
+  select.addEventListener("change", function () {
+    const option = select.options[select.selectedIndex];
+    if (!option || !option.dataset.brand) return;
+    brand.value = option.dataset.brand;
+    model.value = option.dataset.model;
+    if (!code.value) {
+      code.value = slug(option.dataset.brand).slice(0, 3) + "-" + slug(option.dataset.model);
+    }
+  });
+})();
+</script>
+{% endblock %}
+{% block module_subtitle %}Catálogo maestro, precios y stock<script>
+(function () {
+  const select = document.getElementById("master-catalog-select");
+  const brand = document.getElementById("product-brand");
+  const model = document.getElementById("product-model");
+  const code = document.getElementById("product-code");
+  if (!select || !brand || !model || !code) return;
+
+  function slug(value) {
+    return value
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .toUpperCase()
+      .replace(/[^A-Z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 28);
+  }
+
+  select.addEventListener("change", function () {
+    const option = select.options[select.selectedIndex];
+    if (!option || !option.dataset.brand) return;
+    brand.value = option.dataset.brand;
+    model.value = option.dataset.model;
+    if (!code.value) {
+      code.value = slug(option.dataset.brand).slice(0, 3) + "-" + slug(option.dataset.model);
+    }
+  });
+})();
+</script>
+{% endblock %}
 {% block content %}
 <div class="page-head">
   <div>
@@ -8,16 +64,30 @@
     <h1>Productos</h1>
     <p>Administrá el catálogo maestro de ARVOX.</p>
   </div>
-  <a class="button" href="#new-product">+ Nuevo producto</a>
+  <div class="actions">
+    <a class="button secondary" href="{{ url_for('catalog.index') }}">Catálogo Maestro</a>
+    <a class="button" href="#new-product">+ Nuevo producto</a>
+  </div>
 </div>
 
 <section class="panel" id="new-product">
   <details>
     <summary class="button">+ Nuevo producto</summary>
-    <form method="post" class="form-grid">
-      <input name="code" placeholder="Código" required>
-      <input name="brand" placeholder="Marca" required>
-      <input name="model" placeholder="Modelo" required>
+    <form method="post" class="form-grid" id="product-create-form">
+      <label class="full">Elegir del Catálogo Maestro
+        <select id="master-catalog-select">
+          <option value="">Buscar o seleccionar un modelo...</option>
+          {% for item in catalog_items %}
+          <option value="{{ item.id }}" data-brand="{{ item.brand }}" data-model="{{ item.model }}">
+            {{ item.brand }} · {{ item.model }}
+          </option>
+          {% endfor %}
+        </select>
+        <small>Al elegir un modelo, ARVOX completa marca, modelo y propone un código.</small>
+      </label>
+      <input name="code" id="product-code" placeholder="Código" required>
+      <input name="brand" id="product-brand" placeholder="Marca" required>
+      <input name="model" id="product-model" placeholder="Modelo" required>
       <input name="year" type="number" placeholder="Año">
       <select name="category">
         <option>Paleta</option><option>Pelotas</option><option>Grip</option>
@@ -112,4 +182,32 @@
     </table>
   </div>
 </section>
+<script>
+(function () {
+  const select = document.getElementById("master-catalog-select");
+  const brand = document.getElementById("product-brand");
+  const model = document.getElementById("product-model");
+  const code = document.getElementById("product-code");
+  if (!select || !brand || !model || !code) return;
+
+  function slug(value) {
+    return value
+      .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .toUpperCase()
+      .replace(/[^A-Z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "")
+      .slice(0, 28);
+  }
+
+  select.addEventListener("change", function () {
+    const option = select.options[select.selectedIndex];
+    if (!option || !option.dataset.brand) return;
+    brand.value = option.dataset.brand;
+    model.value = option.dataset.model;
+    if (!code.value) {
+      code.value = slug(option.dataset.brand).slice(0, 3) + "-" + slug(option.dataset.model);
+    }
+  });
+})();
+</script>
 {% endblock %}

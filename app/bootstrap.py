@@ -11,6 +11,7 @@ def prepare_database(app: Flask) -> None:
         migrate_schema()
         normalize_currency_to_ars()
         seed_data(app)
+        seed_master_catalog()
 
 
 def migrate_schema() -> None:
@@ -66,3 +67,26 @@ def normalize_currency_to_ars():
                 columns = {c["name"] for c in inspector.get_columns(table)}
                 if "currency" in columns:
                     conn.exec_driver_sql(f"UPDATE {table} SET currency = 'ARS' WHERE currency IS NULL OR currency <> 'ARS'")
+
+
+def seed_master_catalog():
+    """Carga una única vez la Base Maestra entregada por el usuario."""
+    from .catalog_seed import MASTER_CATALOG
+    from .models import MasterCatalogItem, SystemSetting
+
+    setting = SystemSetting.query.filter_by(key="master_catalog_v1_loaded").first()
+    if setting:
+        return
+
+    existing = {
+        (row.brand.casefold(), row.model.casefold())
+        for row in MasterCatalogItem.query.all()
+    }
+    for brand, model in MASTER_CATALOG:
+        key = (brand.casefold(), model.casefold())
+        if key not in existing:
+            db.session.add(MasterCatalogItem(brand=brand, model=model))
+            existing.add(key)
+
+    db.session.add(SystemSetting(key="master_catalog_v1_loaded", value="148"))
+    db.session.commit()

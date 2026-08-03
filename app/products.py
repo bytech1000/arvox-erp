@@ -2,7 +2,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from sqlalchemy import or_
 from . import db
 from .auth import login_required
-from .models import Product
+from .models import Product, MasterCatalogItem
 
 products_bp = Blueprint("products", __name__, url_prefix="/products")
 
@@ -58,6 +58,9 @@ def index():
 
     rows = query.order_by(Product.brand, Product.model).all()
     brands = db.session.query(Product.brand).distinct().order_by(Product.brand).all()
+    catalog_items = MasterCatalogItem.query.filter_by(active=True).order_by(
+        MasterCatalogItem.brand, MasterCatalogItem.model
+    ).all()
 
     return render_template(
         "products/index.html",
@@ -66,6 +69,7 @@ def index():
         q=q,
         selected_brand=brand,
         selected_active=active,
+        catalog_items=catalog_items,
     )
 
 @products_bp.route("/<int:product_id>")

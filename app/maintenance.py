@@ -133,7 +133,7 @@ def index():
         last_backup=get_setting("last_backup_at"),
         last_restore=get_setting("last_restore_at"),
         last_reset=get_setting("last_reset_at"),
-        version="5.2.3",
+        version="5.2.5",
     )
 
 
@@ -143,7 +143,7 @@ def backup():
     payload = {
         "format": BACKUP_FORMAT,
         "created_at": datetime.utcnow().isoformat(),
-        "app_version": "5.2.3",
+        "app_version": "5.2.5",
         "database": db.engine.dialect.name,
         "counts": business_counts(),
         "tables": {

@@ -9,6 +9,23 @@ class User(db.Model):
     def set_password(self, password): self.password_hash = generate_password_hash(password)
     def check_password(self, password): return check_password_hash(self.password_hash, password)
 
+
+class MasterCatalogItem(db.Model):
+    __table_args__ = (
+        db.UniqueConstraint("brand", "model", name="uq_master_catalog_brand_model"),
+    )
+
+    id = db.Column(db.Integer, primary_key=True)
+    brand = db.Column(db.String(80), nullable=False, index=True)
+    model = db.Column(db.String(180), nullable=False, index=True)
+    active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    @property
+    def label(self):
+        return f"{self.brand} · {self.model}"
+
+
 class Product(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     code = db.Column(db.String(40), unique=True, nullable=False, index=True)

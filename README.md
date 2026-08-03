@@ -280,3 +280,18 @@ Abrir `http://localhost:5000`.
 - Se eliminaron los selectores USD/EUR
 - Compras, ventas, cotizaciones, caja, gastos, stock y reportes en pesos
 - Normalización automática de registros existentes a ARS
+
+
+## v5.2.5 — Catálogo Maestro e importación desde Excel
+
+- Base inicial de 148 modelos aportados por el usuario
+- Nuevo módulo Catálogo Maestro
+- Importación de archivos XLSX y CSV
+- Columnas requeridas: Marca y Modelo
+- Normalización de espacios
+- Duplicados omitidos automáticamente
+- Alta, baja lógica y eliminación manual de modelos
+- Selección desde Catálogo Maestro al crear productos
+- Marca y modelo autocompletados
+- Propuesta automática de código interno
+- El Catálogo Maestro no se elimina al reiniciar los datos comerciales
