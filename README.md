@@ -195,3 +195,13 @@ Abrir `http://localhost:5000`.
 - WhatsApp con enlace público correcto
 - Embudo comercial tipo Kanban
 - Indicadores de aceptación y conversión
+
+## v4.9 — Base reorganizada
+
+- Application Factory separada
+- Extensiones centralizadas
+- Registro de módulos centralizado
+- Migraciones y datos iniciales separados
+- Endpoint `/health` para Render
+- Misma interfaz, rutas y funcionamiento
+- Base preparada para Caja y Gastos
