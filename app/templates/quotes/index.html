@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% block title %}Cotizaciones · ARVOX{% endblock %}
+{% block module_title %}Cotizaciones{% endblock %}
+{% block module_subtitle %}Presupuestos, seguimiento y conversión a venta{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><span class="eyebrow">MÓDULO 4.0</span><h1>Cotizaciones</h1><p>Creá presupuestos multiproducto y convertí los aceptados en ventas.</p></div>
+  <a class="button" href="#new-quote">+ Nueva cotización</a>
+</div>
+
+<div class="stats">
+  <article><span>Cotizaciones visibles</span><strong>{{ totals.count }}</strong><small>Según filtros</small></article>
+  <article><span>Monto cotizado</span><strong>USD {{ "%.2f"|format(totals.amount) }}</strong><small>Sin rechazadas ni vencidas</small></article>
+  <article><span>Monto aceptado</span><strong>USD {{ "%.2f"|format(totals.accepted) }}</strong><small>Aceptadas y convertidas</small></article>
+  <article><span>Convertidas</span><strong>{{ totals.converted }}</strong><small>Pasadas a ventas</small></article>
+</div>
+
+<section class="panel" id="new-quote">
+  <details open>
+    <summary class="button">+ Nueva cotización</summary>
+    <form method="post" class="quote-form">
+      <div class="form-section">
+        <div class="section-title"><span>1</span><div><strong>Encabezado</strong><small>Cliente, fecha y validez</small></div></div>
+        <div class="form-grid">
+          <label>Cliente<select name="customer_id" required><option value="">Seleccionar cliente</option>{% for customer in customers %}<option value="{{ customer.id }}">{{ customer.name }}</option>{% endfor %}</select></label>
+          <label>Fecha<input type="date" name="date" value="{{ default_date }}" required></label>
+          <label>Válida hasta<input type="date" name="valid_until" value="{{ default_valid_until }}" required></label>
+          <label>Moneda<select name="currency"><option>USD</option><option>ARS</option><option>EUR</option></select></label>
+          <label>Estado<select name="status"><option>Borrador</option><option>Enviada</option><option>Aceptada</option><option>Rechazada</option></select></label>
+        </div>
+      </div>
+
+      <div class="form-section">
+        <div class="section-title"><span>2</span><div><strong>Productos</strong><small>Precio, descuento, stock y margen estimado</small></div></div>
+        <div id="quote-lines">
+          <div class="quote-line">
+            <select name="product_id[]" class="quote-product" required>
+              <option value="">Seleccionar producto</option>
+              {% for product in products %}
+              <option value="{{ product.id }}" data-price="{{ product.sale_price }}" data-stock="{{ product.available_stock }}">
+                {{ product.code }} · {{ product.brand }} · {{ product.model }} · stock {{ product.available_stock }}
+              </option>
+              {% endfor %}
+            </select>
+            <input name="quantity[]" type="number" min="1" value="1" required>
+            <input name="unit_price[]" class="quote-price" type="number" min="0" step="0.01" placeholder="Precio" required>
+            <input name="discount_pct[]" type="number" min="0" max="100" step="0.01" value="0" placeholder="% desc.">
+            <button type="button" class="secondary remove-quote-line">Quitar</button>
+          </div>
+        </div>
+        <button type="button" class="secondary" id="add-quote-line">+ Agregar producto</button>
+      </div>
+
+      <div class="form-section">
+        <div class="section-title"><span>3</span><div><strong>Observaciones</strong><small>Condiciones comerciales y notas</small></div></div>
+        <textarea name="notes" placeholder="Validez, forma de pago, entrega, comentarios..."></textarea>
+      </div>
+      <div class="form-actions"><button>Guardar cotización</button></div>
+    </form>
+  </details>
+</section>
+
+<section class="panel">
+  <form method="get" class="quote-filters">
+    <input name="q" value="{{ q }}" placeholder="Buscar número o cliente">
+    <select name="customer_id"><option value="">Todos los clientes</option>{% for customer in customers %}<option value="{{ customer.id }}" {% if selected_customer == customer.id|string %}selected{% endif %}>{{ customer.name }}</option>{% endfor %}</select>
+    <select name="status"><option value="">Todos los estados</option>{% for status in ["Borrador","Enviada","Aceptada","Rechazada","Vencida","Convertida"] %}<option value="{{ status }}" {% if selected_status == status %}selected{% endif %}>{{ status }}</option>{% endfor %}</select>
+    <button>Filtrar</button><a class="button secondary" href="{{ url_for('quotes.index') }}">Limpiar</a>
+  </form>
+</section>
+
+<section class="panel">
+  <div class="panel-head"><div><span class="eyebrow">HISTORIAL</span><h2>Cotizaciones emitidas</h2></div></div>
+  <div class="table-wrap"><table>
+    <tr><th>Número</th><th>Fecha</th><th>Cliente</th><th>Validez</th><th>Unidades</th><th>Total</th><th>Margen</th><th>Estado</th><th></th></tr>
+    {% for quote in rows %}
+    <tr>
+      <td>{{ quote.number }}</td><td>{{ quote.date.strftime("%d/%m/%Y") }}</td><td>{{ quote.customer }}</td><td>{{ quote.valid_until.strftime("%d/%m/%Y") if quote.valid_until else "-" }}</td>
+      <td>{{ quote.units }}</td><td>{{ quote.currency }} {{ "%.2f"|format(quote.total) }}</td><td>{{ "%.1f"|format(quote.margin_pct) }}%</td>
+      <td><span class="quote-status {{ quote.status|lower }}">{{ quote.status }}</span></td>
+      <td><a href="{{ url_for('quotes.detail', quote_id=quote.id) }}">Ver</a></td>
+    </tr>
+    {% else %}<tr><td colspan="9">Todavía no hay cotizaciones.</td></tr>{% endfor %}
+  </table></div>
+</section>
+
+<script>
+const quoteLines = document.getElementById("quote-lines");
+const quoteFirstLine = quoteLines.querySelector(".quote-line");
+
+function bindQuoteLine(line) {
+  const select = line.querySelector(".quote-product");
+  const price = line.querySelector(".quote-price");
+  select.addEventListener("change", () => {
+    const option = select.options[select.selectedIndex];
+    if (option.dataset.price) price.value = option.dataset.price;
+  });
+  line.querySelector(".remove-quote-line").addEventListener("click", () => {
+    if (quoteLines.querySelectorAll(".quote-line").length > 1) line.remove();
+  });
+}
+bindQuoteLine(quoteFirstLine);
+
+document.getElementById("add-quote-line").addEventListener("click", () => {
+  const clone = quoteFirstLine.cloneNode(true);
+  clone.querySelectorAll("input").forEach(input => {
+    input.value = input.name === "quantity[]" ? "1" : input.name === "discount_pct[]" ? "0" : "";
+  });
+  clone.querySelector("select").selectedIndex = 0;
+  quoteLines.appendChild(clone);
+  bindQuoteLine(clone);
+});
+</script>
+{% endblock %}

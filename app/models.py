@@ -132,6 +132,7 @@ class Customer(db.Model):
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     sales = db.relationship("SalesOrder", backref="customer_record", lazy=True)
+    quotes = db.relationship("Quote", backref="customer_record", lazy=True)
 
     @property
     def total_sold(self):
@@ -203,4 +204,74 @@ class SaleItem(db.Model):
 
     @property
     def profit(self):
+        return self.subtotal - (self.cost_snapshot * self.quantity)
+
+
+class Quote(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    number = db.Column(db.String(30), unique=True, nullable=False, index=True)
+    date = db.Column(db.Date, nullable=False)
+    valid_until = db.Column(db.Date)
+    customer_id = db.Column(db.Integer, db.ForeignKey("customer.id"), nullable=False)
+    customer = db.Column(db.String(150), nullable=False)
+    currency = db.Column(db.String(20), default="USD")
+    status = db.Column(db.String(30), default="Borrador")
+    notes = db.Column(db.Text)
+    converted_sale_id = db.Column(db.Integer, db.ForeignKey("sales_order.id"))
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    updated_at = db.Column(db.DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
+
+    items = db.relationship("QuoteItem", backref="quote", lazy=True, cascade="all, delete-orphan")
+    converted_sale = db.relationship("SalesOrder", foreign_keys=[converted_sale_id])
+
+    @property
+    def subtotal(self):
+        return sum(i.gross for i in self.items)
+
+    @property
+    def discount_total(self):
+        return self.subtotal - self.total
+
+    @property
+    def total(self):
+        return sum(i.subtotal for i in self.items)
+
+    @property
+    def cost_total(self):
+        return sum(i.cost_snapshot * i.quantity for i in self.items)
+
+    @property
+    def expected_profit(self):
+        return self.total - self.cost_total
+
+    @property
+    def margin_pct(self):
+        return (self.expected_profit / self.total * 100) if self.total else 0
+
+    @property
+    def units(self):
+        return sum(i.quantity for i in self.items)
+
+
+class QuoteItem(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    quote_id = db.Column(db.Integer, db.ForeignKey("quote.id"), nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    unit_price = db.Column(db.Float, nullable=False)
+    discount_pct = db.Column(db.Float, default=0)
+    cost_snapshot = db.Column(db.Float, default=0)
+
+    product = db.relationship("Product")
+
+    @property
+    def gross(self):
+        return self.quantity * self.unit_price
+
+    @property
+    def subtotal(self):
+        return self.gross * (1 - (self.discount_pct or 0) / 100)
+
+    @property
+    def expected_profit(self):
         return self.subtotal - (self.cost_snapshot * self.quantity)

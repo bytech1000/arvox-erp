@@ -152,3 +152,19 @@ Abrir `http://localhost:5000`.
 - Stock crítico
 - Alertas comerciales
 - Últimos movimientos
+
+
+## v4.0 — Motor de Cotizaciones
+
+- Cotizaciones multiproducto
+- Numeración automática COT-000001
+- Clientes, fecha, validez, moneda y observaciones
+- Precio automático y descuento por línea
+- Margen esperado
+- Estados Borrador, Enviada, Aceptada, Rechazada, Vencida y Convertida
+- Edición
+- Duplicado
+- Historial y filtros
+- Conversión directa a venta
+- Control de stock al convertir
+- Vínculo entre cotización y venta

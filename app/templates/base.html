@@ -37,6 +37,9 @@
       <a class="{% if request.blueprint == 'sales' %}active{% endif %}" href="{{ url_for('sales.index') }}">
         <span class="nav-icon">$</span> Ventas
       </a>
+      <a class="{% if request.blueprint == 'quotes' %}active{% endif %}" href="{{ url_for('quotes.index') }}">
+        <span class="nav-icon">✦</span> Cotizaciones
+      </a>
       <a class="{% if request.blueprint == 'customers' %}active{% endif %}" href="{{ url_for('customers.index') }}">
         <span class="nav-icon">◎</span> Clientes
       </a>
@@ -71,6 +74,7 @@
             <a href="{{ url_for('products.index') }}#new-product">Nuevo producto</a>
             <a href="{{ url_for('purchases.index') }}#new-purchase">Nueva compra</a>
             <a href="{{ url_for('sales.index') }}#new-sale">Nueva venta</a>
+            <a href="{{ url_for('quotes.index') }}#new-quote">Nueva cotización</a>
             <a href="{{ url_for('suppliers.index') }}#new-supplier">Nuevo proveedor</a>
           </div>
         </details>

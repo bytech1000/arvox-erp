@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}{{ quote.number }} · ARVOX{% endblock %}
+{% block module_title %}Cotizaciones{% endblock %}
+{% block module_subtitle %}Detalle y seguimiento comercial{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><a class="back" href="{{ url_for('quotes.index') }}">← Cotizaciones</a><span class="eyebrow">{{ quote.number }}</span><h1>{{ quote.customer }}</h1><p>{{ quote.date.strftime("%d/%m/%Y") }} · válida hasta {{ quote.valid_until.strftime("%d/%m/%Y") if quote.valid_until else "-" }}</p></div>
+  <div class="actions">
+    {% if quote.status != "Convertida" %}<a class="button secondary" href="{{ url_for('quotes.edit', quote_id=quote.id) }}">Editar</a>{% endif %}
+    <form method="post" action="{{ url_for('quotes.duplicate', quote_id=quote.id) }}"><button class="secondary">Duplicar</button></form>
+    {% if quote.status in ["Aceptada","Enviada","Borrador"] and quote.status != "Convertida" %}<form method="post" action="{{ url_for('quotes.convert_to_sale', quote_id=quote.id) }}"><button>Convertir en venta</button></form>{% endif %}
+  </div>
+</div>
+
+<div class="stats">
+  <article><span>Subtotal</span><strong>{{ quote.currency }} {{ "%.2f"|format(quote.subtotal) }}</strong><small>Antes de descuentos</small></article>
+  <article><span>Descuento</span><strong>{{ quote.currency }} {{ "%.2f"|format(quote.discount_total) }}</strong><small>Total aplicado</small></article>
+  <article><span>Total</span><strong>{{ quote.currency }} {{ "%.2f"|format(quote.total) }}</strong><small>Cotización</small></article>
+  <article><span>Margen esperado</span><strong>{{ quote.currency }} {{ "%.2f"|format(quote.expected_profit) }}</strong><small>{{ "%.1f"|format(quote.margin_pct) }}%</small></article>
+</div>
+
+<section class="panel">
+  <div class="quote-detail-head">
+    <div><span class="eyebrow">ESTADO</span><h2>{{ quote.status }}</h2></div>
+    {% if quote.status != "Convertida" %}
+    <div class="actions">
+      {% for status in ["Borrador","Enviada","Aceptada","Rechazada","Vencida"] %}
+      {% if quote.status != status %}
+      <form method="post" action="{{ url_for('quotes.change_status', quote_id=quote.id, status=status) }}"><button class="secondary">{{ status }}</button></form>
+      {% endif %}
+      {% endfor %}
+    </div>
+    {% endif %}
+  </div>
+  <div class="info-grid">
+    <div><span>Cliente</span><strong>{{ quote.customer }}</strong></div>
+    <div><span>Moneda</span><strong>{{ quote.currency }}</strong></div>
+    <div><span>Creada</span><strong>{{ quote.created_at.strftime("%d/%m/%Y %H:%M") }}</strong></div>
+    <div><span>Venta vinculada</span>{% if quote.converted_sale_id %}<a href="{{ url_for('sales.detail', sale_id=quote.converted_sale_id) }}">Venta #{{ quote.converted_sale_id }}</a>{% else %}<strong>-</strong>{% endif %}</div>
+  </div>
+  {% if quote.notes %}<div class="note"><strong>Observaciones</strong><p>{{ quote.notes }}</p></div>{% endif %}
+</section>
+
+<section class="panel">
+  <div class="panel-head"><div><span class="eyebrow">DETALLE</span><h2>Productos cotizados</h2></div></div>
+  <div class="table-wrap"><table>
+    <tr><th>Producto</th><th>Stock</th><th>Cantidad</th><th>Precio</th><th>Descuento</th><th>Subtotal</th><th>Ganancia esperada</th></tr>
+    {% for item in quote.items %}
+    <tr>
+      <td>{{ item.product.brand }} · {{ item.product.model }}</td><td>{{ item.product.available_stock }}</td><td>{{ item.quantity }}</td>
+      <td>{{ quote.currency }} {{ "%.2f"|format(item.unit_price) }}</td><td>{{ "%.2f"|format(item.discount_pct or 0) }}%</td>
+      <td>{{ quote.currency }} {{ "%.2f"|format(item.subtotal) }}</td><td>{{ quote.currency }} {{ "%.2f"|format(item.expected_profit) }}</td>
+    </tr>
+    {% endfor %}
+  </table></div>
+</section>
+{% endblock %}
