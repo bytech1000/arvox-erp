@@ -436,3 +436,22 @@ details summary{list-style:none;width:max-content}details summary::-webkit-detai
 .table-sub{display:block;color:var(--muted);font-size:11px;margin-top:4px}.qty-positive{color:#74e39d;font-weight:800}.qty-negative{color:#ff8b8b;font-weight:800}
 @media(max-width:1100px){.stock-stats{grid-template-columns:repeat(2,1fr)}.stock-filters{grid-template-columns:1fr 1fr}}
 @media(max-width:650px){.stock-stats,.stock-filters{grid-template-columns:1fr}}
+
+
+/* ARVOX v5.2.1 · Mantenimiento */
+.maintenance-stats{grid-template-columns:repeat(4,1fr)}
+.maintenance-date{font-size:17px!important}
+.maintenance-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.maintenance-card{display:flex;flex-direction:column;align-items:flex-start;gap:10px}
+.maintenance-card p{color:var(--muted);line-height:1.55;margin:0 0 8px}.maintenance-card>small{color:#777}
+.safe-card{border-color:#264b34}.warning-card{border-color:#5d4218}
+.maintenance-form{display:grid;grid-template-columns:1fr 1fr auto;gap:10px;width:100%;align-items:end}
+.warning-button{background:#5b3c0d;color:#ffd477;border:1px solid #8a5d18}
+.maintenance-count-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.maintenance-count-grid>div{background:#18191d;border:1px solid #292b31;border-radius:9px;padding:13px}.maintenance-count-grid span{display:block;color:var(--muted);font-size:11px;margin-bottom:6px}.maintenance-count-grid strong{font-size:20px}
+.danger-zone-panel{border-color:#6e2424;background:linear-gradient(145deg,#1b1010,#121316)}
+.danger-zone-head h2{margin:5px 0}.danger-zone-head p{color:#c4a9a9;max-width:760px;line-height:1.55}
+.danger-warning{display:grid;gap:5px;padding:13px 15px;border-radius:9px;background:#3a1717;color:#ffaaaa;margin:15px 0}.danger-warning span{font-size:12px}
+.reset-form{display:grid;grid-template-columns:minmax(260px,420px) auto;gap:12px;align-items:end}.reset-form .danger-button{height:44px}
+@media(max-width:1050px){.maintenance-stats{grid-template-columns:1fr 1fr}.maintenance-grid{grid-template-columns:1fr}.maintenance-form{grid-template-columns:1fr 1fr}.maintenance-form button{grid-column:1/-1}.maintenance-count-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:650px){.maintenance-stats,.maintenance-form,.maintenance-count-grid,.reset-form{grid-template-columns:1fr}.maintenance-form button{grid-column:auto}}

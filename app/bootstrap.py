@@ -37,14 +37,16 @@ def migrate_schema() -> None:
 
 def seed_data(app: Flask) -> None:
     """Carga el usuario administrador y datos iniciales solo cuando faltan."""
-    from .models import Product, Supplier, User
+    from .models import Product, Supplier, SystemSetting, User
 
     if not User.query.first():
         user = User(username=app.config["ADMIN_USER"])
         user.set_password(app.config["ADMIN_PASSWORD"])
         db.session.add(user)
 
-    if not Product.query.first():
+    demo_seed_disabled = SystemSetting.query.filter_by(key="skip_demo_seed").first() is not None
+
+    if not Product.query.first() and not demo_seed_disabled:
         db.session.add_all([
             Product(code="AD0001", brand="Adidas", model="Metalbone HRD+ 2024", year=2024, category="Paleta", sale_price=450, currency="USD", opening_stock=2, opening_cost=230, active=True, min_stock=1),
             Product(code="NX0001", brand="Nox", model="AT10 Genius 18K Alum 2025 By Agustin Tapia", year=2025, category="Paleta", sale_price=490, currency="USD", opening_stock=1, opening_cost=210, active=True, min_stock=1),
@@ -56,7 +58,7 @@ def seed_data(app: Flask) -> None:
             Product(code="HD0001", brand="Head", model="Coello Pro 2025", year=2025, category="Paleta", sale_price=440, currency="USD", opening_stock=1, opening_cost=229, active=True, min_stock=1),
         ])
 
-    if not Supplier.query.first():
+    if not Supplier.query.first() and not demo_seed_disabled:
         db.session.add(Supplier(
             name="Padel Goats",
             contact="Santiago",

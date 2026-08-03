@@ -243,3 +243,15 @@ Abrir `http://localhost:5000`.
 - Ajustes por conteo físico, roturas, pérdidas y devoluciones
 - Exportación CSV
 - Integración con compras, ventas y reservas
+
+
+## v5.2.1 — Centro de Mantenimiento
+
+- Descarga de respaldo ZIP con todos los datos comerciales
+- Restauración validada desde el propio sistema
+- Reinicio completo conservando el usuario administrador
+- Confirmaciones REINICIAR y RESTAURAR
+- Protección para que los datos de demostración no reaparezcan
+- Información de cantidad de registros
+- Verificación básica de integridad de la base
+- Compatible con SQLite y PostgreSQL

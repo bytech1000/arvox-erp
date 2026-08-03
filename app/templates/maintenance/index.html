@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% block title %}Mantenimiento · ARVOX{% endblock %}
+{% block module_title %}Configuración{% endblock %}
+{% block module_subtitle %}Respaldo, restauración y mantenimiento{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div>
+    <span class="eyebrow">ARVOX {{ version }}</span>
+    <h1>Centro de mantenimiento</h1>
+    <p>Administrá los datos del sistema sin tocar Render ni archivos internos.</p>
+  </div>
+</div>
+
+<div class="stats maintenance-stats">
+  <article><span>Base de datos</span><strong>{{ database_kind }}</strong><small>Motor actualmente conectado</small></article>
+  <article><span>Registros comerciales</span><strong>{{ total_records }}</strong><small>No incluye el usuario administrador</small></article>
+  <article><span>Último respaldo</span><strong class="maintenance-date">{{ last_backup[:16]|replace('T',' ') if last_backup else 'Nunca' }}</strong><small>Fecha registrada por ARVOX</small></article>
+  <article><span>Último reinicio</span><strong class="maintenance-date">{{ last_reset[:16]|replace('T',' ') if last_reset else 'Nunca' }}</strong><small>Vaciado completo de datos</small></article>
+</div>
+
+<div class="maintenance-grid">
+  <section class="panel maintenance-card safe-card">
+    <span class="eyebrow">RESPALDO</span>
+    <h2>Descargar copia de seguridad</h2>
+    <p>Guarda productos, clientes, proveedores, compras, ventas, cotizaciones, caja, gastos y stock.</p>
+    <a class="button" href="{{ url_for('maintenance.backup') }}">Descargar respaldo</a>
+    <small>Se genera un archivo ZIP compatible con esta sección.</small>
+  </section>
+
+  <section class="panel maintenance-card warning-card">
+    <span class="eyebrow">RESTAURACIÓN</span>
+    <h2>Restaurar un respaldo</h2>
+    <p>Reemplaza todos los datos comerciales actuales por los contenidos en el archivo.</p>
+    <form method="post" action="{{ url_for('maintenance.restore') }}" enctype="multipart/form-data" class="maintenance-form">
+      <label>Archivo ZIP<input type="file" name="backup_file" accept=".zip,application/zip" required></label>
+      <label>Escribí RESTAURAR<input name="confirmation" autocomplete="off" placeholder="RESTAURAR" required></label>
+      <button class="warning-button">Restaurar respaldo</button>
+    </form>
+    {% if last_restore %}<small>Última restauración: {{ last_restore[:16]|replace('T',' ') }}</small>{% endif %}
+  </section>
+</div>
+
+<section class="panel">
+  <div class="panel-head">
+    <div><span class="eyebrow">INFORMACIÓN</span><h2>Datos guardados actualmente</h2></div>
+    <form method="post" action="{{ url_for('maintenance.integrity') }}"><button class="secondary">Verificar base</button></form>
+  </div>
+  <div class="maintenance-count-grid">
+    <div><span>Productos</span><strong>{{ counts.products }}</strong></div>
+    <div><span>Proveedores</span><strong>{{ counts.suppliers }}</strong></div>
+    <div><span>Clientes</span><strong>{{ counts.customers }}</strong></div>
+    <div><span>Compras</span><strong>{{ counts.purchases }}</strong></div>
+    <div><span>Ventas</span><strong>{{ counts.sales }}</strong></div>
+    <div><span>Cotizaciones</span><strong>{{ counts.quotes }}</strong></div>
+    <div><span>Gastos</span><strong>{{ counts.expenses }}</strong></div>
+    <div><span>Movimientos de caja</span><strong>{{ counts.cash_movements }}</strong></div>
+    <div><span>Ajustes de stock</span><strong>{{ counts.stock_adjustments }}</strong></div>
+  </div>
+</section>
+
+<section class="panel danger-zone-panel">
+  <div class="danger-zone-head">
+    <div>
+      <span class="eyebrow">ZONA DE PELIGRO</span>
+      <h2>Reiniciar todos los datos</h2>
+      <p>Elimina productos, clientes, proveedores y todas las operaciones. Conserva el usuario administrador y el programa.</p>
+    </div>
+  </div>
+  <div class="danger-warning">
+    <strong>Esta acción no se puede deshacer.</strong>
+    <span>Descargá primero un respaldo si existe alguna información que quieras conservar.</span>
+  </div>
+  <form method="post" action="{{ url_for('maintenance.reset') }}" class="reset-form" onsubmit="return confirm('¿Confirmás que querés eliminar TODOS los datos comerciales de ARVOX?');">
+    <label>Para confirmar, escribí REINICIAR<input name="confirmation" autocomplete="off" placeholder="REINICIAR" required></label>
+    <button class="danger-button">Reiniciar base de datos</button>
+  </form>
+</section>
+{% endblock %}
