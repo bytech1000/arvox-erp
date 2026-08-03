@@ -295,3 +295,13 @@ Abrir `http://localhost:5000`.
 - Marca y modelo autocompletados
 - Propuesta automática de código interno
 - El Catálogo Maestro no se elimina al reiniciar los datos comerciales
+
+## v5.2.6 — Compras desde el Catálogo Maestro
+
+- Nueva Compra selecciona modelos del Catálogo Maestro.
+- Al guardar, ARVOX busca el producto por marca y modelo.
+- Si el producto no existe, lo crea automáticamente con código interno ARX.
+- Si ya existe, reutiliza el mismo producto y evita duplicados.
+- Una compra Recibida actualiza stock, último costo y costo promedio.
+- Una compra Pendiente crea el producto, pero no suma stock hasta ser recibida.
+- La compra continúa siendo multiproducto.
