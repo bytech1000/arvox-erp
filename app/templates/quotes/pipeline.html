@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Embudo comercial · ARVOX{% endblock %}
+{% block module_title %}Cotizaciones{% endblock %}
+{% block module_subtitle %}Embudo y seguimiento comercial{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><a class="back" href="{{ url_for('quotes.index') }}">← Cotizaciones</a><span class="eyebrow">MÓDULO 4.2</span><h1>Embudo comercial</h1><p>Seguí cada propuesta desde el borrador hasta la venta.</p></div>
+</div>
+
+<div class="stats">
+  <article><span>Cotizaciones</span><strong>{{ stats.total }}</strong><small>Total histórico</small></article>
+  <article><span>Enviadas</span><strong>{{ stats.sent }}</strong><small>Pendientes de respuesta</small></article>
+  <article><span>Aceptadas</span><strong>{{ stats.accepted }}</strong><small>Incluye convertidas</small></article>
+  <article><span>Conversión</span><strong>{{ "%.1f"|format(stats.conversion_pct) }}%</strong><small>Convertidas en venta</small></article>
+</div>
+
+<div class="quote-kanban">
+  {% for status in ["Borrador","Enviada","Aceptada","Convertida","Rechazada","Vencida"] %}
+  <section class="kanban-column">
+    <div class="kanban-head">
+      <span class="quote-status {{ status|lower }}">{{ status }}</span>
+      <strong>{{ columns[status]|length }}</strong>
+    </div>
+    <div class="kanban-cards">
+      {% for quote in columns[status] %}
+      <a class="kanban-card" href="{{ url_for('quotes.detail', quote_id=quote.id) }}">
+        <span>{{ quote.number }}</span>
+        <strong>{{ quote.customer }}</strong>
+        <small>{{ quote.date.strftime("%d/%m/%Y") }} · {{ quote.units }} u.</small>
+        <b>{{ quote.currency }} {{ "%.2f"|format(quote.total) }}</b>
+      </a>
+      {% else %}
+      <div class="kanban-empty">Sin cotizaciones</div>
+      {% endfor %}
+    </div>
+  </section>
+  {% endfor %}
+</div>
+{% endblock %}

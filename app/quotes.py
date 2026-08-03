@@ -1,7 +1,7 @@
 from datetime import datetime, timedelta
 from io import BytesIO
 from urllib.parse import quote as url_quote
-from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file
+from flask import Blueprint, render_template, request, redirect, url_for, flash, send_file, current_app, abort
 from sqlalchemy import or_
 from reportlab.lib import colors
 from reportlab.lib.enums import TA_RIGHT
@@ -9,6 +9,7 @@ from reportlab.lib.pagesizes import A4
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
 from reportlab.lib.units import mm
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle, KeepTogether
+from itsdangerous import URLSafeSerializer, BadSignature
 from . import db
 from .auth import login_required
 from .models import Quote, QuoteItem, Product, Customer, SalesOrder, SaleItem
@@ -16,6 +17,29 @@ from .models import Quote, QuoteItem, Product, Customer, SalesOrder, SaleItem
 quotes_bp = Blueprint("quotes", __name__, url_prefix="/quotes")
 
 VALID_STATUSES = ("Borrador", "Enviada", "Aceptada", "Rechazada", "Vencida", "Convertida")
+
+
+def public_serializer():
+    return URLSafeSerializer(current_app.config["SECRET_KEY"], salt="arvox-public-quote")
+
+def public_token(quote):
+    return public_serializer().dumps({"quote_id": quote.id, "number": quote.number})
+
+def quote_from_public_token(token):
+    try:
+        data = public_serializer().loads(token)
+    except BadSignature:
+        abort(404)
+    quote = Quote.query.get_or_404(data.get("quote_id"))
+    if quote.number != data.get("number"):
+        abort(404)
+    return quote
+
+def quote_public_state(quote):
+    today = datetime.now().date()
+    if quote.status not in ("Convertida", "Aceptada", "Rechazada") and quote.valid_until and quote.valid_until < today:
+        return "Vencida"
+    return quote.status
 
 def next_quote_number():
     last = Quote.query.order_by(Quote.id.desc()).first()
@@ -155,7 +179,13 @@ def index():
 @login_required
 def detail(quote_id):
     quote = Quote.query.get_or_404(quote_id)
-    return render_template("quotes/detail.html", quote=quote)
+    token = public_token(quote)
+    return render_template(
+        "quotes/detail.html",
+        quote=quote,
+        public_url=url_for("quotes.public_view", token=token, _external=True),
+        public_state=quote_public_state(quote),
+    )
 
 @quotes_bp.route("/<int:quote_id>/edit", methods=["GET", "POST"])
 @login_required
@@ -493,10 +523,105 @@ def whatsapp(quote_id):
         flash("El cliente no tiene un WhatsApp cargado.", "error")
         return redirect(url_for("quotes.detail", quote_id=quote.id))
 
-    pdf_url = url_for("quotes.pdf", quote_id=quote.id, _external=True)
+    token = public_token(quote)
+    public_url = url_for("quotes.public_view", token=token, _external=True)
     message = (
         f"Hola {customer.name}. Te envío la cotización {quote.number} de ARVOX "
         f"por un total de {quote.currency} {money(quote.total)}. "
-        f"Podés descargarla desde: {pdf_url}"
+        f"Podés verla, descargarla y aceptarla desde: {public_url}"
     )
     return redirect(f"https://wa.me/{number}?text={url_quote(message)}")
+
+
+@quotes_bp.get("/pipeline")
+@login_required
+def pipeline():
+    quotes = Quote.query.order_by(Quote.date.desc(), Quote.id.desc()).all()
+    columns = {
+        "Borrador": [],
+        "Enviada": [],
+        "Aceptada": [],
+        "Convertida": [],
+        "Rechazada": [],
+        "Vencida": [],
+    }
+    for item in quotes:
+        state = quote_public_state(item)
+        columns.setdefault(state, []).append(item)
+
+    stats = {
+        "total": len(quotes),
+        "sent": len(columns["Enviada"]),
+        "accepted": len(columns["Aceptada"]) + len(columns["Convertida"]),
+        "converted": len(columns["Convertida"]),
+    }
+    stats["conversion_pct"] = (
+        stats["converted"] / stats["total"] * 100 if stats["total"] else 0
+    )
+
+    return render_template("quotes/pipeline.html", columns=columns, stats=stats)
+
+@quotes_bp.get("/q/<token>")
+def public_view(token):
+    quote = quote_from_public_token(token)
+    state = quote_public_state(quote)
+    return render_template(
+        "quotes/public.html",
+        quote=quote,
+        token=token,
+        public_state=state,
+    )
+
+@quotes_bp.get("/q/<token>/pdf")
+def public_pdf(token):
+    quote = quote_from_public_token(token)
+    buffer = build_quote_pdf(quote)
+    return send_file(
+        buffer,
+        mimetype="application/pdf",
+        as_attachment=True,
+        download_name=f"{quote.number}_{quote.customer.replace(' ', '_')}.pdf",
+    )
+
+@quotes_bp.post("/q/<token>/accept")
+def public_accept(token):
+    quote = quote_from_public_token(token)
+    state = quote_public_state(quote)
+
+    if state == "Vencida":
+        return render_template(
+            "quotes/public_result.html",
+            success=False,
+            title="La cotización está vencida",
+            message="Contactá a ARVOX para solicitar una actualización.",
+            quote=quote,
+        ), 400
+
+    if quote.status == "Convertida":
+        return render_template(
+            "quotes/public_result.html",
+            success=True,
+            title="La cotización ya fue procesada",
+            message="Esta propuesta ya fue convertida en venta.",
+            quote=quote,
+        )
+
+    if quote.status == "Rechazada":
+        return render_template(
+            "quotes/public_result.html",
+            success=False,
+            title="La cotización fue rechazada",
+            message="Contactá a ARVOX si querés reactivarla.",
+            quote=quote,
+        ), 400
+
+    quote.status = "Aceptada"
+    db.session.commit()
+
+    return render_template(
+        "quotes/public_result.html",
+        success=True,
+        title="¡Cotización aceptada!",
+        message="ARVOX recibió tu confirmación y se pondrá en contacto para coordinar la operación.",
+        quote=quote,
+    )

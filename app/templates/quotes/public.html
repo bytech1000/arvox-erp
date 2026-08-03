@@ -1,0 +1,77 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ quote.number }} · ARVOX</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body class="quote-public-body">
+  <main class="quote-public-shell">
+    <header class="quote-public-brand">
+      <div class="brand-symbol large"><span></span><span></span></div>
+      <div><h1>ARVOX</h1><p>Donde juega la calidad.</p></div>
+    </header>
+
+    <section class="quote-public-card">
+      <div class="quote-public-head">
+        <div>
+          <span class="eyebrow">COTIZACIÓN</span>
+          <h2>{{ quote.number }}</h2>
+          <p>Preparada para <strong>{{ quote.customer }}</strong></p>
+        </div>
+        <span class="quote-status {{ public_state|lower }}">{{ public_state }}</span>
+      </div>
+
+      <div class="quote-public-meta">
+        <div><span>Fecha</span><strong>{{ quote.date.strftime("%d/%m/%Y") }}</strong></div>
+        <div><span>Válida hasta</span><strong>{{ quote.valid_until.strftime("%d/%m/%Y") if quote.valid_until else "-" }}</strong></div>
+        <div><span>Moneda</span><strong>{{ quote.currency }}</strong></div>
+        <div><span>Productos</span><strong>{{ quote.units }} unidades</strong></div>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <tr><th>Producto</th><th>Cantidad</th><th>Precio</th><th>Desc.</th><th>Subtotal</th></tr>
+          {% for item in quote.items %}
+          <tr>
+            <td><strong>{{ item.product.brand }}</strong><br>{{ item.product.model }}</td>
+            <td>{{ item.quantity }}</td>
+            <td>{{ quote.currency }} {{ "%.2f"|format(item.unit_price) }}</td>
+            <td>{{ "%.2f"|format(item.discount_pct or 0) }}%</td>
+            <td>{{ quote.currency }} {{ "%.2f"|format(item.subtotal) }}</td>
+          </tr>
+          {% endfor %}
+        </table>
+      </div>
+
+      <div class="quote-public-total">
+        <div><span>Subtotal</span><strong>{{ quote.currency }} {{ "%.2f"|format(quote.subtotal) }}</strong></div>
+        <div><span>Descuento</span><strong>{{ quote.currency }} {{ "%.2f"|format(quote.discount_total) }}</strong></div>
+        <div class="grand-total"><span>TOTAL</span><strong>{{ quote.currency }} {{ "%.2f"|format(quote.total) }}</strong></div>
+      </div>
+
+      {% if quote.notes %}
+      <div class="quote-public-notes"><span class="eyebrow">CONDICIONES</span><p>{{ quote.notes }}</p></div>
+      {% endif %}
+
+      <div class="quote-public-actions">
+        <a class="button secondary" href="{{ url_for('quotes.public_pdf', token=token) }}">Descargar PDF</a>
+        {% if public_state in ["Borrador", "Enviada"] %}
+        <form method="post" action="{{ url_for('quotes.public_accept', token=token) }}">
+          <button class="accept-quote-button">Aceptar cotización</button>
+        </form>
+        {% elif public_state == "Aceptada" %}
+        <div class="public-confirmation">Esta cotización ya fue aceptada.</div>
+        {% elif public_state == "Convertida" %}
+        <div class="public-confirmation">Cotización procesada por ARVOX.</div>
+        {% elif public_state == "Vencida" %}
+        <div class="public-warning">La cotización está vencida. Solicitá una actualización.</div>
+        {% endif %}
+      </div>
+    </section>
+
+    <footer class="quote-public-footer">ARVOX · Donde juega la calidad.</footer>
+  </main>
+</body>
+</html>

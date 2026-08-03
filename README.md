@@ -181,3 +181,17 @@ Abrir `http://localhost:5000`.
 - Botón de descarga
 - Mensaje de WhatsApp prearmado
 - Enlace al PDF dentro del mensaje
+
+
+## v4.2 — Cotización online y aceptación
+
+- Enlace público firmado para cada cotización
+- Vista responsive para el cliente
+- Acceso sin iniciar sesión
+- Descarga pública del PDF
+- Aceptación online
+- Estado actualizado automáticamente a Aceptada
+- Detección de cotizaciones vencidas
+- WhatsApp con enlace público correcto
+- Embudo comercial tipo Kanban
+- Indicadores de aceptación y conversión

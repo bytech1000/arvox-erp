@@ -7,6 +7,7 @@
   <div><a class="back" href="{{ url_for('quotes.index') }}">← Cotizaciones</a><span class="eyebrow">{{ quote.number }}</span><h1>{{ quote.customer }}</h1><p>{{ quote.date.strftime("%d/%m/%Y") }} · válida hasta {{ quote.valid_until.strftime("%d/%m/%Y") if quote.valid_until else "-" }}</p></div>
   <div class="actions">
     <a class="button secondary" href="{{ url_for('quotes.pdf', quote_id=quote.id) }}">Descargar PDF</a>
+    <a class="button secondary" href="{{ public_url }}" target="_blank" rel="noopener">Vista del cliente</a>
     {% if quote.customer_record.whatsapp %}<a class="button whatsapp-button" href="{{ url_for('quotes.whatsapp', quote_id=quote.id) }}" target="_blank">Enviar por WhatsApp</a>{% endif %}
     {% if quote.status != "Convertida" %}<a class="button secondary" href="{{ url_for('quotes.edit', quote_id=quote.id) }}">Editar</a>{% endif %}
     <form method="post" action="{{ url_for('quotes.duplicate', quote_id=quote.id) }}"><button class="secondary">Duplicar</button></form>
@@ -41,6 +42,16 @@
     <div><span>Venta vinculada</span>{% if quote.converted_sale_id %}<a href="{{ url_for('sales.detail', sale_id=quote.converted_sale_id) }}">Venta #{{ quote.converted_sale_id }}</a>{% else %}<strong>-</strong>{% endif %}</div>
   </div>
   {% if quote.notes %}<div class="note"><strong>Observaciones</strong><p>{{ quote.notes }}</p></div>{% endif %}
+
+  <div class="public-link-box">
+    <div>
+      <span class="eyebrow">ENLACE PÚBLICO</span>
+      <strong>Compartí esta dirección con el cliente</strong>
+      <small>Permite ver, descargar y aceptar la cotización sin iniciar sesión.</small>
+    </div>
+    <input value="{{ public_url }}" readonly onclick="this.select()">
+  </div>
+
 </section>
 
 <section class="panel">

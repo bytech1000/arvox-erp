@@ -369,3 +369,43 @@ details summary{list-style:none;width:max-content}details summary::-webkit-detai
 /* ARVOX · v4.1 PDF y WhatsApp */
 .quote-actions-cell{display:flex;gap:9px;flex-wrap:wrap}
 .quote-actions-cell a{color:var(--orange);text-decoration:none;font-size:12px}
+
+
+/* ARVOX · v4.2 Cotización online */
+.public-link-box{display:grid;grid-template-columns:1fr minmax(280px,1.5fr);gap:16px;align-items:center;margin-top:18px;padding:15px;border:1px solid #4d3219;background:#1d160f;border-radius:10px}
+.public-link-box strong,.public-link-box small{display:block}.public-link-box small{color:var(--muted);margin-top:5px}
+
+.quote-public-body{background:#080808;color:#f7f7f7;min-height:100vh}
+.quote-public-shell{width:min(920px,94vw);margin:auto;padding:28px 0 45px}
+.quote-public-brand{display:flex;align-items:center;justify-content:center;gap:16px;margin-bottom:22px}
+.quote-public-brand h1{letter-spacing:.28em;margin:0;font-size:28px}.quote-public-brand p{color:var(--orange);margin:6px 0 0}
+.quote-public-card{background:#121316;border:1px solid #303239;border-radius:18px;padding:24px;box-shadow:0 24px 70px #0008}
+.quote-public-head{display:flex;justify-content:space-between;gap:18px;align-items:flex-start;border-bottom:1px solid var(--line);padding-bottom:18px}
+.quote-public-head h2{font-size:31px;margin:6px 0}.quote-public-head p{color:var(--muted)}
+.quote-public-meta{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:18px 0}
+.quote-public-meta div{background:#18191d;border-radius:9px;padding:12px}.quote-public-meta span{display:block;color:var(--muted);font-size:11px;margin-bottom:5px}
+.quote-public-total{margin:20px 0 0 auto;width:min(390px,100%);display:grid;gap:8px}
+.quote-public-total>div{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--line)}
+.quote-public-total .grand-total{font-size:21px;color:var(--orange);border-top:1px solid var(--orange);border-bottom:0}
+.quote-public-notes{margin-top:22px;padding:16px;background:#18191d;border-radius:10px}.quote-public-notes p{line-height:1.6}
+.quote-public-actions{display:flex;justify-content:flex-end;align-items:center;gap:12px;flex-wrap:wrap;margin-top:24px}
+.accept-quote-button{background:#2bd06f;color:#06190d;padding:13px 20px;font-size:15px}
+.public-confirmation{padding:12px 15px;border-radius:9px;background:#143922;color:#74e39d;font-weight:800}
+.public-warning{padding:12px 15px;border-radius:9px;background:#49360c;color:#ffd66f;font-weight:800}
+.quote-public-footer{text-align:center;color:#777;margin-top:18px;font-size:12px}
+.quote-result-shell{width:min(540px,92vw);margin:12vh auto 0;text-align:center;background:#121316;border:1px solid #303239;border-radius:18px;padding:35px}
+.quote-result-shell h1{font-size:34px}.quote-result-shell p{color:#bbb;line-height:1.6}.quote-result-shell>strong{display:block;color:var(--orange);font-size:24px;margin-top:20px}
+
+.quote-kanban{display:grid;grid-template-columns:repeat(6,minmax(230px,1fr));gap:13px;overflow-x:auto;padding-bottom:12px}
+.kanban-column{background:#101115;border:1px solid var(--line);border-radius:13px;padding:12px;min-height:390px}
+.kanban-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}.kanban-head>strong{color:var(--muted)}
+.kanban-cards{display:grid;gap:9px}.kanban-card{display:grid;gap:6px;text-decoration:none;background:#191a1f;border:1px solid #292b31;border-radius:9px;padding:12px}
+.kanban-card:hover{border-color:#555861}.kanban-card span,.kanban-card small{color:var(--muted);font-size:11px}.kanban-card b{color:var(--orange)}
+.kanban-empty{color:#666;text-align:center;padding:35px 8px}
+
+@media(max-width:760px){
+  .public-link-box{grid-template-columns:1fr}
+  .quote-public-meta{grid-template-columns:1fr 1fr}
+  .quote-public-head{flex-direction:column}
+}
+@media(max-width:480px){.quote-public-meta{grid-template-columns:1fr}.quote-public-card{padding:16px}}

@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>{{ title }} · ARVOX</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+</head>
+<body class="quote-public-body">
+  <main class="quote-result-shell">
+    <div class="brand-symbol large"><span></span><span></span></div>
+    <span class="eyebrow">{{ quote.number }}</span>
+    <h1>{{ title }}</h1>
+    <p>{{ message }}</p>
+    <strong>{{ quote.currency }} {{ "%.2f"|format(quote.total) }}</strong>
+  </main>
+</body>
+</html>
