@@ -14,6 +14,7 @@ def register_blueprints(app: Flask) -> None:
     from .health import health_bp
     from .finance import finance_bp
     from .reports import reports_bp
+    from .inventory import inventory_bp
 
     for blueprint in (
         auth_bp,
@@ -26,6 +27,7 @@ def register_blueprints(app: Flask) -> None:
         quotes_bp,
         finance_bp,
         reports_bp,
+        inventory_bp,
         health_bp,
     ):
         app.register_blueprint(blueprint)

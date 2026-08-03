@@ -33,7 +33,9 @@
       <a class="{% if request.blueprint == 'purchases' %}active{% endif %}" href="{{ url_for('purchases.index') }}">
         <span class="nav-icon">＋</span> Compras
       </a>
-      <span><span class="nav-icon">▤</span> Stock <em>próximamente</em></span>
+      <a class="{% if request.blueprint == 'inventory' %}active{% endif %}" href="{{ url_for('inventory.index') }}">
+        <span class="nav-icon">▤</span> Stock
+      </a>
       <a class="{% if request.blueprint == 'sales' %}active{% endif %}" href="{{ url_for('sales.index') }}">
         <span class="nav-icon">$</span> Ventas
       </a>
@@ -81,6 +83,7 @@
             <a href="{{ url_for('quotes.index') }}#new-quote">Nueva cotización</a>
             <a href="{{ url_for('suppliers.index') }}#new-supplier">Nuevo proveedor</a>
             <a href="{{ url_for('finance.expenses') }}#new-expense">Nuevo gasto</a>
+            <a href="{{ url_for('inventory.index') }}#stock-adjustment">Ajustar stock</a>
           </div>
         </details>
 

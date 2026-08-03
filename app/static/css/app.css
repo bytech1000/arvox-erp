@@ -426,3 +426,13 @@ details summary{list-style:none;width:max-content}details summary::-webkit-detai
 .report-filters{display:grid;grid-template-columns:1fr 145px 145px 100px auto;gap:10px;align-items:center}.period-buttons{display:flex;gap:7px;flex-wrap:wrap}.period-buttons button{background:#18191d;color:#bbb;border:1px solid #303239}.period-buttons .active-period{background:var(--orange);color:#090909;border-color:var(--orange)}.report-range{color:var(--muted);margin:12px 0 0}.report-stats{grid-template-columns:repeat(3,1fr)}.report-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.ranking-list{display:grid;gap:8px}.ranking-list>div{display:grid;grid-template-columns:28px 1fr auto;gap:10px;align-items:center;background:#18191d;border:1px solid #292b31;border-radius:9px;padding:11px}.ranking-list b{color:var(--orange);font-size:18px}.ranking-list span strong,.ranking-list span small{display:block}.ranking-list span small{color:var(--muted);margin-top:3px}.ranking-list em{font-style:normal;font-weight:800}.panel-head>a{color:var(--orange);text-decoration:none;font-size:12px}
 @media(max-width:1050px){.report-filters{grid-template-columns:1fr 1fr}.report-stats{grid-template-columns:1fr 1fr}.report-grid{grid-template-columns:1fr}}
 @media(max-width:650px){.report-filters,.report-stats{grid-template-columns:1fr}.ranking-list>div{grid-template-columns:24px 1fr}.ranking-list em{grid-column:2}}
+
+
+/* ARVOX · Módulo Stock */
+.stock-stats{grid-template-columns:repeat(5,1fr)}
+.stock-filters{display:grid;grid-template-columns:minmax(260px,1fr) 180px 170px auto auto;gap:10px}
+.stock-status{display:inline-block;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:800}
+.stock-status.disponible{background:#143922;color:#74e39d}.stock-status.crítico{background:#49360c;color:#ffd66f}.stock-status.sin-stock{background:#491818;color:#ff8b8b}
+.table-sub{display:block;color:var(--muted);font-size:11px;margin-top:4px}.qty-positive{color:#74e39d;font-weight:800}.qty-negative{color:#ff8b8b;font-weight:800}
+@media(max-width:1100px){.stock-stats{grid-template-columns:repeat(2,1fr)}.stock-filters{grid-template-columns:1fr 1fr}}
+@media(max-width:650px){.stock-stats,.stock-filters{grid-template-columns:1fr}}

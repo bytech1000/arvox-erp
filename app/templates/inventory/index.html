@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Stock · ARVOX{% endblock %}
+{% block module_title %}Stock{% endblock %}
+{% block module_subtitle %}Inventario, reservas, valorización y movimientos{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><span class="eyebrow">MÓDULO STOCK</span><h1>Inventario</h1><p>Controlá existencias, reservas, mínimos y valor del stock.</p></div>
+  <div class="actions"><a class="button secondary" href="{{ url_for('inventory.export_csv') }}">Exportar CSV</a><a class="button" href="#stock-adjustment">Ajustar stock</a></div>
+</div>
+<div class="stats stock-stats">
+  <article><span>Productos</span><strong>{{ totals.products }}</strong><small>{{ totals.critical }} requieren atención</small></article>
+  <article><span>Stock físico</span><strong>{{ totals.physical }}</strong><small>Unidades en inventario</small></article>
+  <article><span>Reservado</span><strong>{{ totals.reserved }}</strong><small>No disponible para venta</small></article>
+  <article><span>Disponible</span><strong>{{ totals.available }}</strong><small>Unidades vendibles</small></article>
+  <article><span>Valor del stock</span><strong>USD {{ "%.2f"|format(totals.value) }}</strong><small>A costo promedio</small></article>
+</div>
+<section class="panel" id="stock-adjustment">
+  <details>
+    <summary class="button">Registrar conteo físico</summary>
+    <form method="post" class="form-grid stock-adjust-form">
+      <label>Fecha<input type="date" name="date" value="{{ today }}" required></label>
+      <label>Producto<select name="product_id" required><option value="">Seleccionar producto</option>{% for p in products %}<option value="{{ p.id }}">{{ p.code }} · {{ p.brand }} · {{ p.model }} · sistema {{ p.stock }}</option>{% endfor %}</select></label>
+      <label>Stock contado<input type="number" name="counted_stock" min="0" required></label>
+      <label>Motivo<select name="reason"><option>Conteo físico</option><option>Rotura o daño</option><option>Pérdida</option><option>Devolución</option><option>Corrección administrativa</option><option>Otro</option></select></label>
+      <label class="full">Observaciones<textarea name="notes" placeholder="Detalle opcional del ajuste"></textarea></label>
+      <button>Guardar ajuste</button>
+    </form>
+  </details>
+</section>
+<section class="panel">
+  <form method="get" class="stock-filters">
+    <input name="q" value="{{ q }}" placeholder="Buscar código, marca o modelo">
+    <select name="brand"><option value="">Todas las marcas</option>{% for brand in brands %}<option value="{{ brand }}" {% if selected_brand == brand %}selected{% endif %}>{{ brand }}</option>{% endfor %}</select>
+    <select name="status"><option value="">Todos los estados</option>{% for x in ["Disponible","Crítico","Sin stock"] %}<option value="{{ x }}" {% if selected_status == x %}selected{% endif %}>{{ x }}</option>{% endfor %}</select>
+    <button>Filtrar</button><a class="button secondary" href="{{ url_for('inventory.index') }}">Limpiar</a>
+  </form>
+</section>
+<section class="panel">
+  <div class="table-wrap"><table>
+    <tr><th>Producto</th><th>Stock físico</th><th>Reservado</th><th>Disponible</th><th>Mínimo</th><th>Costo promedio</th><th>Valorización</th><th>Estado</th><th></th></tr>
+    {% for row in rows %}{% set p=row.product %}<tr>
+      <td><strong>{{ p.brand }} · {{ p.model }}</strong><small class="table-sub">{{ p.code }}</small></td>
+      <td>{{ row.physical }}</td><td>{{ row.reserved }}</td><td><strong>{{ row.available }}</strong></td><td>{{ p.min_stock }}</td>
+      <td>{{ p.currency }} {{ "%.2f"|format(p.avg_cost) }}</td><td>{{ p.currency }} {{ "%.2f"|format(row.value) }}</td>
+      <td><span class="stock-status {{ row.status|lower|replace(' ', '-') }}">{{ row.status }}</span></td>
+      <td><a href="{{ url_for('inventory.product', product_id=p.id) }}">Movimientos</a></td>
+    </tr>{% else %}<tr><td colspan="9">No hay productos con estos filtros.</td></tr>{% endfor %}
+  </table></div>
+</section>
+{% endblock %}

@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Stock {{ product.model }} · ARVOX{% endblock %}
+{% block module_title %}Stock{% endblock %}
+{% block module_subtitle %}Kardex y movimientos del producto{% endblock %}
+{% block content %}
+<div class="page-head"><div><a class="back" href="{{ url_for('inventory.index') }}">← Stock</a><span class="eyebrow">MOVIMIENTOS</span><h1>{{ product.brand }} · {{ product.model }}</h1><p>{{ product.code }}</p></div><a class="button secondary" href="{{ url_for('products.detail', product_id=product.id) }}">Ver producto</a></div>
+<div class="stats">
+  <article><span>Stock físico</span><strong>{{ product.stock }}</strong><small>Incluye ajustes</small></article>
+  <article><span>Reservado</span><strong>{{ product.reserved_units }}</strong><small>Ventas reservadas</small></article>
+  <article><span>Disponible</span><strong>{{ product.available_stock }}</strong><small>Para nuevas ventas</small></article>
+  <article><span>Valor stock</span><strong>{{ product.currency }} {{ "%.2f"|format(product.stock * product.avg_cost) }}</strong><small>A costo promedio</small></article>
+</div>
+<section class="panel"><div class="panel-head"><div><span class="eyebrow">KARDEX</span><h2>Historial de movimientos</h2></div></div><div class="table-wrap"><table>
+<tr><th>Fecha</th><th>Movimiento</th><th>Referencia</th><th>Cantidad</th><th>Detalle</th></tr>
+{% for m in movements %}<tr><td>{{ m.date.strftime('%d/%m/%Y') if m.date else '-' }}</td><td>{{ m.type }}</td><td>{{ m.reference }}</td><td class="{% if m.quantity > 0 %}qty-positive{% elif m.quantity < 0 %}qty-negative{% endif %}">{{ '%+d'|format(m.quantity) }}</td><td>{{ m.notes or '-' }}</td></tr>{% else %}<tr><td colspan="5">No hay movimientos.</td></tr>{% endfor %}
+</table></div></section>
+{% endblock %}

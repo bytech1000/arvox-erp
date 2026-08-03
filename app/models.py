@@ -33,6 +33,7 @@ class Product(db.Model):
 
     purchase_items = db.relationship('PurchaseItem', backref='product', lazy=True)
     sale_items = db.relationship('SaleItem', backref='product', lazy=True)
+    stock_adjustments = db.relationship('StockAdjustment', backref='product', lazy=True, cascade='all, delete-orphan')
 
     @property
     def purchased_units(self):
@@ -46,8 +47,12 @@ class Product(db.Model):
         return sum(i.quantity for i in self.sale_items if i.sale.status == 'Reservada')
 
     @property
+    def adjustment_units(self):
+        return sum(a.quantity for a in self.stock_adjustments)
+
+    @property
     def stock(self):
-        return (self.opening_stock or 0) + self.purchased_units - self.sold_units
+        return (self.opening_stock or 0) + self.purchased_units - self.sold_units + self.adjustment_units
 
     @property
     def available_stock(self):
@@ -315,3 +320,13 @@ class CashMovement(db.Model):
     @property
     def signed_amount(self):
         return self.amount if self.movement_type == "Ingreso" else -self.amount
+
+
+class StockAdjustment(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.Date, nullable=False)
+    product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
+    quantity = db.Column(db.Integer, nullable=False)
+    reason = db.Column(db.String(100), nullable=False)
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)

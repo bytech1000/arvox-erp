@@ -231,3 +231,15 @@ Abrir `http://localhost:5000`.
 - Inventario valorizado
 - Alertas de stock crítico
 - Exportación CSV para ventas, productos, gastos e inventario
+
+
+## v5.2 — Módulo Stock
+
+- Pantalla central de inventario
+- Stock físico, reservado y disponible
+- Stock mínimo y estados de alerta
+- Valorización a costo promedio
+- Kardex por producto
+- Ajustes por conteo físico, roturas, pérdidas y devoluciones
+- Exportación CSV
+- Integración con compras, ventas y reservas
