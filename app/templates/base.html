@@ -30,7 +30,9 @@
       <a class="{% if request.blueprint == 'suppliers' %}active{% endif %}" href="{{ url_for('suppliers.index') }}">
         <span class="nav-icon">◇</span> Proveedores
       </a>
-      <span><span class="nav-icon">＋</span> Compras <em>próximamente</em></span>
+      <a class="{% if request.blueprint == 'purchases' %}active{% endif %}" href="{{ url_for('purchases.index') }}">
+        <span class="nav-icon">＋</span> Compras
+      </a>
       <span><span class="nav-icon">▤</span> Stock <em>próximamente</em></span>
       <span><span class="nav-icon">$</span> Ventas <em>próximamente</em></span>
       <span><span class="nav-icon">◎</span> Clientes <em>próximamente</em></span>
@@ -63,7 +65,7 @@
           <summary>+ Nueva operación</summary>
           <div class="quick-menu">
             <a href="{{ url_for('products.index') }}#new-product">Nuevo producto</a>
-            <span>Nueva compra</span>
+            <a href="{{ url_for('purchases.index') }}#new-purchase">Nueva compra</a>
             <span>Nueva venta</span>
             <a href="{{ url_for('suppliers.index') }}#new-supplier">Nuevo proveedor</a>
           </div>

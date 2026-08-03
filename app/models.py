@@ -123,13 +123,26 @@ class Supplier(db.Model):
 class Purchase(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
+    reference = db.Column(db.String(80))
     product_id = db.Column(db.Integer, db.ForeignKey("product.id"), nullable=False)
-    supplier_id = db.Column(db.Integer, db.ForeignKey("supplier.id"))
+    supplier_id = db.Column(db.Integer, db.ForeignKey("supplier.id"), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     unit_cost = db.Column(db.Float, nullable=False)
-    status = db.Column(db.String(30), default="Recibida")
+    currency = db.Column(db.String(20), default="USD")
     paid = db.Column(db.Float, default=0)
+    status = db.Column(db.String(30), default="Recibida")
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
     supplier = db.relationship("Supplier", overlaps="purchases,supplier_record")
+
+    @property
+    def total(self):
+        return self.quantity * self.unit_cost
+
+    @property
+    def balance(self):
+        return self.total - (self.paid or 0)
 
 class Sale(db.Model):
     id = db.Column(db.Integer, primary_key=True)

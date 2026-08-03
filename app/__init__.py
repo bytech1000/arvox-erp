@@ -14,11 +14,13 @@ def create_app():
     from .dashboard import dashboard_bp
     from .products import products_bp
     from .suppliers import suppliers_bp
+    from .purchases import purchases_bp
 
     app.register_blueprint(auth_bp)
     app.register_blueprint(dashboard_bp)
     app.register_blueprint(products_bp)
     app.register_blueprint(suppliers_bp)
+    app.register_blueprint(purchases_bp)
 
     with app.app_context():
         db.create_all()

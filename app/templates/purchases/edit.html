@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% block title %}Editar compra · ARVOX{% endblock %}
+{% block module_title %}Compras{% endblock %}
+{% block module_subtitle %}Modificar operación{% endblock %}
+{% block content %}
+<div class="page-head"><div><a class="back" href="{{ url_for('purchases.detail', purchase_id=purchase.id) }}">← Volver</a><span class="eyebrow">EDITAR COMPRA</span><h1>{{ purchase.reference or ("Compra #" ~ purchase.id) }}</h1></div></div>
+<section class="panel">
+<form method="post" class="form-grid">
+  <label>Fecha<input type="date" name="date" value="{{ purchase.date.isoformat() }}" required></label>
+  <label>Proveedor<select name="supplier_id" required>{% for supplier in suppliers %}<option value="{{ supplier.id }}" {% if purchase.supplier_id == supplier.id %}selected{% endif %}>{{ supplier.name }}</option>{% endfor %}</select></label>
+  <label>Producto<select name="product_id" required>{% for product in products %}<option value="{{ product.id }}" {% if purchase.product_id == product.id %}selected{% endif %}>{{ product.code }} · {{ product.brand }} · {{ product.model }}</option>{% endfor %}</select></label>
+  <label>Referencia<input name="reference" value="{{ purchase.reference or '' }}"></label>
+  <label>Cantidad<input name="quantity" type="number" min="1" value="{{ purchase.quantity }}" required></label>
+  <label>Costo unitario<input name="unit_cost" type="number" min="0" step="0.01" value="{{ purchase.unit_cost }}" required></label>
+  <label>Pagado<input name="paid" type="number" min="0" step="0.01" value="{{ purchase.paid or 0 }}"></label>
+  <label>Moneda<select name="currency">{% for currency in ["USD","ARS","EUR"] %}<option {% if purchase.currency == currency %}selected{% endif %}>{{ currency }}</option>{% endfor %}</select></label>
+  <label>Estado<select name="status">{% for status in ["Recibida","Pendiente","Cancelada"] %}<option {% if purchase.status == status %}selected{% endif %}>{{ status }}</option>{% endfor %}</select></label>
+  <label class="full">Observaciones<textarea name="notes">{{ purchase.notes or "" }}</textarea></label>
+  <button>Guardar cambios</button><a class="button secondary" href="{{ url_for('purchases.detail', purchase_id=purchase.id) }}">Cancelar</a>
+</form>
+</section>
+{% endblock %}

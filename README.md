@@ -88,3 +88,15 @@ Abrir `http://localhost:5000`.
 - Precio de venta y margen
 - Preparado para actualización automática desde Compras
 - Migración segura de bases SQLite existentes
+
+
+## v2.1 — Módulo Compras 2.1
+
+- Alta de compras de un producto
+- Proveedor y producto
+- Estados Recibida, Pendiente y Cancelada
+- Stock automático
+- Último costo
+- Costo promedio ponderado
+- Saldo pendiente
+- Historial, edición y cancelación

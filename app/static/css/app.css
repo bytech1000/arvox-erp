@@ -280,3 +280,17 @@ details summary{list-style:none;width:max-content}details summary::-webkit-detai
   .supplier-filters { grid-template-columns:1fr; }
   .supplier-profile { flex-direction:column; }
 }
+
+/* ARVOX · Módulo 2.1 Compras */
+.purchase-form{display:grid;gap:18px;margin-top:17px}
+.form-section{background:#17181c;border:1px solid #2b2d33;border-radius:12px;padding:16px}
+.section-title{display:flex;gap:11px;align-items:center;margin-bottom:14px}
+.section-title>span{width:31px;height:31px;border-radius:50%;display:grid;place-items:center;background:var(--orange);color:#080808;font-weight:900}
+.section-title strong,.section-title small{display:block}.section-title small{color:var(--muted);margin-top:3px}
+.purchase-form .wide{grid-column:span 2}.form-actions{display:flex;justify-content:flex-end}
+.purchase-filters{display:grid;grid-template-columns:minmax(260px,1fr) 210px 160px auto auto;gap:10px}
+.purchase-status{display:inline-block;padding:5px 9px;border-radius:999px;font-size:11px;font-weight:800}
+.purchase-status.recibida{background:#143922;color:#74e39d}.purchase-status.pendiente{background:#49360c;color:#ffd66f}.purchase-status.cancelada{background:#491818;color:#ff8b8b}
+.purchase-detail-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.danger-button{background:#4b1717;color:#ff9898;border:1px solid #752323}
+@media(max-width:950px){.purchase-filters{grid-template-columns:1fr 1fr}.purchase-detail-grid{grid-template-columns:1fr}}
+@media(max-width:650px){.purchase-filters{grid-template-columns:1fr}.purchase-form .wide{grid-column:span 1}}
