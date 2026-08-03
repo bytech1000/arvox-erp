@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from sqlalchemy import or_
 from . import db
 from .auth import login_required
-from .models import Purchase, PurchaseItem, Product, Supplier
+from .models import Purchase, PurchaseItem, Product, Supplier, CashMovement
 
 purchases_bp = Blueprint('purchases', __name__, url_prefix='/purchases')
 
@@ -47,7 +47,15 @@ def index():
             status=request.form.get('status') or 'Recibida', notes=request.form.get('notes','').strip() or None)
         for product, qty, cost in lines:
             purchase.items.append(PurchaseItem(product_id=product.id, quantity=qty, unit_cost=cost))
-        db.session.add(purchase); db.session.commit()
+        db.session.add(purchase); db.session.flush()
+        if paid > 0:
+            purchase.cash_movements.append(CashMovement(
+                date=date_value, movement_type='Egreso', category='Pago a proveedor',
+                description=f'Pago inicial compra #{purchase.id} · {supplier.name}',
+                payment_method=request.form.get('payment_method') or 'Transferencia',
+                currency=purchase.currency, amount=paid,
+            ))
+        db.session.commit()
         msg = f'Compra completa guardada: {len(lines)} productos y {purchase.units} unidades.'
         if purchase.status == 'Pendiente': msg += ' Todavía no afecta el stock.'
         flash(msg, 'success')

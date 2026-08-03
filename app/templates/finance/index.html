@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Caja · ARVOX{% endblock %}
+{% block module_title %}Caja y Finanzas{% endblock %}
+{% block module_subtitle %}Dinero disponible, cobros, pagos y movimientos{% endblock %}
+{% block content %}
+<div class="page-head">
+  <div><span class="eyebrow">MÓDULO 5.0</span><h1>Caja</h1><p>Controlá el dinero real de ARVOX, separado por moneda y medio de pago.</p></div>
+  <div class="actions"><a class="button secondary" href="{{ url_for('finance.expenses') }}">Gastos</a><a class="button" href="#new-movement">+ Movimiento</a></div>
+</div>
+
+<section class="panel finance-currency-tabs">
+  {% for value in ['USD','ARS','EUR'] %}<a class="{% if currency==value %}active{% endif %}" href="{{ url_for('finance.index', currency=value) }}">{{ value }}</a>{% endfor %}
+</section>
+
+<div class="executive-stats finance-main-stats">
+  <article class="executive-card primary-card"><span>Saldo de Caja</span><strong>{{ currency }} {{ '%.2f'|format(totals.balance) }}</strong><small>Ingresos menos egresos</small></article>
+  <article class="executive-card"><span>Ingresos hoy</span><strong>{{ currency }} {{ '%.2f'|format(totals.income_today) }}</strong><small>Cobros y otros ingresos</small></article>
+  <article class="executive-card"><span>Egresos hoy</span><strong>{{ currency }} {{ '%.2f'|format(totals.expense_today) }}</strong><small>Pagos y gastos</small></article>
+  <article class="executive-card"><span>Resultado hoy</span><strong>{{ currency }} {{ '%.2f'|format(totals.result_today) }}</strong><small>Movimiento neto del día</small></article>
+</div>
+
+<div class="secondary-stats">
+  <article><span>Por cobrar</span><strong>{{ currency }} {{ '%.2f'|format(totals.receivable) }}</strong></article>
+  <article><span>Por pagar</span><strong>{{ currency }} {{ '%.2f'|format(totals.payable) }}</strong></article>
+</div>
+
+<div class="finance-method-grid">
+  {% for method in payment_methods %}<article><span>{{ method }}</span><strong>{{ currency }} {{ '%.2f'|format(method_balances.get(method,0)) }}</strong></article>{% endfor %}
+</div>
+
+<section class="panel" id="new-movement">
+  <details><summary class="button">+ Movimiento manual</summary>
+    <form method="post" class="form-grid finance-form">
+      <label>Fecha<input type="date" name="date" required></label>
+      <label>Tipo<select name="movement_type"><option>Ingreso</option><option>Egreso</option></select></label>
+      <label>Categoría<input name="category" placeholder="Aporte, ajuste, otros"></label>
+      <label>Detalle<input name="description" required placeholder="Descripción del movimiento"></label>
+      <label>Medio<select name="payment_method">{% for m in payment_methods %}<option>{{ m }}</option>{% endfor %}</select></label>
+      <label>Moneda<select name="currency"><option>USD</option><option>ARS</option><option>EUR</option></select></label>
+      <label>Importe<input name="amount" type="number" min="0.01" step="0.01" required></label>
+      <label class="full">Observaciones<textarea name="notes"></textarea></label><button>Guardar movimiento</button>
+    </form>
+  </details>
+</section>
+
+<div class="dashboard-main-grid">
+<section class="panel"><div class="panel-head"><div><span class="eyebrow">COBROS</span><h2>Ventas pendientes</h2></div></div>
+<div class="finance-pending-list">{% for sale in pending_sales %}<div><div><strong>{{ sale.customer }}</strong><small>Venta #{{ sale.id }} · {{ sale.date.strftime('%d/%m/%Y') }}</small></div><b>{{ sale.currency }} {{ '%.2f'|format(sale.balance) }}</b><form method="post" action="{{ url_for('finance.collect_sale', sale_id=sale.id) }}"><input type="date" name="date" required><select name="payment_method">{% for m in payment_methods %}<option>{{ m }}</option>{% endfor %}</select><input name="amount" type="number" min="0.01" max="{{ sale.balance }}" step="0.01" value="{{ '%.2f'|format(sale.balance) }}"><button>Cobrar</button></form></div>{% else %}<div class="empty-state">No hay ventas pendientes.</div>{% endfor %}</div></section>
+<section class="panel"><div class="panel-head"><div><span class="eyebrow">PAGOS</span><h2>Compras pendientes</h2></div></div>
+<div class="finance-pending-list">{% for purchase in pending_purchases %}<div><div><strong>{{ purchase.supplier.name }}</strong><small>Compra #{{ purchase.id }} · {{ purchase.date.strftime('%d/%m/%Y') }}</small></div><b>{{ purchase.currency }} {{ '%.2f'|format(purchase.balance) }}</b><form method="post" action="{{ url_for('finance.pay_purchase', purchase_id=purchase.id) }}"><input type="date" name="date" required><select name="payment_method">{% for m in payment_methods %}<option>{{ m }}</option>{% endfor %}</select><input name="amount" type="number" min="0.01" max="{{ purchase.balance }}" step="0.01" value="{{ '%.2f'|format(purchase.balance) }}"><button>Pagar</button></form></div>{% else %}<div class="empty-state">No hay compras pendientes.</div>{% endfor %}</div></section>
+</div>
+
+<section class="panel">
+<form method="get" class="finance-filters"><input type="hidden" name="currency" value="{{ currency }}"><input name="q" value="{{ q }}" placeholder="Buscar detalle o categoría"><select name="movement_type"><option value="">Ingresos y egresos</option><option {% if selected_type=='Ingreso' %}selected{% endif %}>Ingreso</option><option {% if selected_type=='Egreso' %}selected{% endif %}>Egreso</option></select><select name="payment_method"><option value="">Todos los medios</option>{% for m in payment_methods %}<option {% if selected_method==m %}selected{% endif %}>{{ m }}</option>{% endfor %}</select><button>Filtrar</button></form>
+<div class="table-wrap"><table><tr><th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Detalle</th><th>Medio</th><th>Importe</th></tr>{% for row in rows %}<tr><td>{{ row.date.strftime('%d/%m/%Y') }}</td><td><span class="cash-type {{ row.movement_type|lower }}">{{ row.movement_type }}</span></td><td>{{ row.category }}</td><td>{{ row.description }}</td><td>{{ row.payment_method }}</td><td class="cash-amount {{ row.movement_type|lower }}">{% if row.movement_type=='Ingreso' %}+{% else %}-{% endif %} {{ row.currency }} {{ '%.2f'|format(row.amount) }}</td></tr>{% else %}<tr><td colspan="6">No hay movimientos para mostrar.</td></tr>{% endfor %}</table></div>
+</section>
+{% endblock %}

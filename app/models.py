@@ -275,3 +275,43 @@ class QuoteItem(db.Model):
     @property
     def expected_profit(self):
         return self.subtotal - (self.cost_snapshot * self.quantity)
+
+
+class Expense(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.Date, nullable=False)
+    category = db.Column(db.String(80), nullable=False)
+    description = db.Column(db.String(180), nullable=False)
+    payment_method = db.Column(db.String(50), default="Transferencia")
+    currency = db.Column(db.String(20), default="USD")
+    amount = db.Column(db.Float, nullable=False)
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    movement = db.relationship(
+        "CashMovement", backref="expense", uselist=False,
+        cascade="all, delete-orphan"
+    )
+
+
+class CashMovement(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    date = db.Column(db.Date, nullable=False)
+    movement_type = db.Column(db.String(20), nullable=False)  # Ingreso / Egreso
+    category = db.Column(db.String(80), nullable=False)
+    description = db.Column(db.String(200), nullable=False)
+    payment_method = db.Column(db.String(50), default="Transferencia")
+    currency = db.Column(db.String(20), default="USD")
+    amount = db.Column(db.Float, nullable=False)
+    sale_id = db.Column(db.Integer, db.ForeignKey("sales_order.id"))
+    purchase_id = db.Column(db.Integer, db.ForeignKey("purchase.id"))
+    expense_id = db.Column(db.Integer, db.ForeignKey("expense.id"), unique=True)
+    notes = db.Column(db.Text)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    sale = db.relationship("SalesOrder", backref="cash_movements")
+    purchase = db.relationship("Purchase", backref="cash_movements")
+
+    @property
+    def signed_amount(self):
+        return self.amount if self.movement_type == "Ingreso" else -self.amount

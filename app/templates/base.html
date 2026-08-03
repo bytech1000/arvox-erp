@@ -43,7 +43,9 @@
       <a class="{% if request.blueprint == 'customers' %}active{% endif %}" href="{{ url_for('customers.index') }}">
         <span class="nav-icon">◎</span> Clientes
       </a>
-      <span><span class="nav-icon">≡</span> Cuenta corriente <em>próximamente</em></span>
+      <a class="{% if request.blueprint == 'finance' %}active{% endif %}" href="{{ url_for('finance.index') }}">
+        <span class="nav-icon">¤</span> Caja y Gastos
+      </a>
       <span><span class="nav-icon">↗</span> Reportes <em>próximamente</em></span>
     </nav>
 
@@ -76,6 +78,7 @@
             <a href="{{ url_for('sales.index') }}#new-sale">Nueva venta</a>
             <a href="{{ url_for('quotes.index') }}#new-quote">Nueva cotización</a>
             <a href="{{ url_for('suppliers.index') }}#new-supplier">Nuevo proveedor</a>
+            <a href="{{ url_for('finance.expenses') }}#new-expense">Nuevo gasto</a>
           </div>
         </details>
 

@@ -205,3 +205,16 @@ Abrir `http://localhost:5000`.
 - Endpoint `/health` para Render
 - Misma interfaz, rutas y funcionamiento
 - Base preparada para Caja y Gastos
+
+
+## v5.0 — Caja y Gastos
+
+- Caja por moneda y medio de pago
+- Ingresos y egresos manuales
+- Gastos operativos por categoría
+- Cobros vinculados a ventas
+- Pagos vinculados a compras
+- Actualización automática de cuentas corrientes
+- Saldos por cobrar y por pagar
+- Ganancia neta en Dashboard
+- Historial completo de movimientos

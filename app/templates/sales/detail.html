@@ -1,7 +1,22 @@
 {% extends "base.html" %}
-{% block title %}Venta · ARVOX{% endblock %}
-{% block module_title %}Ventas{% endblock %}
-{% block module_subtitle %}Detalle de la operación{% endblock %}
+{% block title %}Venta · ARVOX
+{% if sale.status != "Cancelada" and sale.balance > 0 %}
+<section class="panel finance-inline-panel"><div><span class="eyebrow">CUENTA CORRIENTE</span><h2>Registrar cobro</h2><p>Saldo pendiente: <strong>{{ sale.currency }} {{ "%.2f"|format(sale.balance) }}</strong></p></div><form method="post" action="{{ url_for('finance.collect_sale', sale_id=sale.id) }}"><input type="date" name="date" required><select name="payment_method"><option>Efectivo</option><option>Transferencia</option><option>Mercado Pago</option><option>Tarjeta</option></select><input name="amount" type="number" min="0.01" max="{{ sale.balance }}" step="0.01" value="{{ '%.2f'|format(sale.balance) }}" required><button>Registrar cobro</button></form></section>
+{% endif %}
+
+{% endblock %}
+{% block module_title %}Ventas
+{% if sale.status != "Cancelada" and sale.balance > 0 %}
+<section class="panel finance-inline-panel"><div><span class="eyebrow">CUENTA CORRIENTE</span><h2>Registrar cobro</h2><p>Saldo pendiente: <strong>{{ sale.currency }} {{ "%.2f"|format(sale.balance) }}</strong></p></div><form method="post" action="{{ url_for('finance.collect_sale', sale_id=sale.id) }}"><input type="date" name="date" required><select name="payment_method"><option>Efectivo</option><option>Transferencia</option><option>Mercado Pago</option><option>Tarjeta</option></select><input name="amount" type="number" min="0.01" max="{{ sale.balance }}" step="0.01" value="{{ '%.2f'|format(sale.balance) }}" required><button>Registrar cobro</button></form></section>
+{% endif %}
+
+{% endblock %}
+{% block module_subtitle %}Detalle de la operación
+{% if sale.status != "Cancelada" and sale.balance > 0 %}
+<section class="panel finance-inline-panel"><div><span class="eyebrow">CUENTA CORRIENTE</span><h2>Registrar cobro</h2><p>Saldo pendiente: <strong>{{ sale.currency }} {{ "%.2f"|format(sale.balance) }}</strong></p></div><form method="post" action="{{ url_for('finance.collect_sale', sale_id=sale.id) }}"><input type="date" name="date" required><select name="payment_method"><option>Efectivo</option><option>Transferencia</option><option>Mercado Pago</option><option>Tarjeta</option></select><input name="amount" type="number" min="0.01" max="{{ sale.balance }}" step="0.01" value="{{ '%.2f'|format(sale.balance) }}" required><button>Registrar cobro</button></form></section>
+{% endif %}
+
+{% endblock %}
 {% block content %}
 <div class="page-head">
   <div><a class="back" href="{{ url_for('sales.index') }}">← Ventas</a><span class="eyebrow">VENTA #{{ sale.id }}</span><h1>{{ sale.customer }}</h1><p>{{ sale.date.strftime("%d/%m/%Y") }} · {{ sale.reference or "Sin referencia" }}</p></div>
@@ -42,4 +57,9 @@
     {% endfor %}
   </table></div>
 </section>
+
+{% if sale.status != "Cancelada" and sale.balance > 0 %}
+<section class="panel finance-inline-panel"><div><span class="eyebrow">CUENTA CORRIENTE</span><h2>Registrar cobro</h2><p>Saldo pendiente: <strong>{{ sale.currency }} {{ "%.2f"|format(sale.balance) }}</strong></p></div><form method="post" action="{{ url_for('finance.collect_sale', sale_id=sale.id) }}"><input type="date" name="date" required><select name="payment_method"><option>Efectivo</option><option>Transferencia</option><option>Mercado Pago</option><option>Tarjeta</option></select><input name="amount" type="number" min="0.01" max="{{ sale.balance }}" step="0.01" value="{{ '%.2f'|format(sale.balance) }}" required><button>Registrar cobro</button></form></section>
+{% endif %}
+
 {% endblock %}

@@ -32,12 +32,15 @@
 
 <div class="executive-stats">
   <article class="executive-card primary-card"><span>Ventas</span><strong>{{ currency }} {{ "%.2f"|format(totals.sales) }}</strong><small>{{ totals.sales_count }} operaciones</small></article>
-  <article class="executive-card"><span>Ganancia</span><strong>{{ currency }} {{ "%.2f"|format(totals.profit) }}</strong><small>Ventas entregadas</small></article>
+  <article class="executive-card"><span>Ganancia bruta</span><strong>{{ currency }} {{ "%.2f"|format(totals.profit) }}</strong><small>Ventas menos costo</small></article>
   <article class="executive-card"><span>Compras</span><strong>{{ currency }} {{ "%.2f"|format(totals.purchases) }}</strong><small>Sin canceladas</small></article>
   <article class="executive-card"><span>Stock valorizado</span><strong>{{ currency }} {{ "%.2f"|format(totals.stock_value) }}</strong><small>{{ totals.stock_units }} unidades disponibles</small></article>
 </div>
 
 <div class="secondary-stats">
+  <article><span>Caja</span><strong>{{ currency }} {{ "%.2f"|format(totals.cash_balance) }}</strong></article>
+  <article><span>Gastos</span><strong>{{ currency }} {{ "%.2f"|format(totals.expenses) }}</strong></article>
+  <article><span>Ganancia neta</span><strong>{{ currency }} {{ "%.2f"|format(totals.net_profit) }}</strong></article>
   <article><span>Por cobrar</span><strong>{{ currency }} {{ "%.2f"|format(totals.receivable) }}</strong></article>
   <article><span>Por pagar</span><strong>{{ currency }} {{ "%.2f"|format(totals.payable) }}</strong></article>
   <article class="{% if totals.low_stock %}alert-card{% endif %}"><span>Stock crítico</span><strong>{{ totals.low_stock }} productos</strong></article>

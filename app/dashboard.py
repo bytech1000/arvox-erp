@@ -2,7 +2,7 @@ from collections import defaultdict
 from datetime import date, timedelta, datetime
 from flask import Blueprint, render_template, request
 from .auth import login_required
-from .models import Product, Purchase, SalesOrder, Customer, Supplier
+from .models import Product, Purchase, SalesOrder, Customer, Supplier, Expense, CashMovement
 
 dashboard_bp = Blueprint("dashboard", __name__)
 
@@ -159,6 +159,15 @@ def index():
     if not sales:
         alerts.append({"type": "info", "text": "Todavía no hay ventas registradas en este período."})
 
+    expenses_total = sum(
+        x.amount for x in Expense.query.filter_by(currency=currency).all()
+        if start_date <= x.date <= end_date
+    )
+    cash_balance = sum(
+        x.signed_amount for x in CashMovement.query.filter_by(currency=currency).all()
+    )
+    net_profit = profit_total - expenses_total
+
     totals = {
         "sales": sales_total,
         "profit": profit_total,
@@ -169,6 +178,9 @@ def index():
         "stock_units": available_units,
         "low_stock": len(low_stock_products),
         "sales_count": len(sales),
+        "expenses": expenses_total,
+        "net_profit": net_profit,
+        "cash_balance": cash_balance,
     }
 
     return render_template(

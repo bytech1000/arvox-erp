@@ -409,3 +409,14 @@ details summary{list-style:none;width:max-content}details summary::-webkit-detai
   .quote-public-head{flex-direction:column}
 }
 @media(max-width:480px){.quote-public-meta{grid-template-columns:1fr}.quote-public-card{padding:16px}}
+
+
+/* ARVOX v5.0 · Caja y Gastos */
+.finance-currency-tabs{display:flex;gap:8px}.finance-currency-tabs a{padding:9px 18px;border-radius:8px;text-decoration:none;background:#1a1b20;color:#aaa}.finance-currency-tabs a.active{background:var(--orange);color:#111;font-weight:900}
+.finance-method-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin:16px 0}.finance-method-grid article{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:15px}.finance-method-grid span{display:block;color:var(--muted);font-size:12px;margin-bottom:7px}.finance-method-grid strong{font-size:19px}
+.finance-pending-list{display:grid;gap:12px}.finance-pending-list>div{display:grid;grid-template-columns:1fr auto;gap:10px;padding:13px;background:#18191d;border-radius:10px}.finance-pending-list small{display:block;color:var(--muted);margin-top:4px}.finance-pending-list form{grid-column:1/-1;display:grid;grid-template-columns:150px 170px 140px auto;gap:8px}.finance-pending-list b{color:var(--orange)}
+.finance-filters{display:grid;grid-template-columns:1fr 180px 180px auto;gap:9px;margin-bottom:16px}.cash-type{padding:5px 8px;border-radius:999px;font-size:11px;font-weight:800}.cash-type.ingreso{background:#143922;color:#74e39d}.cash-type.egreso{background:#491818;color:#ff8b8b}.cash-amount.ingreso{color:#74e39d}.cash-amount.egreso{color:#ff8b8b}
+.expense-category-list{display:grid;gap:13px}.expense-category-list>div{display:grid;grid-template-columns:130px 1fr 110px;gap:10px;align-items:center}.expense-category-list>div>div{height:8px;background:#25272d;border-radius:999px;overflow:hidden}.expense-category-list i{display:block;height:100%;background:var(--orange);border-radius:999px}
+.finance-inline-panel{display:flex;justify-content:space-between;align-items:center;gap:18px}.finance-inline-panel form{display:grid;grid-template-columns:150px 170px 150px auto;gap:8px}
+@media(max-width:900px){.finance-method-grid{grid-template-columns:1fr 1fr}.finance-pending-list form,.finance-inline-panel form{grid-template-columns:1fr 1fr}.finance-inline-panel{align-items:stretch;flex-direction:column}.finance-filters{grid-template-columns:1fr 1fr}}
+@media(max-width:560px){.finance-method-grid,.finance-pending-list form,.finance-inline-panel form,.finance-filters{grid-template-columns:1fr}.expense-category-list>div{grid-template-columns:1fr}.finance-currency-tabs{overflow-x:auto}}
