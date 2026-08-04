@@ -253,3 +253,48 @@ def receive(purchase_id):
     db.session.commit()
     flash("Compra marcada como recibida. Las unidades ingresaron al stock una sola vez.", "success")
     return redirect(url_for("purchases.detail", purchase_id=purchase.id))
+
+
+@purchases_bp.post("/<int:purchase_id>/delete")
+@login_required
+def delete(purchase_id):
+    purchase = Purchase.query.get_or_404(purchase_id)
+
+    # A received purchase can only be removed if its reversal does not
+    # leave any involved product with negative physical stock.
+    if purchase.status == "Recibida":
+        quantities = {}
+        for item in purchase.items:
+            quantities[item.product_id] = quantities.get(item.product_id, 0) + item.quantity
+
+        shortages = []
+        for product_id, quantity in quantities.items():
+            product = Product.query.get(product_id)
+            resulting_stock = product.stock - quantity
+            if resulting_stock < 0:
+                shortages.append(
+                    f"{product.brand} {product.model} (quedaría en {resulting_stock})"
+                )
+
+        if shortages:
+            flash(
+                "No se puede eliminar la compra porque dejaría stock negativo en: "
+                + "; ".join(shortages)
+                + ". Revisá las ventas o movimientos posteriores.",
+                "error",
+            )
+            return redirect(url_for("purchases.detail", purchase_id=purchase.id))
+
+    reference = purchase.reference or f"Compra #{purchase.id}"
+
+    # Delete linked cash movements first so PostgreSQL foreign keys remain valid.
+    for movement in list(purchase.cash_movements):
+        db.session.delete(movement)
+
+    db.session.delete(purchase)
+    db.session.commit()
+    flash(
+        f"{reference} eliminada. Se revirtieron stock, deuda y pagos vinculados.",
+        "success",
+    )
+    return redirect(url_for("purchases.index"))

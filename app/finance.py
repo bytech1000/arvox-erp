@@ -239,3 +239,23 @@ def pay_purchase(purchase_id):
     db.session.commit()
     flash("Pago registrado. Se actualizó Caja y la cuenta corriente del proveedor.", "success")
     return redirect(request.referrer or url_for("purchases.detail", purchase_id=purchase.id))
+
+
+@finance_bp.post("/expenses/<int:expense_id>/delete")
+@login_required
+def delete_expense(expense_id):
+    expense = Expense.query.get_or_404(expense_id)
+    description = expense.description
+    amount = expense.amount
+
+    # Expense.movement uses delete-orphan, but deleting it explicitly keeps
+    # behavior predictable in both SQLite and PostgreSQL.
+    if expense.movement:
+        db.session.delete(expense.movement)
+    db.session.delete(expense)
+    db.session.commit()
+    flash(
+        f"Gasto eliminado: {description} · ARS {amount:.2f}. Caja fue actualizada.",
+        "success",
+    )
+    return redirect(url_for("finance.expenses"))

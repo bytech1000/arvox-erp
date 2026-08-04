@@ -326,3 +326,13 @@ Abrir `http://localhost:5000`.
 - Stock muestra por defecto solo productos con existencias
 - Filtros: con stock, en tránsito, sin stock y todos
 - No modifica ni elimina los datos existentes
+
+
+## v6.2 — Eliminación segura
+
+- Eliminar productos sin historial asociado
+- Bloqueo de eliminación cuando existen compras, ventas o ajustes
+- Eliminar compras y revertir stock, deuda y pagos vinculados
+- Protección contra stock negativo al borrar compras recibidas
+- Eliminar gastos y revertir automáticamente el egreso de Caja
+- Confirmación visible antes de cada eliminación

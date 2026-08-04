@@ -485,3 +485,10 @@ details summary{list-style:none;width:max-content}details summary::-webkit-detai
 .stock-filters{grid-template-columns:minmax(230px,1fr) 160px 170px 160px auto auto}
 @media(max-width:1150px){.purchase-line{grid-template-columns:1fr 1fr 1fr}.purchase-line .line-subtotal,.purchase-line .remove-line{align-self:end}.stock-stats{grid-template-columns:repeat(3,1fr)}.stock-filters{grid-template-columns:1fr 1fr 1fr}}
 @media(max-width:700px){.purchase-line,.stock-stats,.stock-filters{grid-template-columns:1fr}}
+
+
+/* ARVOX v6.2 · Eliminación segura */
+.compact-danger{padding:7px 10px;font-size:11px}
+.expense-history-row{grid-template-columns:90px minmax(180px,1fr) minmax(170px,auto) auto!important;align-items:center}
+.expense-history-row form{margin:0}
+@media(max-width:700px){.expense-history-row{grid-template-columns:1fr!important}.expense-history-row form{justify-self:start}}

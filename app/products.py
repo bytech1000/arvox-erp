@@ -120,3 +120,32 @@ def toggle(product_id):
     db.session.commit()
     flash("Estado actualizado.", "success")
     return redirect(url_for("products.index"))
+
+
+@products_bp.post("/<int:product_id>/delete")
+@login_required
+def delete(product_id):
+    product = Product.query.get_or_404(product_id)
+
+    blockers = []
+    if product.purchase_items:
+        blockers.append("compras")
+    if product.sale_items:
+        blockers.append("ventas")
+    if product.stock_adjustments:
+        blockers.append("ajustes de stock")
+
+    if blockers:
+        flash(
+            "No se puede eliminar el producto porque tiene "
+            + ", ".join(blockers)
+            + " asociados. Podés desactivarlo para conservar el historial.",
+            "error",
+        )
+        return redirect(url_for("products.detail", product_id=product.id))
+
+    label = f"{product.brand} · {product.model}"
+    db.session.delete(product)
+    db.session.commit()
+    flash(f"Producto eliminado: {label}.", "success")
+    return redirect(url_for("products.index"))

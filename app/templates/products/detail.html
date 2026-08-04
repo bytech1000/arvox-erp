@@ -6,7 +6,12 @@
     <h1>{{ product.brand }} · {{ product.model }}</h1>
     <p>{{ product.code }} · {{ product.category }} · {% if product.active %}Activo{% else %}Inactivo{% endif %}</p>
   </div>
-  <a class="button" href="{{ url_for('products.edit', product_id=product.id) }}">Editar</a>
+  <div class="actions">
+    <a class="button" href="{{ url_for('products.edit', product_id=product.id) }}">Editar</a>
+    <form method="post" action="{{ url_for('products.delete', product_id=product.id) }}" onsubmit="return confirm('¿Eliminar definitivamente este producto? Esta acción no se puede deshacer.');">
+      <button class="danger-button" type="submit">Eliminar producto</button>
+    </form>
+  </div>
 </div>
 
 <div class="detail-grid">

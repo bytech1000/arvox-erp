@@ -22,3 +22,11 @@ La separación reduce dependencias circulares y permite agregar Finanzas, Gastos
 - Las rutas y pantallas actuales no cambian.
 - No se elimina ni renombra ninguna tabla existente.
 - La estructura sigue siendo compatible con Render.
+
+## v6.2 — Eliminación segura
+
+Las eliminaciones son operaciones POST confirmadas desde la interfaz.
+
+- Producto: solo se elimina si no tiene compras, ventas ni ajustes de inventario.
+- Compra: elimina líneas y movimientos de caja vinculados. El stock y costos se recalculan por las propiedades derivadas existentes. Una compra recibida no se elimina si su reversión deja stock negativo.
+- Gasto: elimina el gasto y el movimiento de caja asociado.
