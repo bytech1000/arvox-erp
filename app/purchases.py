@@ -196,6 +196,7 @@ def index():
         .order_by(MasterCatalogItem.brand, MasterCatalogItem.model)
         .all()
     )
+    catalog_brands = sorted({item.brand for item in catalog_items}, key=str.casefold)
     suppliers = Supplier.query.filter_by(active=True).order_by(Supplier.name).all()
     totals = {
         "count": len(rows),
@@ -208,6 +209,7 @@ def index():
         "purchases/index.html",
         rows=rows,
         catalog_items=catalog_items,
+        catalog_brands=catalog_brands,
         suppliers=suppliers,
         totals=totals,
         q=q,
@@ -234,4 +236,20 @@ def cancel(purchase_id):
         "Compra cancelada. Todas sus líneas dejaron de afectar stock y costos.",
         "success",
     )
+    return redirect(url_for("purchases.detail", purchase_id=purchase.id))
+
+
+@purchases_bp.post("/<int:purchase_id>/receive")
+@login_required
+def receive(purchase_id):
+    purchase = Purchase.query.get_or_404(purchase_id)
+    if purchase.status == "Cancelada":
+        flash("Una compra cancelada no puede recibirse.", "error")
+        return redirect(url_for("purchases.detail", purchase_id=purchase.id))
+    if purchase.status == "Recibida":
+        flash("La compra ya estaba recibida. El stock no se modificó nuevamente.", "success")
+        return redirect(url_for("purchases.detail", purchase_id=purchase.id))
+    purchase.status = "Recibida"
+    db.session.commit()
+    flash("Compra marcada como recibida. Las unidades ingresaron al stock una sola vez.", "success")
     return redirect(url_for("purchases.detail", purchase_id=purchase.id))

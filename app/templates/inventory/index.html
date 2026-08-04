@@ -10,6 +10,7 @@
 <div class="stats stock-stats">
   <article><span>Productos</span><strong>{{ totals.products }}</strong><small>{{ totals.critical }} requieren atención</small></article>
   <article><span>Stock físico</span><strong>{{ totals.physical }}</strong><small>Unidades en inventario</small></article>
+  <article><span>En tránsito</span><strong>{{ totals.in_transit }}</strong><small>Compras pendientes</small></article>
   <article><span>Reservado</span><strong>{{ totals.reserved }}</strong><small>No disponible para venta</small></article>
   <article><span>Disponible</span><strong>{{ totals.available }}</strong><small>Unidades vendibles</small></article>
   <article><span>Valor del stock</span><strong>ARS {{ "%.2f"|format(totals.value) }}</strong><small>A costo promedio</small></article>
@@ -31,20 +32,26 @@
   <form method="get" class="stock-filters">
     <input name="q" value="{{ q }}" placeholder="Buscar código, marca o modelo">
     <select name="brand"><option value="">Todas las marcas</option>{% for brand in brands %}<option value="{{ brand }}" {% if selected_brand == brand %}selected{% endif %}>{{ brand }}</option>{% endfor %}</select>
+    <select name="view">
+      <option value="with_stock" {% if selected_view == "with_stock" %}selected{% endif %}>Solo con stock</option>
+      <option value="in_transit" {% if selected_view == "in_transit" %}selected{% endif %}>Solo en tránsito</option>
+      <option value="no_stock" {% if selected_view == "no_stock" %}selected{% endif %}>Solo sin stock</option>
+      <option value="all" {% if selected_view == "all" %}selected{% endif %}>Todos los productos</option>
+    </select>
     <select name="status"><option value="">Todos los estados</option>{% for x in ["Disponible","Crítico","Sin stock"] %}<option value="{{ x }}" {% if selected_status == x %}selected{% endif %}>{{ x }}</option>{% endfor %}</select>
     <button>Filtrar</button><a class="button secondary" href="{{ url_for('inventory.index') }}">Limpiar</a>
   </form>
 </section>
 <section class="panel">
   <div class="table-wrap"><table>
-    <tr><th>Producto</th><th>Stock físico</th><th>Reservado</th><th>Disponible</th><th>Mínimo</th><th>Costo promedio</th><th>Valorización</th><th>Estado</th><th></th></tr>
+    <tr><th>Producto</th><th>Stock físico</th><th>En tránsito</th><th>Reservado</th><th>Disponible</th><th>Mínimo</th><th>Costo promedio</th><th>Valorización</th><th>Estado</th><th></th></tr>
     {% for row in rows %}{% set p=row.product %}<tr>
       <td><strong>{{ p.brand }} · {{ p.model }}</strong><small class="table-sub">{{ p.code }}</small></td>
-      <td>{{ row.physical }}</td><td>{{ row.reserved }}</td><td><strong>{{ row.available }}</strong></td><td>{{ p.min_stock }}</td>
+      <td>{{ row.physical }}</td><td>{{ row.in_transit }}</td><td>{{ row.reserved }}</td><td><strong>{{ row.available }}</strong></td><td>{{ p.min_stock }}</td>
       <td>{{ p.currency }} {{ "%.2f"|format(p.avg_cost) }}</td><td>{{ p.currency }} {{ "%.2f"|format(row.value) }}</td>
       <td><span class="stock-status {{ row.status|lower|replace(' ', '-') }}">{{ row.status }}</span></td>
       <td><a href="{{ url_for('inventory.product', product_id=p.id) }}">Movimientos</a></td>
-    </tr>{% else %}<tr><td colspan="9">No hay productos con estos filtros.</td></tr>{% endfor %}
+    </tr>{% else %}<tr><td colspan="10">No hay productos con estos filtros.</td></tr>{% endfor %}
   </table></div>
 </section>
 {% endblock %}

@@ -68,6 +68,10 @@ class Product(db.Model):
         return sum(a.quantity for a in self.stock_adjustments)
 
     @property
+    def in_transit_units(self):
+        return sum(i.quantity for i in self.purchase_items if i.purchase.status == 'Pendiente')
+
+    @property
     def stock(self):
         return (self.opening_stock or 0) + self.purchased_units - self.sold_units + self.adjustment_units
 

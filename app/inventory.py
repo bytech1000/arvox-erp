@@ -17,6 +17,7 @@ def stock_rows(products):
             "product": product,
             "physical": product.stock,
             "reserved": product.reserved_units,
+            "in_transit": product.in_transit_units,
             "available": product.available_stock,
             "value": product.stock * product.avg_cost,
             "status": "Sin stock" if product.available_stock <= 0 else "Crítico" if product.available_stock <= product.min_stock else "Disponible",
@@ -55,6 +56,7 @@ def index():
 
     q=request.args.get("q", "").strip()
     status=request.args.get("status", "")
+    view=request.args.get("view", "with_stock")
     brand=request.args.get("brand", "")
     query=Product.query
     if q:
@@ -63,17 +65,27 @@ def index():
     if brand: query=query.filter_by(brand=brand)
     products=query.order_by(Product.brand, Product.model).all()
     rows=stock_rows(products)
+    if view == "with_stock":
+        rows=[r for r in rows if r["physical"] > 0]
+    elif view == "in_transit":
+        rows=[r for r in rows if r["in_transit"] > 0]
+    elif view == "no_stock":
+        rows=[r for r in rows if r["physical"] <= 0]
+    elif view != "all":
+        view = "with_stock"
+        rows=[r for r in rows if r["physical"] > 0]
     if status: rows=[r for r in rows if r["status"] == status]
     brands=[x[0] for x in db.session.query(Product.brand).distinct().order_by(Product.brand).all()]
     totals={
         "products": len(rows),
         "physical": sum(r["physical"] for r in rows),
         "reserved": sum(r["reserved"] for r in rows),
+        "in_transit": sum(r["in_transit"] for r in rows),
         "available": sum(r["available"] for r in rows),
         "value": sum(r["value"] for r in rows),
         "critical": sum(1 for r in rows if r["status"] in ("Crítico", "Sin stock")),
     }
-    return render_template("inventory/index.html", rows=rows, products=Product.query.filter_by(active=True).order_by(Product.brand,Product.model).all(), brands=brands, totals=totals, q=q, selected_status=status, selected_brand=brand, today=datetime.now().date().isoformat())
+    return render_template("inventory/index.html", rows=rows, products=Product.query.filter_by(active=True).order_by(Product.brand,Product.model).all(), brands=brands, totals=totals, q=q, selected_status=status, selected_view=view, selected_brand=brand, today=datetime.now().date().isoformat())
 
 
 @inventory_bp.get("/product/<int:product_id>")
@@ -98,8 +110,8 @@ def product(product_id):
 @login_required
 def export_csv():
     output=StringIO(); writer=csv.writer(output)
-    writer.writerow(["Código","Marca","Modelo","Stock físico","Reservado","Disponible","Stock mínimo","Costo promedio","Valor stock","Estado"])
+    writer.writerow(["Código","Marca","Modelo","Stock físico","En tránsito","Reservado","Disponible","Stock mínimo","Costo promedio","Valor stock","Estado"])
     for row in stock_rows(Product.query.order_by(Product.brand, Product.model).all()):
         p=row["product"]
-        writer.writerow([p.code,p.brand,p.model,row["physical"],row["reserved"],row["available"],p.min_stock,f"{p.avg_cost:.2f}",f"{row['value']:.2f}",row["status"]])
+        writer.writerow([p.code,p.brand,p.model,row["physical"],row["in_transit"],row["reserved"],row["available"],p.min_stock,f"{p.avg_cost:.2f}",f"{row['value']:.2f}",row["status"]])
     return Response('\ufeff'+output.getvalue(), mimetype='text/csv; charset=utf-8', headers={'Content-Disposition':'attachment; filename=arvox_stock.csv'})

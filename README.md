@@ -314,3 +314,15 @@ Abrir `http://localhost:5000`.
 - Conexiones verificadas antes de reutilizarse (`pool_pre_ping`).
 - Inicialización automática del esquema, administrador y Catálogo Maestro.
 - Protección contra el retorno accidental a SQLite temporal.
+
+
+## v6.1 — Compras y stock
+
+- Selección Marca → Modelo en nuevas compras
+- Compras pendientes visibles como stock en tránsito
+- Las compras pendientes no suman stock físico ni disponible
+- Botón para marcar una compra pendiente como recibida
+- Protección contra doble ingreso de stock
+- Stock muestra por defecto solo productos con existencias
+- Filtros: con stock, en tránsito, sin stock y todos
+- No modifica ni elimina los datos existentes
