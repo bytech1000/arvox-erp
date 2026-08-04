@@ -305,3 +305,12 @@ Abrir `http://localhost:5000`.
 - Una compra Recibida actualiza stock, último costo y costo promedio.
 - Una compra Pendiente crea el producto, pero no suma stock hasta ser recibida.
 - La compra continúa siendo multiproducto.
+
+## v6.0 — Base PostgreSQL persistente
+
+- PostgreSQL obligatorio cuando ARVOX corre en Render.
+- Driver Psycopg 3 incluido.
+- Compatibilidad local con SQLite para desarrollo.
+- Conexiones verificadas antes de reutilizarse (`pool_pre_ping`).
+- Inicialización automática del esquema, administrador y Catálogo Maestro.
+- Protección contra el retorno accidental a SQLite temporal.
