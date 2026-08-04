@@ -10,6 +10,7 @@ from . import db
 from .auth import login_required
 from .models import (
     CashMovement,
+    MasterCatalogItem,
     Customer,
     Expense,
     Product,
@@ -27,11 +28,12 @@ from .models import (
 
 maintenance_bp = Blueprint("maintenance", __name__, url_prefix="/maintenance")
 
-BACKUP_FORMAT = "ARVOX_BACKUP_V1"
+BACKUP_FORMAT = "ARVOX_BACKUP_V2"
 BACKUP_MEMBER = "arvox_backup.json"
 
 # Dependency order for creating and reverse dependency order for deleting.
 BACKUP_MODELS = (
+    MasterCatalogItem,
     Product,
     Supplier,
     Customer,
@@ -43,6 +45,7 @@ BACKUP_MODELS = (
     QuoteItem,
     Expense,
     CashMovement,
+    MasterCatalogItem,
     StockAdjustment,
 )
 DELETE_MODELS = tuple(reversed(BACKUP_MODELS))
@@ -87,6 +90,7 @@ def serialize_row(row):
 
 def business_counts():
     return {
+        "catalog_items": MasterCatalogItem.query.count(),
         "products": Product.query.count(),
         "suppliers": Supplier.query.count(),
         "customers": Customer.query.count(),
@@ -133,7 +137,7 @@ def index():
         last_backup=get_setting("last_backup_at"),
         last_restore=get_setting("last_restore_at"),
         last_reset=get_setting("last_reset_at"),
-        version="6.0.0",
+        version="6.2.2",
     )
 
 
@@ -143,8 +147,9 @@ def backup():
     payload = {
         "format": BACKUP_FORMAT,
         "created_at": datetime.utcnow().isoformat(),
-        "app_version": "6.0.0",
+        "app_version": "6.2.2",
         "database": db.engine.dialect.name,
+        "includes": ["catalogo_maestro", "productos", "proveedores", "clientes", "compras", "ventas", "cotizaciones", "gastos", "caja", "stock"],
         "counts": business_counts(),
         "tables": {
             model.__tablename__: [serialize_row(row) for row in model.query.order_by(model.id).all()]
@@ -158,7 +163,7 @@ def backup():
         zf.writestr(BACKUP_MEMBER, raw_json)
         zf.writestr(
             "LEEME.txt",
-            "Respaldo de ARVOX ERP. Restauralo solamente desde Configuración > Mantenimiento.\n",
+            "Respaldo completo de ARVOX ERP 6.2.2. Incluye Catálogo Maestro y todos los datos comerciales. Restauralo solamente desde Configuración > Mantenimiento.\n",
         )
     archive.seek(0)
 
@@ -196,7 +201,7 @@ def restore():
                 raise ValueError("El ZIP no contiene un respaldo válido de ARVOX.")
             payload = json.loads(zf.read(BACKUP_MEMBER).decode("utf-8"))
 
-        if payload.get("format") != BACKUP_FORMAT:
+        if payload.get("format") not in {BACKUP_FORMAT, "ARVOX_BACKUP_V1"}:
             raise ValueError("El formato del respaldo no es compatible.")
 
         tables = payload.get("tables")

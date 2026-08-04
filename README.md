@@ -346,3 +346,12 @@ Abrir `http://localhost:5000`.
 - Si es un cobro, revierte el importe cobrado de la venta.
 - Si es un pago, revierte el importe pagado de la compra.
 - Confirmación obligatoria antes de borrar.
+
+
+## v6.2.2 — Respaldo completo PostgreSQL
+
+- Descarga de respaldo ZIP desde Configuración > Mantenimiento.
+- Incluye Catálogo Maestro y todos los datos comerciales.
+- Restauración desde la misma pantalla con confirmación RESTAURAR.
+- Compatible con respaldos anteriores ARVOX_BACKUP_V1.
+- Conserva el usuario administrador durante la restauración.

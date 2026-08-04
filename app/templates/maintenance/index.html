@@ -22,7 +22,7 @@
   <section class="panel maintenance-card safe-card">
     <span class="eyebrow">RESPALDO</span>
     <h2>Descargar copia de seguridad</h2>
-    <p>Guarda productos, clientes, proveedores, compras, ventas, cotizaciones, caja, gastos y stock.</p>
+    <p>Guarda el Catálogo Maestro, productos, clientes, proveedores, compras, ventas, cotizaciones, caja, gastos y stock.</p>
     <a class="button" href="{{ url_for('maintenance.backup') }}">Descargar respaldo</a>
     <small>Se genera un archivo ZIP compatible con esta sección.</small>
   </section>
@@ -46,6 +46,7 @@
     <form method="post" action="{{ url_for('maintenance.integrity') }}"><button class="secondary">Verificar base</button></form>
   </div>
   <div class="maintenance-count-grid">
+    <div><span>Catálogo Maestro</span><strong>{{ counts.catalog_items }}</strong></div>
     <div><span>Productos</span><strong>{{ counts.products }}</strong></div>
     <div><span>Proveedores</span><strong>{{ counts.suppliers }}</strong></div>
     <div><span>Clientes</span><strong>{{ counts.customers }}</strong></div>
