@@ -336,3 +336,13 @@ Abrir `http://localhost:5000`.
 - Protección contra stock negativo al borrar compras recibidas
 - Eliminar gastos y revertir automáticamente el egreso de Caja
 - Confirmación visible antes de cada eliminación
+
+
+## v6.2.1 — Eliminar movimientos de Caja
+
+- Botón Eliminar en el historial de Caja.
+- Elimina ingresos y egresos manuales.
+- Si es un gasto, elimina también el registro de Gastos.
+- Si es un cobro, revierte el importe cobrado de la venta.
+- Si es un pago, revierte el importe pagado de la compra.
+- Confirmación obligatoria antes de borrar.

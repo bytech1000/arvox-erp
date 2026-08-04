@@ -259,3 +259,35 @@ def delete_expense(expense_id):
         "success",
     )
     return redirect(url_for("finance.expenses"))
+
+
+@finance_bp.post("/movements/<int:movement_id>/delete")
+@login_required
+def delete_movement(movement_id):
+    movement = CashMovement.query.get_or_404(movement_id)
+    description = movement.description
+    amount = movement.amount
+    movement_type = movement.movement_type
+
+    # If the movement came from a sale collection, reverse the collected amount.
+    if movement.sale is not None:
+        movement.sale.collected = max((movement.sale.collected or 0) - movement.amount, 0)
+
+    # If the movement came from a purchase payment, reverse the paid amount.
+    if movement.purchase is not None:
+        movement.purchase.paid = max((movement.purchase.paid or 0) - movement.amount, 0)
+
+    # If the movement belongs to an expense, delete the expense too.
+    # The relationship is delete-orphan, so removing the expense removes its movement.
+    if movement.expense is not None:
+        expense = movement.expense
+        db.session.delete(expense)
+    else:
+        db.session.delete(movement)
+
+    db.session.commit()
+    flash(
+        f"Movimiento eliminado: {description} · {movement_type} ARS {amount:.2f}. Caja fue actualizada.",
+        "success",
+    )
+    return redirect(request.referrer or url_for("finance.index"))
