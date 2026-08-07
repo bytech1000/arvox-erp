@@ -6,3 +6,9 @@
 - Desde Editar producto se muestra el stock actual y un acceso directo a Ajustar stock.
 - Compras, ventas y ajustes siguen siendo las fuentes de movimientos de inventario.
 - Compatible con PostgreSQL y conserva los datos existentes.
+
+
+## v6.2.3.1
+- Corrige el botón Ajustar stock desde Productos.
+- Abre automáticamente el formulario con el producto seleccionado.
+- Agrega Ajustar directamente en cada fila del módulo Stock.

@@ -16,7 +16,7 @@
   <article><span>Valor del stock</span><strong>ARS {{ "%.2f"|format(totals.value) }}</strong><small>A costo promedio</small></article>
 </div>
 <section class="panel" id="stock-adjustment">
-  <details>
+  <details {% if selected_product_id %}open{% endif %}>
     <summary class="button">Registrar conteo físico</summary>
     <form method="post" class="form-grid stock-adjust-form">
       <label>Fecha<input type="date" name="date" value="{{ today }}" required></label>
@@ -50,7 +50,7 @@
       <td>{{ row.physical }}</td><td>{{ row.in_transit }}</td><td>{{ row.reserved }}</td><td><strong>{{ row.available }}</strong></td><td>{{ p.min_stock }}</td>
       <td>{{ p.currency }} {{ "%.2f"|format(p.avg_cost) }}</td><td>{{ p.currency }} {{ "%.2f"|format(row.value) }}</td>
       <td><span class="stock-status {{ row.status|lower|replace(' ', '-') }}">{{ row.status }}</span></td>
-      <td><a href="{{ url_for('inventory.product', product_id=p.id) }}">Movimientos</a></td>
+      <td><a href="{{ url_for('inventory.product', product_id=p.id) }}">Movimientos</a> · <a href="{{ url_for('inventory.index', product_id=p.id) }}#stock-adjustment">Ajustar</a></td>
     </tr>{% else %}<tr><td colspan="10">No hay productos con estos filtros.</td></tr>{% endfor %}
   </table></div>
 </section>
