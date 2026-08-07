@@ -20,7 +20,7 @@
     <summary class="button">Registrar conteo físico</summary>
     <form method="post" class="form-grid stock-adjust-form">
       <label>Fecha<input type="date" name="date" value="{{ today }}" required></label>
-      <label>Producto<select name="product_id" required><option value="">Seleccionar producto</option>{% for p in products %}<option value="{{ p.id }}">{{ p.code }} · {{ p.brand }} · {{ p.model }} · sistema {{ p.stock }}</option>{% endfor %}</select></label>
+      <label>Producto<select name="product_id" required><option value="">Seleccionar producto</option>{% for p in products %}<option value="{{ p.id }}" {% if selected_product_id == p.id %}selected{% endif %}>{{ p.code }} · {{ p.brand }} · {{ p.model }} · sistema {{ p.stock }}</option>{% endfor %}</select></label>
       <label>Stock contado<input type="number" name="counted_stock" min="0" required></label>
       <label>Motivo<select name="reason"><option>Conteo físico</option><option>Rotura o daño</option><option>Pérdida</option><option>Devolución</option><option>Corrección administrativa</option><option>Otro</option></select></label>
       <label class="full">Observaciones<textarea name="notes" placeholder="Detalle opcional del ajuste"></textarea></label>

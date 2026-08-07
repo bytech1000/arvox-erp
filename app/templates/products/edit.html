@@ -2,7 +2,7 @@
 {% block content %}
 <div class="page-head"><div><h1>Editar producto</h1><p>{{ product.brand }} · {{ product.model }}</p></div></div>
 <section class="panel">
-<div class="note"><b>Stock y costo inicial</b><p>Usalos para cargar la existencia que ya tenías antes de comenzar a usar ARVOX. Las compras futuras actualizarán automáticamente el último costo, el costo promedio y el stock.</p></div>
+<div class="note"><b>Stock protegido</b><p>Editar la ficha del producto no modifica existencias. Stock actual: <strong>{{ product.stock }}</strong>. Para corregir una diferencia física utilizá Ajustar stock.</p><a class="button secondary" href="{{ url_for('inventory.index', product_id=product.id) }}#stock-adjustment">Ajustar stock</a></div>
 <form method="post" class="form-grid">
   <label>Código<input name="code" value="{{ product.code }}" required></label>
   <label>Marca<input name="brand" value="{{ product.brand }}" required></label>
@@ -10,8 +10,6 @@
   <label>Año<input name="year" type="number" value="{{ product.year or '' }}"></label>
   <label>Categoría<select name="category">{% for c in ['Paleta','Pelotas','Grip','Accesorio','Indumentaria'] %}<option {% if product.category==c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></label>
   <input type="hidden" name="currency" value="ARS">
-  <label>Costo unitario inicial<input name="opening_cost" type="number" min="0" step="0.01" value="{{ product.opening_cost or 0 }}"></label>
-  <label>Stock inicial<input name="opening_stock" type="number" min="0" value="{{ product.opening_stock or 0 }}"></label>
   <label>Precio de venta<input name="sale_price" type="number" min="0" step="0.01" value="{{ product.sale_price }}"></label>
   <label>Stock mínimo<input name="min_stock" type="number" min="0" value="{{ product.min_stock }}"></label>
   <label>URL de foto<input name="image_url" type="url" value="{{ product.image_url or '' }}"></label>

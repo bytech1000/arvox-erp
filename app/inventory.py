@@ -85,7 +85,8 @@ def index():
         "value": sum(r["value"] for r in rows),
         "critical": sum(1 for r in rows if r["status"] in ("Crítico", "Sin stock")),
     }
-    return render_template("inventory/index.html", rows=rows, products=Product.query.filter_by(active=True).order_by(Product.brand,Product.model).all(), brands=brands, totals=totals, q=q, selected_status=status, selected_view=view, selected_brand=brand, today=datetime.now().date().isoformat())
+    selected_product_id = request.args.get("product_id", type=int)
+    return render_template("inventory/index.html", rows=rows, products=Product.query.filter_by(active=True).order_by(Product.brand,Product.model).all(), brands=brands, totals=totals, q=q, selected_status=status, selected_view=view, selected_brand=brand, selected_product_id=selected_product_id, today=datetime.now().date().isoformat())
 
 
 @inventory_bp.get("/product/<int:product_id>")

@@ -96,8 +96,6 @@ def edit(product_id):
         product.category = request.form.get("category") or "Paleta"
         product.sale_price = float(request.form.get("sale_price") or 0)
         product.currency = "ARS"
-        product.opening_stock = int(request.form.get("opening_stock") or 0)
-        product.opening_cost = float(request.form.get("opening_cost") or 0)
         product.min_stock = int(request.form.get("min_stock") or 1)
         product.image_url = request.form.get("image_url") or None
         product.description = request.form.get("description") or None
