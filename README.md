@@ -37,3 +37,10 @@
 - Corrige casos como ODPRO: 1 caja x24 debe mostrar 24 tubos, no 1.
 - No elimina ajustes manuales de inventario.
 - No modifica otras compras o productos.
+
+
+## v6.2.5 — Costos visibles al editar producto
+- Muestra último costo por unidad de stock.
+- Muestra costo promedio por unidad de stock.
+- Los costos son solo lectura y siguen viniendo de Compras.
+- Al ingresar precio de venta muestra ganancia y margen estimado.

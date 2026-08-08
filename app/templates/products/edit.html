@@ -10,7 +10,20 @@
   <label>Año<input name="year" type="number" value="{{ product.year or '' }}"></label>
   <label>Categoría<select name="category">{% for c in ['Paleta','Pelotas','Grip','Accesorio','Indumentaria'] %}<option {% if product.category==c %}selected{% endif %}>{{ c }}</option>{% endfor %}</select></label>
   <input type="hidden" name="currency" value="ARS">
-  <label>Precio de venta<input name="sale_price" type="number" min="0" step="0.01" value="{{ product.sale_price }}"></label>
+  <div class="full note">
+    <b>Costos calculados desde Compras</b>
+    <p>
+      Último costo por unidad de stock: <strong>ARS {{ "%.2f"|format(product.last_cost or 0) }}</strong>
+      &nbsp;·&nbsp;
+      Costo promedio por unidad de stock: <strong>ARS {{ "%.2f"|format(product.average_cost or 0) }}</strong>
+    </p>
+    <p>Estos valores son informativos y no se editan desde Productos.</p>
+  </div>
+  <label>Precio de venta<input id="sale_price" name="sale_price" type="number" min="0" step="0.01" value="{{ product.sale_price }}" oninput="updateMargin()"></label>
+  <div class="note">
+    <b>Margen estimado</b>
+    <p id="margin-preview">—</p>
+  </div>
   <label>Stock mínimo<input name="min_stock" type="number" min="0" value="{{ product.min_stock }}"></label>
   <label>URL de foto<input name="image_url" type="url" value="{{ product.image_url or '' }}"></label>
   <label>Forma<input name="shape" value="{{ product.shape or '' }}"></label>
@@ -23,4 +36,16 @@
   <a class="button secondary" href="{{ url_for('products.detail', product_id=product.id) }}">Cancelar</a>
 </form>
 </section>
+<script>
+function updateMargin(){
+  const price = parseFloat(document.getElementById("sale_price").value || 0);
+  const cost = {{ (product.average_cost or 0)|float }};
+  const el = document.getElementById("margin-preview");
+  if (!cost || !price) { el.textContent = "—"; return; }
+  const profit = price - cost;
+  const pct = (profit / price) * 100;
+  el.textContent = "Ganancia: ARS " + profit.toFixed(2) + " · Margen: " + pct.toFixed(1) + "%";
+}
+updateMargin();
+</script>
 {% endblock %}
