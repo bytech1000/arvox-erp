@@ -315,7 +315,7 @@ def update_conversion(item_id):
     """Corrige la unidad/factor de una línea histórica sin alterar el stock físico actual."""
     item = PurchaseItem.query.get_or_404(item_id)
     product = item.product
-    old_physical_stock = product.stock
+    old_factor = item.conversion_factor or 1
 
     try:
         factor = int(request.form.get("conversion_factor") or 1)
@@ -329,23 +329,13 @@ def update_conversion(item_id):
     item.stock_unit = clean_text(request.form.get("stock_unit")) or "Unidad"
     item.conversion_factor = factor
 
-    # Flush makes product.stock reflect the new conversion. We then create a
-    # balancing adjustment so correcting a historical purchase never changes
-    # what the user physically counted in the warehouse.
-    db.session.flush()
-    difference = old_physical_stock - product.stock
-    if difference:
-        db.session.add(StockAdjustment(
-            product_id=product.id,
-            date=datetime.today().date(),
-            quantity=difference,
-            reason="Corrección por conversión de unidad",
-            notes=f"Conversión histórica compra #{item.purchase_id}: 1 {item.purchase_unit} = {factor} {item.stock_unit}. Stock físico preservado en {old_physical_stock}."
-        ))
-
+    # La compra histórica es la fuente del stock: cambiar su presentación
+    # debe convertir también las unidades que esa compra aportó al inventario.
+    # No se agrega un ajuste compensatorio: de 1 caja x24 pasamos a 24 tubos.
     db.session.commit()
     flash(
-        f"Conversión actualizada. Stock físico: {product.stock} {item.stock_unit}. "
+        f"Conversión actualizada: {item.quantity} {item.purchase_unit} = "
+        f"{item.stock_quantity} {item.stock_unit}. "
         f"Costo por {item.stock_unit}: ARS {item.inventory_unit_cost:.2f}.",
         "success",
     )

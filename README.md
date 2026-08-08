@@ -22,3 +22,11 @@
 - Costo promedio y último costo se expresan por unidad de stock.
 - Las compras históricas pueden corregirse desde su detalle.
 - Al corregir una compra histórica se preserva el stock físico actual mediante un ajuste compensatorio trazable.
+
+
+## v6.2.4.1 — Corrección de stock en conversiones históricas
+- Al convertir una compra histórica, el stock aportado por esa compra se convierte también.
+- Ejemplo: 1 caja x24 pasa a 24 tubos en stock.
+- El costo total de la compra no cambia.
+- El costo por tubo se calcula dividiendo el costo de la caja por el factor.
+- Se elimina el ajuste compensatorio que preservaba incorrectamente el stock anterior.
