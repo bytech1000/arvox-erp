@@ -95,6 +95,18 @@ def index():
             flash("El importe cobrado no puede ser negativo.", "error")
             return redirect(url_for("sales.index"))
 
+        calculated_total = sum(
+            qty * unit_price * (1 - discount_pct / 100)
+            for _, qty, unit_price, discount_pct in items
+        )
+        if collected > calculated_total + 0.01:
+            flash(
+                f"El importe cobrado (ARS {collected:.2f}) no puede superar "
+                f"el total calculado de la venta (ARS {calculated_total:.2f}).",
+                "error",
+            )
+            return redirect(url_for("sales.index"))
+
         db.session.add(sale)
         db.session.flush()
         if collected > 0:

@@ -44,3 +44,10 @@
 - Muestra costo promedio por unidad de stock.
 - Los costos son solo lectura y siguen viniendo de Compras.
 - Al ingresar precio de venta muestra ganancia y margen estimado.
+
+
+## v6.2.6 — Totales correctos en ventas
+- Cada línea muestra subtotal = cantidad x precio unitario menos descuento.
+- El total de la venta se recalcula en pantalla al cambiar cantidad, precio o descuento.
+- El cálculo persistido ya usa la propiedad subtotal del servidor.
+- Se valida que el cobro inicial no supere el total calculado.
