@@ -34,6 +34,21 @@ def migrate_schema() -> None:
                     text(f"ALTER TABLE product ADD COLUMN {name} {definition}")
                 )
 
+    if "purchase_item" in table_names:
+        purchase_item_columns = {
+            column["name"] for column in inspector.get_columns("purchase_item")
+        }
+        additions = {
+            "purchase_unit": "VARCHAR(40) DEFAULT 'Unidad'",
+            "stock_unit": "VARCHAR(40) DEFAULT 'Unidad'",
+            "conversion_factor": "INTEGER DEFAULT 1",
+        }
+        for name, definition in additions.items():
+            if name not in purchase_item_columns:
+                db.session.execute(
+                    text(f"ALTER TABLE purchase_item ADD COLUMN {name} {definition}")
+                )
+
     db.session.commit()
 
 

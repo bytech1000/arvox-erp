@@ -12,8 +12,11 @@
 <div class="purchase-line">
 <label>Marca<select class="purchase-brand" required onchange="populateModels(this)"><option value="">Seleccionar marca</option>{% for brand in catalog_brands %}<option value="{{ brand }}">{{ brand }}</option>{% endfor %}</select></label>
 <label>Modelo<select name="catalog_item_id[]" class="purchase-model" required onchange="updateTotals()"><option value="">Seleccionar modelo</option></select></label>
-<label>Cantidad<input name="quantity[]" type="number" min="1" value="1" required oninput="updateTotals()"></label>
-<label>Costo unitario<input name="unit_cost[]" type="number" min="0" step="0.01" required oninput="updateTotals()"></label>
+<label>Cantidad comprada<input name="quantity[]" type="number" min="1" value="1" required oninput="updateTotals()"></label>
+<label>Unidad de compra<select name="purchase_unit[]"><option>Unidad</option><option>Caja</option><option>Pack</option></select></label>
+<label>Unidad de stock<select name="stock_unit[]"><option>Unidad</option><option>Tubo</option><option>Paleta</option><option>Pelota</option></select></label>
+<label>Unidades por compra<input name="conversion_factor[]" type="number" min="1" value="1" required></label>
+<label>Costo por unidad de compra<input name="unit_cost[]" type="number" min="0" step="0.01" required oninput="updateTotals()"></label>
 <div class="line-subtotal"><span>Subtotal</span><strong>0.00</strong></div><button type="button" class="remove-line secondary" onclick="removeLine(this)">Quitar</button>
 </div></div>
 <button type="button" class="button secondary add-line" onclick="addLine()">+ Agregar producto</button>

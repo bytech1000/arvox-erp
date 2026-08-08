@@ -24,8 +24,8 @@
       {% if product.description %}<p>{{ product.description }}</p>{% endif %}
       <div class="stats compact">
         <article><span>Stock</span><strong>{{ product.stock }}</strong></article>
-        <article><span>Último costo</span><strong>ARS {{ "%.2f"|format(product.last_cost) }}</strong></article>
-        <article><span>Costo promedio</span><strong>ARS {{ "%.2f"|format(product.avg_cost) }}</strong></article>
+        <article><span>Último costo por unidad de stock</span><strong>ARS {{ "%.2f"|format(product.last_cost) }}</strong></article>
+        <article><span>Costo promedio por unidad de stock</span><strong>ARS {{ "%.2f"|format(product.avg_cost) }}</strong></article>
         <article><span>Precio venta</span><strong>ARS {{ "%.2f"|format(product.sale_price) }}</strong></article>
         <article><span>Margen</span><strong>ARS {{ "%.2f"|format(product.margin) }} · {{ "%.1f"|format(margin_pct) }}%</strong></article>
       </div>

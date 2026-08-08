@@ -54,7 +54,7 @@ class Product(db.Model):
 
     @property
     def purchased_units(self):
-        return sum(i.quantity for i in self.purchase_items if i.purchase.status == 'Recibida')
+        return sum(i.stock_quantity for i in self.purchase_items if i.purchase.status == 'Recibida')
     @property
     def sold_units(self):
         return sum(i.quantity for i in self.sale_items if i.sale.status == 'Entregada')
@@ -69,7 +69,7 @@ class Product(db.Model):
 
     @property
     def in_transit_units(self):
-        return sum(i.quantity for i in self.purchase_items if i.purchase.status == 'Pendiente')
+        return sum(i.stock_quantity for i in self.purchase_items if i.purchase.status == 'Pendiente')
 
     @property
     def stock(self):
@@ -82,16 +82,16 @@ class Product(db.Model):
     def avg_cost(self):
         rows = [i for i in self.purchase_items if i.purchase.status == 'Recibida']
         opening_units = self.opening_stock or 0
-        total_units = opening_units + sum(i.quantity for i in rows)
+        total_units = opening_units + sum(i.stock_quantity for i in rows)
         if not total_units: return 0
-        total_value = opening_units * (self.opening_cost or 0) + sum(i.quantity * i.unit_cost for i in rows)
+        total_value = opening_units * (self.opening_cost or 0) + sum(i.subtotal for i in rows)
         return total_value / total_units
     @property
     def last_cost(self):
         rows = [i for i in self.purchase_items if i.purchase.status == 'Recibida']
         if not rows: return self.opening_cost or 0
         latest = max(rows, key=lambda i: (i.purchase.date, i.id or 0))
-        return latest.unit_cost
+        return latest.inventory_unit_cost
     @property
     def margin(self): return (self.sale_price or 0) - self.avg_cost
     @property
@@ -144,8 +144,21 @@ class PurchaseItem(db.Model):
     product_id = db.Column(db.Integer, db.ForeignKey('product.id'), nullable=False)
     quantity = db.Column(db.Integer, nullable=False)
     unit_cost = db.Column(db.Float, nullable=False)
+    purchase_unit = db.Column(db.String(40), default='Unidad')
+    stock_unit = db.Column(db.String(40), default='Unidad')
+    conversion_factor = db.Column(db.Integer, default=1)
+
     @property
     def subtotal(self): return self.quantity * self.unit_cost
+
+    @property
+    def stock_quantity(self):
+        return self.quantity * (self.conversion_factor or 1)
+
+    @property
+    def inventory_unit_cost(self):
+        factor = self.conversion_factor or 1
+        return self.unit_cost / factor if factor else self.unit_cost
 
 class Customer(db.Model):
     id = db.Column(db.Integer, primary_key=True)

@@ -12,6 +12,7 @@ from .models import (
     Purchase,
     PurchaseItem,
     Supplier,
+    StockAdjustment,
 )
 
 purchases_bp = Blueprint("purchases", __name__, url_prefix="/purchases")
@@ -69,12 +70,15 @@ def parse_lines(form):
     catalog_ids = form.getlist("catalog_item_id[]")
     quantities = form.getlist("quantity[]")
     unit_costs = form.getlist("unit_cost[]")
+    purchase_units = form.getlist("purchase_unit[]")
+    stock_units = form.getlist("stock_unit[]")
+    conversion_factors = form.getlist("conversion_factor[]")
 
     lines = []
     seen = set()
     created_count = 0
 
-    for raw_catalog_id, raw_qty, raw_cost in zip(catalog_ids, quantities, unit_costs):
+    for raw_catalog_id, raw_qty, raw_cost, purchase_unit, stock_unit, raw_factor in zip(catalog_ids, quantities, unit_costs, purchase_units, stock_units, conversion_factors):
         if not raw_catalog_id:
             continue
 
@@ -82,10 +86,11 @@ def parse_lines(form):
             catalog_id = int(raw_catalog_id)
             qty = int(raw_qty)
             cost = float(raw_cost)
+            factor = int(raw_factor or 1)
         except (ValueError, TypeError):
             raise ValueError("Revisá los modelos, cantidades y costos.")
 
-        if qty <= 0 or cost < 0:
+        if qty <= 0 or cost < 0 or factor <= 0:
             raise ValueError(
                 "Las cantidades deben ser mayores a cero y los costos no pueden ser negativos."
             )
@@ -101,7 +106,7 @@ def parse_lines(form):
         product, created = get_or_create_product(catalog_item)
         created_count += int(created)
         seen.add(catalog_id)
-        lines.append((product, qty, cost))
+        lines.append((product, qty, cost, clean_text(purchase_unit) or "Unidad", clean_text(stock_unit) or "Unidad", factor))
 
     if not lines:
         raise ValueError("Agregá al menos un modelo a la compra.")
@@ -139,9 +144,13 @@ def index():
             notes=request.form.get("notes", "").strip() or None,
         )
 
-        for product, qty, cost in lines:
+        for product, qty, cost, purchase_unit, stock_unit, factor in lines:
             purchase.items.append(
-                PurchaseItem(product_id=product.id, quantity=qty, unit_cost=cost)
+                PurchaseItem(
+                    product_id=product.id, quantity=qty, unit_cost=cost,
+                    purchase_unit=purchase_unit, stock_unit=stock_unit,
+                    conversion_factor=factor
+                )
             )
 
         db.session.add(purchase)
@@ -265,7 +274,7 @@ def delete(purchase_id):
     if purchase.status == "Recibida":
         quantities = {}
         for item in purchase.items:
-            quantities[item.product_id] = quantities.get(item.product_id, 0) + item.quantity
+            quantities[item.product_id] = quantities.get(item.product_id, 0) + item.stock_quantity
 
         shortages = []
         for product_id, quantity in quantities.items():
@@ -298,3 +307,46 @@ def delete(purchase_id):
         "success",
     )
     return redirect(url_for("purchases.index"))
+
+
+@purchases_bp.post("/item/<int:item_id>/conversion")
+@login_required
+def update_conversion(item_id):
+    """Corrige la unidad/factor de una línea histórica sin alterar el stock físico actual."""
+    item = PurchaseItem.query.get_or_404(item_id)
+    product = item.product
+    old_physical_stock = product.stock
+
+    try:
+        factor = int(request.form.get("conversion_factor") or 1)
+        if factor <= 0:
+            raise ValueError
+    except (ValueError, TypeError):
+        flash("El factor de conversión debe ser un número entero mayor a cero.", "error")
+        return redirect(url_for("purchases.detail", purchase_id=item.purchase_id))
+
+    item.purchase_unit = clean_text(request.form.get("purchase_unit")) or "Unidad"
+    item.stock_unit = clean_text(request.form.get("stock_unit")) or "Unidad"
+    item.conversion_factor = factor
+
+    # Flush makes product.stock reflect the new conversion. We then create a
+    # balancing adjustment so correcting a historical purchase never changes
+    # what the user physically counted in the warehouse.
+    db.session.flush()
+    difference = old_physical_stock - product.stock
+    if difference:
+        db.session.add(StockAdjustment(
+            product_id=product.id,
+            date=datetime.today().date(),
+            quantity=difference,
+            reason="Corrección por conversión de unidad",
+            notes=f"Conversión histórica compra #{item.purchase_id}: 1 {item.purchase_unit} = {factor} {item.stock_unit}. Stock físico preservado en {old_physical_stock}."
+        ))
+
+    db.session.commit()
+    flash(
+        f"Conversión actualizada. Stock físico: {product.stock} {item.stock_unit}. "
+        f"Costo por {item.stock_unit}: ARS {item.inventory_unit_cost:.2f}.",
+        "success",
+    )
+    return redirect(url_for("purchases.detail", purchase_id=item.purchase_id))
