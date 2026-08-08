@@ -329,9 +329,20 @@ def update_conversion(item_id):
     item.stock_unit = clean_text(request.form.get("stock_unit")) or "Unidad"
     item.conversion_factor = factor
 
+    # Limpia únicamente los ajustes compensatorios automáticos creados por
+    # la primera versión de la conversión histórica. Esos ajustes preservaban
+    # por error el stock anterior (ej.: 1 caja x24 seguía mostrando 1).
+    legacy_prefix = f"Conversión histórica compra #{item.purchase_id}:"
+    legacy_adjustments = StockAdjustment.query.filter(
+        StockAdjustment.product_id == product.id,
+        StockAdjustment.reason == "Corrección por conversión de unidad",
+        StockAdjustment.notes.like(f"{legacy_prefix}%"),
+    ).all()
+    for adjustment in legacy_adjustments:
+        db.session.delete(adjustment)
+
     # La compra histórica es la fuente del stock: cambiar su presentación
-    # debe convertir también las unidades que esa compra aportó al inventario.
-    # No se agrega un ajuste compensatorio: de 1 caja x24 pasamos a 24 tubos.
+    # convierte también las unidades aportadas por esa compra.
     db.session.commit()
     flash(
         f"Conversión actualizada: {item.quantity} {item.purchase_unit} = "

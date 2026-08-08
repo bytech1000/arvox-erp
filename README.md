@@ -30,3 +30,10 @@
 - El costo total de la compra no cambia.
 - El costo por tubo se calcula dividiendo el costo de la caja por el factor.
 - Se elimina el ajuste compensatorio que preservaba incorrectamente el stock anterior.
+
+
+## v6.2.4.2 — Limpieza de ajuste legado de conversión
+- Elimina al guardar la conversión únicamente el ajuste compensatorio automático creado por v6.2.4.
+- Corrige casos como ODPRO: 1 caja x24 debe mostrar 24 tubos, no 1.
+- No elimina ajustes manuales de inventario.
+- No modifica otras compras o productos.
