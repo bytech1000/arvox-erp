@@ -51,3 +51,10 @@
 - El total de la venta se recalcula en pantalla al cambiar cantidad, precio o descuento.
 - El cálculo persistido ya usa la propiedad subtotal del servidor.
 - Se valida que el cobro inicial no supere el total calculado.
+
+
+## v6.2.7 — Corrección compras multiproducto
+- Corrige el botón + Agregar producto: las filas nuevas incluyen unidad de compra, unidad de stock y factor de conversión.
+- Una compra con 2, 3 o más productos guarda todas sus líneas.
+- El servidor valida que todas las filas estén completas y ya no recorta silenciosamente la operación si falta un campo.
+- No modifica compras, stock ni datos existentes.

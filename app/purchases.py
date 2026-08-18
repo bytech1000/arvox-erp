@@ -78,7 +78,31 @@ def parse_lines(form):
     seen = set()
     created_count = 0
 
-    for raw_catalog_id, raw_qty, raw_cost, purchase_unit, stock_unit, raw_factor in zip(catalog_ids, quantities, unit_costs, purchase_units, stock_units, conversion_factors):
+    row_count = len(catalog_ids)
+    if row_count == 0:
+        raise ValueError("Agregá al menos un modelo a la compra.")
+
+    field_lengths = {
+        "modelos": len(catalog_ids),
+        "cantidades": len(quantities),
+        "costos": len(unit_costs),
+        "unidades de compra": len(purchase_units),
+        "unidades de stock": len(stock_units),
+        "conversiones": len(conversion_factors),
+    }
+    if any(length != row_count for length in field_lengths.values()):
+        raise ValueError(
+            "La compra contiene una línea incompleta. Recargá la página y volvé a agregar los productos."
+        )
+
+    for index in range(row_count):
+        raw_catalog_id = catalog_ids[index]
+        raw_qty = quantities[index]
+        raw_cost = unit_costs[index]
+        purchase_unit = purchase_units[index]
+        stock_unit = stock_units[index]
+        raw_factor = conversion_factors[index]
+
         if not raw_catalog_id:
             continue
 
@@ -88,7 +112,7 @@ def parse_lines(form):
             cost = float(raw_cost)
             factor = int(raw_factor or 1)
         except (ValueError, TypeError):
-            raise ValueError("Revisá los modelos, cantidades y costos.")
+            raise ValueError(f"Revisá los datos del producto #{index + 1}.")
 
         if qty <= 0 or cost < 0 or factor <= 0:
             raise ValueError(
