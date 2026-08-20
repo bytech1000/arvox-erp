@@ -70,3 +70,11 @@
 - Las transferencias internas se eliminan de ambos lados como una sola operación.
 - Los respaldos incluyen las cuentas financieras.
 \n\n## v6.3.0.1 — Hotfix Finanzas\n- Registra correctamente las rutas de transferencia y reclasificación de cuenta.\n- Corrige el Internal Server Error al abrir Finanzas.\n
+
+## v6.3.2 — Edición completa de compras
+- Cambiar producto, cantidad y costo de una compra existente.
+- Editar unidad de compra, unidad de stock y conversión.
+- Recalcular total, costos, saldo pendiente o saldo a favor.
+- Conservar los pagos realizados.
+- Reasignar stock automáticamente cuando una compra recibida cambia de producto.
+- Bloquear cambios que dejarían stock negativo.

@@ -262,8 +262,104 @@ def index():
 @login_required
 def detail(purchase_id):
     return render_template(
-        "purchases/detail.html", purchase=Purchase.query.get_or_404(purchase_id)
+        "purchases/detail.html",
+        purchase=Purchase.query.get_or_404(purchase_id),
+        accounts=FinancialAccount.query.filter_by(active=True).order_by(FinancialAccount.id).all(),
     )
+
+
+@purchases_bp.route("/<int:purchase_id>/edit", methods=["GET", "POST"])
+@login_required
+def edit_purchase(purchase_id):
+    purchase = Purchase.query.get_or_404(purchase_id)
+    catalog_items = MasterCatalogItem.query.filter_by(active=True).order_by(
+        MasterCatalogItem.brand, MasterCatalogItem.model
+    ).all()
+
+    if request.method == "POST":
+        try:
+            purchase.date = datetime.strptime(request.form["date"], "%Y-%m-%d").date()
+        except (ValueError, KeyError):
+            flash("Revisá la fecha de la compra.", "error")
+            return redirect(url_for("purchases.edit_purchase", purchase_id=purchase.id))
+
+        item_ids = request.form.getlist("item_id[]")
+        catalog_ids = request.form.getlist("catalog_item_id[]")
+        quantities = request.form.getlist("quantity[]")
+        unit_costs = request.form.getlist("unit_cost[]")
+        purchase_units = request.form.getlist("purchase_unit[]")
+        stock_units = request.form.getlist("stock_unit[]")
+        factors = request.form.getlist("conversion_factor[]")
+
+        count = len(item_ids)
+        if not count or any(len(v) != count for v in (
+            catalog_ids, quantities, unit_costs, purchase_units, stock_units, factors
+        )):
+            flash("Hay una línea incompleta en la compra.", "error")
+            return redirect(url_for("purchases.edit_purchase", purchase_id=purchase.id))
+
+        parsed = []
+        for idx in range(count):
+            try:
+                item_id = int(item_ids[idx]); catalog_id = int(catalog_ids[idx])
+                qty = int(quantities[idx]); cost = float(unit_costs[idx])
+                factor = int(factors[idx] or 1)
+            except (ValueError, TypeError):
+                flash(f"Revisá los datos del producto #{idx + 1}.", "error")
+                return redirect(url_for("purchases.edit_purchase", purchase_id=purchase.id))
+            if qty <= 0 or cost < 0 or factor <= 0:
+                flash(f"Cantidad, costo o conversión inválidos en producto #{idx + 1}.", "error")
+                return redirect(url_for("purchases.edit_purchase", purchase_id=purchase.id))
+
+            item = PurchaseItem.query.filter_by(id=item_id, purchase_id=purchase.id).first()
+            catalog = MasterCatalogItem.query.get(catalog_id)
+            if not item or not catalog:
+                flash("No pude identificar una línea de la compra.", "error")
+                return redirect(url_for("purchases.edit_purchase", purchase_id=purchase.id))
+            product, _ = get_or_create_product(catalog)
+            parsed.append((item, product, qty, cost,
+                           clean_text(purchase_units[idx]) or "Unidad",
+                           clean_text(stock_units[idx]) or "Unidad", factor))
+
+        if purchase.status == "Recibida":
+            old_by_product, new_by_product = {}, {}
+            for item, product, qty, cost, purchase_unit, stock_unit, factor in parsed:
+                old_by_product[item.product_id] = old_by_product.get(item.product_id, 0) + item.stock_quantity
+                new_by_product[product.id] = new_by_product.get(product.id, 0) + qty * factor
+            shortages = []
+            for product_id in set(old_by_product) | set(new_by_product):
+                product = Product.query.get(product_id)
+                resulting = product.stock - old_by_product.get(product_id, 0) + new_by_product.get(product_id, 0)
+                if resulting < 0:
+                    shortages.append(f"{product.brand} {product.model} (quedaría en {resulting})")
+            if shortages:
+                db.session.rollback()
+                flash("No se puede aplicar el cambio porque dejaría stock negativo en: " + "; ".join(shortages), "error")
+                return redirect(url_for("purchases.edit_purchase", purchase_id=purchase.id))
+
+        for item, product, qty, cost, purchase_unit, stock_unit, factor in parsed:
+            item.product = product
+            item.quantity = qty
+            item.unit_cost = cost
+            item.purchase_unit = purchase_unit
+            item.stock_unit = stock_unit
+            item.conversion_factor = factor
+
+        purchase.reference = clean_text(request.form.get("reference")) or None
+        purchase.notes = request.form.get("notes", "").strip() or None
+        db.session.flush()
+
+        paid = purchase.paid or 0
+        if paid > purchase.total:
+            msg = f"Compra actualizada. Total ARS {purchase.total:.2f}. Saldo a favor ARS {paid-purchase.total:.2f}."
+        else:
+            msg = f"Compra actualizada. Total ARS {purchase.total:.2f}. Pendiente ARS {purchase.balance:.2f}."
+
+        db.session.commit()
+        flash(msg, "success")
+        return redirect(url_for("purchases.detail", purchase_id=purchase.id))
+
+    return render_template("purchases/edit.html", purchase=purchase, catalog_items=catalog_items)
 
 
 @purchases_bp.post("/<int:purchase_id>/cancel")
