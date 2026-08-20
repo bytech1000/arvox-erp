@@ -293,6 +293,66 @@ def delete_expense(expense_id):
     return redirect(url_for("finance.expenses"))
 
 
+
+
+@finance_bp.post("/transfer")
+@login_required
+def transfer():
+    try:
+        movement_date = parse_date(request.form["date"])
+        amount = float(request.form["amount"])
+        source_id = int(request.form["source_account_id"])
+        destination_id = int(request.form["destination_account_id"])
+    except (ValueError, TypeError, KeyError):
+        flash("Revisá los datos de la transferencia.", "error")
+        return redirect(url_for("finance.index"))
+
+    if amount <= 0 or source_id == destination_id:
+        flash("La transferencia debe ser mayor a cero y entre cuentas distintas.", "error")
+        return redirect(url_for("finance.index"))
+
+    source = FinancialAccount.query.get(source_id)
+    destination = FinancialAccount.query.get(destination_id)
+    if not source or not destination or not source.active or not destination.active:
+        flash("Seleccioná cuentas válidas.", "error")
+        return redirect(url_for("finance.index"))
+
+    group = uuid4().hex
+    detail = request.form.get("description", "").strip() or f"{source.name} → {destination.name}"
+    create_movement(
+        movement_type="Egreso", category="Transferencia interna",
+        description=f"Transferencia a {destination.name} · {detail}",
+        amount=amount, currency="ARS", payment_method="Transferencia",
+        movement_date=movement_date, account=source, transfer_group=group,
+    )
+    create_movement(
+        movement_type="Ingreso", category="Transferencia interna",
+        description=f"Transferencia desde {source.name} · {detail}",
+        amount=amount, currency="ARS", payment_method="Transferencia",
+        movement_date=movement_date, account=destination, transfer_group=group,
+    )
+    db.session.commit()
+    flash("Transferencia registrada. El disponible total no cambió.", "success")
+    return redirect(url_for("finance.index"))
+
+
+@finance_bp.post("/movement/<int:movement_id>/account")
+@login_required
+def change_movement_account(movement_id):
+    movement = CashMovement.query.get_or_404(movement_id)
+    if movement.transfer_group:
+        flash("Las transferencias internas no se reclasifican desde el historial.", "error")
+        return redirect(request.referrer or url_for("finance.index"))
+    account = FinancialAccount.query.get(request.form.get("account_id", type=int))
+    if not account or not account.active:
+        flash("Seleccioná una cuenta válida.", "error")
+        return redirect(request.referrer or url_for("finance.index"))
+    movement.account = account
+    db.session.commit()
+    flash(f"Movimiento asignado a {account.name}.", "success")
+    return redirect(request.referrer or url_for("finance.index"))
+
+
 @finance_bp.post("/movements/<int:movement_id>/delete")
 @login_required
 def delete_movement(movement_id):
@@ -300,6 +360,13 @@ def delete_movement(movement_id):
     description = movement.description
     amount = movement.amount
     movement_type = movement.movement_type
+
+    if movement.transfer_group:
+        for row in CashMovement.query.filter_by(transfer_group=movement.transfer_group).all():
+            db.session.delete(row)
+        db.session.commit()
+        flash("Transferencia interna eliminada de ambas cuentas.", "success")
+        return redirect(request.referrer or url_for("finance.index"))
 
     # If the movement came from a sale collection, reverse the collected amount.
     if movement.sale is not None:

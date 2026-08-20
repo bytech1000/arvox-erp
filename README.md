@@ -69,3 +69,4 @@
 - La cuenta de un movimiento histórico puede corregirse desde el historial.
 - Las transferencias internas se eliminan de ambos lados como una sola operación.
 - Los respaldos incluyen las cuentas financieras.
+\n\n## v6.3.0.1 — Hotfix Finanzas\n- Registra correctamente las rutas de transferencia y reclasificación de cuenta.\n- Corrige el Internal Server Error al abrir Finanzas.\n
