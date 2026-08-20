@@ -37,6 +37,7 @@
           </label>
           <label>Referencia<input name="reference" placeholder="Pedido o factura"></label>
           <input type="hidden" name="currency" value="ARS">
+          <label>Cuenta del cobro<select name="account_id">{% for a in accounts %}<option value="{{ a.id }}">{{ a.name }}</option>{% endfor %}</select></label>
           <label>Forma de cobro<select name="payment_method"><option>Transferencia</option><option>Efectivo</option><option>Cuenta corriente</option><option>Tarjeta</option></select></label>
           <label>Cobrado<input name="collected" type="number" min="0" step="0.01" value="0"></label>
           <label>Estado<select name="status"><option>Entregada</option><option>Reservada</option></select></label>

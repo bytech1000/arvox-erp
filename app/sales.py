@@ -3,7 +3,7 @@ from flask import Blueprint, render_template, request, redirect, url_for, flash
 from sqlalchemy import or_
 from . import db
 from .auth import login_required
-from .models import Product, SalesOrder, SaleItem, Customer, CashMovement
+from .models import Product, SalesOrder, SaleItem, Customer, CashMovement, FinancialAccount
 
 sales_bp = Blueprint("sales", __name__, url_prefix="/sales")
 
@@ -110,10 +110,15 @@ def index():
         db.session.add(sale)
         db.session.flush()
         if collected > 0:
+            account = FinancialAccount.query.get(request.form.get("account_id", type=int))
+            if not account or not account.active:
+                flash("Seleccioná la cuenta donde ingresó el cobro.", "error")
+                return redirect(url_for("sales.index"))
             sale.cash_movements.append(CashMovement(
                 date=date_value, movement_type="Ingreso", category="Cobro de venta",
                 description=f"Cobro inicial venta #{sale.id} · {sale.customer}",
                 payment_method=sale.payment_method, currency=sale.currency, amount=collected,
+                account=account,
             ))
         db.session.commit()
         flash("Venta registrada correctamente.", "success")
@@ -147,7 +152,7 @@ def index():
 
     return render_template(
         "sales/index.html",
-        rows=rows,
+        rows=rows, accounts=FinancialAccount.query.filter_by(active=True).order_by(FinancialAccount.id).all(),
         products=products,
         customers=customers,
         totals=totals,

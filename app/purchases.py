@@ -7,6 +7,7 @@ from . import db
 from .auth import login_required
 from .models import (
     CashMovement,
+    FinancialAccount,
     MasterCatalogItem,
     Product,
     Purchase,
@@ -181,6 +182,11 @@ def index():
         db.session.flush()
 
         if paid > 0:
+            account = FinancialAccount.query.get(request.form.get("account_id", type=int))
+            if not account or not account.active:
+                db.session.rollback()
+                flash("Seleccioná la cuenta desde la que pagaste.", "error")
+                return redirect(url_for("purchases.index"))
             purchase.cash_movements.append(
                 CashMovement(
                     date=date_value,
@@ -190,6 +196,7 @@ def index():
                     payment_method=request.form.get("payment_method") or "Transferencia",
                     currency="ARS",
                     amount=paid,
+                    account=account,
                 )
             )
 

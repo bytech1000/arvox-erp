@@ -10,6 +10,8 @@ def prepare_database(app: Flask) -> None:
         db.create_all()
         migrate_schema()
         normalize_currency_to_ars()
+        seed_financial_accounts()
+        assign_historical_financial_accounts()
         seed_data(app)
         seed_master_catalog()
 
@@ -49,6 +51,21 @@ def migrate_schema() -> None:
                     text(f"ALTER TABLE purchase_item ADD COLUMN {name} {definition}")
                 )
 
+
+    if "cash_movement" in table_names:
+        cash_columns = {
+            column["name"] for column in inspector.get_columns("cash_movement")
+        }
+        additions = {
+            "account_id": "INTEGER",
+            "transfer_group": "VARCHAR(64)",
+        }
+        for name, definition in additions.items():
+            if name not in cash_columns:
+                db.session.execute(
+                    text(f"ALTER TABLE cash_movement ADD COLUMN {name} {definition}")
+                )
+
     db.session.commit()
 
 
@@ -65,6 +82,41 @@ def seed_data(app: Flask) -> None:
         user.set_password(app.config["ADMIN_PASSWORD"])
         db.session.add(user)
 
+    db.session.commit()
+
+
+
+def seed_financial_accounts():
+    """Crea las dos cuentas iniciales de ARVOX."""
+    from .models import FinancialAccount
+
+    defaults = (
+        ("Caja chica", "Efectivo"),
+        ("Ualá", "Cuenta digital"),
+    )
+    for name, account_type in defaults:
+        if not FinancialAccount.query.filter_by(name=name).first():
+            db.session.add(FinancialAccount(name=name, account_type=account_type))
+    db.session.commit()
+
+
+def assign_historical_financial_accounts():
+    """Clasifica una única vez los movimientos existentes sin cambiar importes."""
+    from .models import CashMovement, FinancialAccount, SystemSetting
+
+    setting = SystemSetting.query.filter_by(key="financial_accounts_v1_migrated").first()
+    if setting:
+        return
+
+    cash = FinancialAccount.query.filter_by(name="Caja chica").first()
+    uala = FinancialAccount.query.filter_by(name="Ualá").first()
+    if not cash or not uala:
+        return
+
+    for movement in CashMovement.query.filter(CashMovement.account_id.is_(None)).all():
+        movement.account_id = cash.id if movement.payment_method == "Efectivo" else uala.id
+
+    db.session.add(SystemSetting(key="financial_accounts_v1_migrated", value="1"))
     db.session.commit()
 
 

@@ -1,11 +1,12 @@
 from collections import defaultdict
 from datetime import date, datetime
+from uuid import uuid4
 from flask import Blueprint, render_template, request, redirect, url_for, flash
 from sqlalchemy import or_
 
 from .extensions import db
 from .auth import login_required
-from .models import CashMovement, Expense, SalesOrder, Purchase
+from .models import CashMovement, Expense, SalesOrder, Purchase, FinancialAccount
 
 finance_bp = Blueprint("finance", __name__, url_prefix="/finance")
 
@@ -21,8 +22,8 @@ def parse_date(raw):
 
 
 def create_movement(*, movement_type, category, description, amount, currency,
-                    payment_method, movement_date, sale=None, purchase=None,
-                    expense=None, notes=None):
+                    payment_method, movement_date, account=None, sale=None, purchase=None,
+                    expense=None, notes=None, transfer_group=None):
     movement = CashMovement(
         date=movement_date,
         movement_type=movement_type,
@@ -31,6 +32,8 @@ def create_movement(*, movement_type, category, description, amount, currency,
         payment_method=payment_method,
         currency=currency,
         amount=amount,
+        account=account,
+        transfer_group=transfer_group,
         sale=sale,
         purchase=purchase,
         expense=expense,
@@ -62,6 +65,11 @@ def index():
             flash("Ingresá un detalle para el movimiento.", "error")
             return redirect(url_for("finance.index"))
 
+        account = FinancialAccount.query.get(request.form.get("account_id", type=int))
+        if not account or not account.active:
+            flash("Seleccioná una cuenta válida.", "error")
+            return redirect(url_for("finance.index"))
+
         create_movement(
             movement_type=movement_type,
             category=category,
@@ -69,7 +77,7 @@ def index():
             amount=amount,
             currency="ARS",
             payment_method=request.form.get("payment_method") or "Transferencia",
-            movement_date=movement_date,
+            movement_date=movement_date, account=account,
             notes=request.form.get("notes", "").strip() or None,
         )
         db.session.commit()
@@ -80,6 +88,7 @@ def index():
     q = request.args.get("q", "").strip()
     method = request.args.get("payment_method", "")
     movement_type = request.args.get("movement_type", "")
+    account_id = request.args.get("account_id", type=int)
 
     query = CashMovement.query.filter_by(currency=currency)
     if q:
@@ -92,6 +101,8 @@ def index():
         query = query.filter_by(payment_method=method)
     if movement_type:
         query = query.filter_by(movement_type=movement_type)
+    if account_id:
+        query = query.filter_by(account_id=account_id)
 
     rows = query.order_by(CashMovement.date.desc(), CashMovement.id.desc()).all()
     all_currency_rows = CashMovement.query.filter_by(currency=currency).all()
@@ -99,6 +110,12 @@ def index():
     method_balances = defaultdict(float)
     for row in all_currency_rows:
         method_balances[row.payment_method] += row.signed_amount
+
+    accounts = FinancialAccount.query.filter_by(active=True).order_by(FinancialAccount.id).all()
+    account_balances = {
+        account.id: sum(row.signed_amount for row in all_currency_rows if row.account_id == account.id)
+        for account in accounts
+    }
 
     today = date.today()
     today_rows = [x for x in all_currency_rows if x.date == today]
@@ -125,7 +142,8 @@ def index():
         method_balances=method_balances, payment_methods=PAYMENT_METHODS,
         pending_sales=pending_sales, pending_purchases=pending_purchases,
         currency=currency, q=q, selected_method=method,
-        selected_type=movement_type,
+        selected_type=movement_type, accounts=accounts,
+        account_balances=account_balances, selected_account_id=account_id,
     )
 
 
@@ -148,6 +166,11 @@ def expenses():
             flash("Ingresá una descripción para el gasto.", "error")
             return redirect(url_for("finance.expenses"))
 
+        account = FinancialAccount.query.get(request.form.get("account_id", type=int))
+        if not account or not account.active:
+            flash("Seleccioná la cuenta desde la que pagaste el gasto.", "error")
+            return redirect(url_for("finance.expenses"))
+
         expense = Expense(
             date=expense_date,
             category=request.form.get("category") or "Otros",
@@ -163,7 +186,7 @@ def expenses():
             movement_type="Egreso", category=expense.category,
             description=expense.description, amount=expense.amount,
             currency=expense.currency, payment_method=expense.payment_method,
-            movement_date=expense.date, expense=expense, notes=expense.notes,
+            movement_date=expense.date, account=account, expense=expense, notes=expense.notes,
         )
         db.session.commit()
         flash("Gasto registrado y descontado de Caja.", "success")
@@ -180,6 +203,7 @@ def expenses():
         "finance/expenses.html", rows=rows, total=total,
         category_rows=category_rows, categories=EXPENSE_CATEGORIES,
         payment_methods=PAYMENT_METHODS, currency=currency,
+        accounts=FinancialAccount.query.filter_by(active=True).order_by(FinancialAccount.id).all(),
     )
 
 
@@ -199,12 +223,16 @@ def collect_sale(sale_id):
         return redirect(request.referrer or url_for("sales.detail", sale_id=sale.id))
 
     method = request.form.get("payment_method") or "Transferencia"
+    account = FinancialAccount.query.get(request.form.get("account_id", type=int))
+    if not account or not account.active:
+        flash("Seleccioná la cuenta donde ingresó el cobro.", "error")
+        return redirect(request.referrer or url_for("sales.detail", sale_id=sale.id))
     sale.collected = (sale.collected or 0) + amount
     create_movement(
         movement_type="Ingreso", category="Cobro de venta",
         description=f"Cobro venta #{sale.id} · {sale.customer}", amount=amount,
         currency=sale.currency, payment_method=method,
-        movement_date=movement_date, sale=sale,
+        movement_date=movement_date, account=account, sale=sale,
         notes=request.form.get("notes", "").strip() or None,
     )
     db.session.commit()
@@ -228,12 +256,16 @@ def pay_purchase(purchase_id):
         return redirect(request.referrer or url_for("purchases.detail", purchase_id=purchase.id))
 
     method = request.form.get("payment_method") or "Transferencia"
+    account = FinancialAccount.query.get(request.form.get("account_id", type=int))
+    if not account or not account.active:
+        flash("Seleccioná la cuenta desde la que hiciste el pago.", "error")
+        return redirect(request.referrer or url_for("purchases.detail", purchase_id=purchase.id))
     purchase.paid = (purchase.paid or 0) + amount
     create_movement(
         movement_type="Egreso", category="Pago a proveedor",
         description=f"Pago compra #{purchase.id} · {purchase.supplier.name}", amount=amount,
         currency=purchase.currency, payment_method=method,
-        movement_date=movement_date, purchase=purchase,
+        movement_date=movement_date, account=account, purchase=purchase,
         notes=request.form.get("notes", "").strip() or None,
     )
     db.session.commit()

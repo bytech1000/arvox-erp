@@ -316,6 +316,21 @@ class QuoteItem(db.Model):
         return self.subtotal - (self.cost_snapshot * self.quantity)
 
 
+
+class FinancialAccount(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(80), unique=True, nullable=False)
+    account_type = db.Column(db.String(40), nullable=False, default="Cuenta")
+    active = db.Column(db.Boolean, default=True)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    movements = db.relationship("CashMovement", back_populates="account")
+
+    @property
+    def balance(self):
+        return sum(m.signed_amount for m in self.movements)
+
+
 class Expense(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     date = db.Column(db.Date, nullable=False)
@@ -345,11 +360,14 @@ class CashMovement(db.Model):
     sale_id = db.Column(db.Integer, db.ForeignKey("sales_order.id"))
     purchase_id = db.Column(db.Integer, db.ForeignKey("purchase.id"))
     expense_id = db.Column(db.Integer, db.ForeignKey("expense.id"), unique=True)
+    account_id = db.Column(db.Integer, db.ForeignKey("financial_account.id"))
+    transfer_group = db.Column(db.String(64), index=True)
     notes = db.Column(db.Text)
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     sale = db.relationship("SalesOrder", backref="cash_movements")
     purchase = db.relationship("Purchase", backref="cash_movements")
+    account = db.relationship("FinancialAccount", back_populates="movements")
 
     @property
     def signed_amount(self):

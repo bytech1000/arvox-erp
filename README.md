@@ -58,3 +58,14 @@
 - Una compra con 2, 3 o más productos guarda todas sus líneas.
 - El servidor valida que todas las filas estén completas y ya no recorta silenciosamente la operación si falta un campo.
 - No modifica compras, stock ni datos existentes.
+
+
+## v6.3.0 — Cuentas financieras
+- Crea Caja chica y Ualá como cuentas separadas.
+- Cada ingreso, gasto, cobro y pago indica la cuenta donde entra o sale el dinero.
+- Permite transferencias entre Caja chica y Ualá sin cambiar el disponible total.
+- Muestra saldo individual por cuenta y saldo total.
+- Movimientos históricos: Efectivo se asigna a Caja chica; los demás medios a Ualá.
+- La cuenta de un movimiento histórico puede corregirse desde el historial.
+- Las transferencias internas se eliminan de ambos lados como una sola operación.
+- Los respaldos incluyen las cuentas financieras.

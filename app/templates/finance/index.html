@@ -23,8 +23,24 @@
 </div>
 
 <div class="finance-method-grid">
-  {% for method in payment_methods %}<article><span>{{ method }}</span><strong>ARS {{ '%.2f'|format(method_balances.get(method,0)) }}</strong></article>{% endfor %}
+  {% for account in accounts %}
+  <article><span>{{ account.name }}</span><strong>ARS {{ '%.2f'|format(account_balances.get(account.id,0)) }}</strong><small>{{ account.account_type }}</small></article>
+  {% endfor %}
 </div>
+
+<section class="panel">
+  <details>
+    <summary class="button secondary">Transferir entre cuentas</summary>
+    <form method="post" action="{{ url_for('finance.transfer') }}" class="form-grid finance-form">
+      <label>Fecha<input type="date" name="date" required></label>
+      <label>Desde<select name="source_account_id" required>{% for a in accounts %}<option value="{{ a.id }}">{{ a.name }}</option>{% endfor %}</select></label>
+      <label>Hacia<select name="destination_account_id" required>{% for a in accounts %}<option value="{{ a.id }}">{{ a.name }}</option>{% endfor %}</select></label>
+      <label>Importe<input name="amount" type="number" min="0.01" step="0.01" required></label>
+      <label class="full">Detalle<input name="description" placeholder="Ej. Retiro de Ualá para caja chica"></label>
+      <button>Transferir</button>
+    </form>
+  </details>
+</section>
 
 <section class="panel" id="new-movement">
   <details><summary class="button">+ Movimiento manual</summary>
@@ -33,6 +49,7 @@
       <label>Tipo<select name="movement_type"><option>Ingreso</option><option>Egreso</option></select></label>
       <label>Categoría<input name="category" placeholder="Aporte, ajuste, otros"></label>
       <label>Detalle<input name="description" required placeholder="Descripción del movimiento"></label>
+      <label>Cuenta<select name="account_id" required>{% for a in accounts %}<option value="{{ a.id }}">{{ a.name }}</option>{% endfor %}</select></label>
       <label>Medio<select name="payment_method">{% for m in payment_methods %}<option>{{ m }}</option>{% endfor %}</select></label>
       <input type="hidden" name="currency" value="ARS">
       <label>Importe<input name="amount" type="number" min="0.01" step="0.01" required></label>
@@ -43,13 +60,20 @@
 
 <div class="dashboard-main-grid">
 <section class="panel"><div class="panel-head"><div><span class="eyebrow">COBROS</span><h2>Ventas pendientes</h2></div></div>
-<div class="finance-pending-list">{% for sale in pending_sales %}<div><div><strong>{{ sale.customer }}</strong><small>Venta #{{ sale.id }} · {{ sale.date.strftime('%d/%m/%Y') }}</small></div><b>ARS {{ '%.2f'|format(sale.balance) }}</b><form method="post" action="{{ url_for('finance.collect_sale', sale_id=sale.id) }}"><input type="date" name="date" required><select name="payment_method">{% for m in payment_methods %}<option>{{ m }}</option>{% endfor %}</select><input name="amount" type="number" min="0.01" max="{{ sale.balance }}" step="0.01" value="{{ '%.2f'|format(sale.balance) }}"><button>Cobrar</button></form></div>{% else %}<div class="empty-state">No hay ventas pendientes.</div>{% endfor %}</div></section>
+<div class="finance-pending-list">{% for sale in pending_sales %}<div><div><strong>{{ sale.customer }}</strong><small>Venta #{{ sale.id }} · {{ sale.date.strftime('%d/%m/%Y') }}</small></div><b>ARS {{ '%.2f'|format(sale.balance) }}</b><form method="post" action="{{ url_for('finance.collect_sale', sale_id=sale.id) }}"><input type="date" name="date" required><select name="account_id" required>{% for a in accounts %}<option value="{{ a.id }}">{{ a.name }}</option>{% endfor %}</select><select name="payment_method">{% for m in payment_methods %}<option>{{ m }}</option>{% endfor %}</select><input name="amount" type="number" min="0.01" max="{{ sale.balance }}" step="0.01" value="{{ '%.2f'|format(sale.balance) }}"><button>Cobrar</button></form></div>{% else %}<div class="empty-state">No hay ventas pendientes.</div>{% endfor %}</div></section>
 <section class="panel"><div class="panel-head"><div><span class="eyebrow">PAGOS</span><h2>Compras pendientes</h2></div></div>
-<div class="finance-pending-list">{% for purchase in pending_purchases %}<div><div><strong>{{ purchase.supplier.name }}</strong><small>Compra #{{ purchase.id }} · {{ purchase.date.strftime('%d/%m/%Y') }}</small></div><b>ARS {{ '%.2f'|format(purchase.balance) }}</b><form method="post" action="{{ url_for('finance.pay_purchase', purchase_id=purchase.id) }}"><input type="date" name="date" required><select name="payment_method">{% for m in payment_methods %}<option>{{ m }}</option>{% endfor %}</select><input name="amount" type="number" min="0.01" max="{{ purchase.balance }}" step="0.01" value="{{ '%.2f'|format(purchase.balance) }}"><button>Pagar</button></form></div>{% else %}<div class="empty-state">No hay compras pendientes.</div>{% endfor %}</div></section>
+<div class="finance-pending-list">{% for purchase in pending_purchases %}<div><div><strong>{{ purchase.supplier.name }}</strong><small>Compra #{{ purchase.id }} · {{ purchase.date.strftime('%d/%m/%Y') }}</small></div><b>ARS {{ '%.2f'|format(purchase.balance) }}</b><form method="post" action="{{ url_for('finance.pay_purchase', purchase_id=purchase.id) }}"><input type="date" name="date" required><select name="account_id" required>{% for a in accounts %}<option value="{{ a.id }}">{{ a.name }}</option>{% endfor %}</select><select name="payment_method">{% for m in payment_methods %}<option>{{ m }}</option>{% endfor %}</select><input name="amount" type="number" min="0.01" max="{{ purchase.balance }}" step="0.01" value="{{ '%.2f'|format(purchase.balance) }}"><button>Pagar</button></form></div>{% else %}<div class="empty-state">No hay compras pendientes.</div>{% endfor %}</div></section>
 </div>
 
 <section class="panel">
-<form method="get" class="finance-filters"><input type="hidden" name="currency" value="ARS"><input name="q" value="{{ q }}" placeholder="Buscar detalle o categoría"><select name="movement_type"><option value="">Ingresos y egresos</option><option {% if selected_type=='Ingreso' %}selected{% endif %}>Ingreso</option><option {% if selected_type=='Egreso' %}selected{% endif %}>Egreso</option></select><select name="payment_method"><option value="">Todos los medios</option>{% for m in payment_methods %}<option {% if selected_method==m %}selected{% endif %}>{{ m }}</option>{% endfor %}</select><button>Filtrar</button></form>
-<div class="table-wrap"><table><tr><th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Detalle</th><th>Medio</th><th>Importe</th><th>Acción</th></tr>{% for row in rows %}<tr><td>{{ row.date.strftime('%d/%m/%Y') }}</td><td><span class="cash-type {{ row.movement_type|lower }}">{{ row.movement_type }}</span></td><td>{{ row.category }}</td><td>{{ row.description }}</td><td>{{ row.payment_method }}</td><td class="cash-amount {{ row.movement_type|lower }}">{% if row.movement_type=='Ingreso' %}+{% else %}-{% endif %} ARS {{ '%.2f'|format(row.amount) }}</td><td><form method="post" action="{{ url_for('finance.delete_movement', movement_id=row.id) }}" onsubmit="return confirm('¿Eliminar este movimiento? Se revertirá su impacto en Caja y, si corresponde, en la venta, compra o gasto asociado.');"><button type="submit" class="danger-button compact-danger">Eliminar</button></form></td></tr>{% else %}<tr><td colspan="7">No hay movimientos para mostrar.</td></tr>{% endfor %}</table></div>
+<form method="get" class="finance-filters"><input type="hidden" name="currency" value="ARS"><input name="q" value="{{ q }}" placeholder="Buscar detalle o categoría"><select name="movement_type"><option value="">Ingresos y egresos</option><option {% if selected_type=='Ingreso' %}selected{% endif %}>Ingreso</option><option {% if selected_type=='Egreso' %}selected{% endif %}>Egreso</option></select><select name="account_id"><option value="">Todas las cuentas</option>{% for a in accounts %}<option value="{{ a.id }}" {% if selected_account_id==a.id %}selected{% endif %}>{{ a.name }}</option>{% endfor %}</select><select name="payment_method"><option value="">Todos los medios</option>{% for m in payment_methods %}<option {% if selected_method==m %}selected{% endif %}>{{ m }}</option>{% endfor %}</select><button>Filtrar</button></form>
+<div class="table-wrap"><table><tr><th>Fecha</th><th>Tipo</th><th>Categoría</th><th>Detalle</th><th>Cuenta</th><th>Medio</th><th>Importe</th><th>Acción</th></tr>{% for row in rows %}<tr><td>{{ row.date.strftime('%d/%m/%Y') }}</td><td><span class="cash-type {{ row.movement_type|lower }}">{{ row.movement_type }}</span></td><td>{{ row.category }}</td><td>{{ row.description }}</td><td>
+{% if row.transfer_group %}{{ row.account.name if row.account else "-" }}
+{% else %}
+<form method="post" action="{{ url_for('finance.change_movement_account', movement_id=row.id) }}" style="display:flex;gap:4px">
+<select name="account_id" onchange="this.form.submit()">{% for a in accounts %}<option value="{{ a.id }}" {% if row.account_id==a.id %}selected{% endif %}>{{ a.name }}</option>{% endfor %}</select>
+</form>
+{% endif %}
+</td><td>{{ row.payment_method }}</td><td class="cash-amount {{ row.movement_type|lower }}">{% if row.movement_type=='Ingreso' %}+{% else %}-{% endif %} ARS {{ '%.2f'|format(row.amount) }}</td><td><form method="post" action="{{ url_for('finance.delete_movement', movement_id=row.id) }}" onsubmit="return confirm('¿Eliminar este movimiento? Se revertirá su impacto en Caja y, si corresponde, en la venta, compra o gasto asociado.');"><button type="submit" class="danger-button compact-danger">Eliminar</button></form></td></tr>{% else %}<tr><td colspan="8">No hay movimientos para mostrar.</td></tr>{% endfor %}</table></div>
 </section>
 {% endblock %}
