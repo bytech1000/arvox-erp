@@ -164,7 +164,11 @@ def index():
 @login_required
 def detail(sale_id):
     sale = SalesOrder.query.get_or_404(sale_id)
-    return render_template("sales/detail.html", sale=sale)
+    return render_template(
+        "sales/detail.html",
+        sale=sale,
+        accounts=FinancialAccount.query.filter_by(active=True).order_by(FinancialAccount.id).all(),
+    )
 
 @sales_bp.post("/<int:sale_id>/status/<status>")
 @login_required

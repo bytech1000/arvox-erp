@@ -94,3 +94,11 @@
 - En compras recibidas valida el impacto antes de guardar.
 - Bloquea cambios que dejen stock negativo.
 - La compra debe conservar al menos un producto.
+
+
+## v6.3.3.1 — Hotfix detalle de venta
+- Elimina bloques duplicados de Registrar cobro.
+- Deja un único formulario de cobro al final del detalle de la venta.
+- Agrega selección de cuenta financiera (Caja chica / Ualá) al registrar el cobro.
+- Corrige la estructura del template para que la pantalla quede desplazable y estable.
+- No modifica ventas, stock, cobros ni saldos existentes.
