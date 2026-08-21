@@ -1,33 +1,182 @@
 {% extends "base.html" %}
 {% block title %}Editar compra · ARVOX{% endblock %}
 {% block module_title %}Compras{% endblock %}
-{% block module_subtitle %}Editar productos, cantidades y costos{% endblock %}
+{% block module_subtitle %}Editar, agregar o quitar productos{% endblock %}
 {% block content %}
-<div class="page-head"><div><a class="back" href="{{ url_for('purchases.detail',purchase_id=purchase.id) }}">← Volver</a><span class="eyebrow">COMPRA #{{purchase.id}}</span><h1>Editar compra</h1><p>{{purchase.supplier.name}}</p></div></div>
-<section class="panel">
-<div class="note"><b>Los pagos ya realizados se conservan.</b><p>Al modificar esta compra se recalculan total, saldo y costos. Si ya fue recibida, también se reasigna el stock al producto correcto.</p></div>
-<form method="post">
-<div class="form-grid"><label>Fecha<input type="date" name="date" value="{{purchase.date.isoformat()}}" required></label><label>Referencia<input name="reference" value="{{purchase.reference or ''}}"></label></div>
-<h2>Productos</h2>
-{% for item in purchase.items %}
-<div class="purchase-line edit-line">
-<input type="hidden" name="item_id[]" value="{{item.id}}">
-<label>Producto<select name="catalog_item_id[]" required>
-{% for cat in catalog_items %}<option value="{{cat.id}}" {% if cat.brand|lower==item.product.brand|lower and cat.model|lower==item.product.model|lower %}selected{% endif %}>{{cat.brand}} · {{cat.model}}</option>{% endfor %}
-</select></label>
-<label>Cantidad<input name="quantity[]" type="number" min="1" value="{{item.quantity}}" required oninput="calcEdit()"></label>
-<label>Unidad compra<select name="purchase_unit[]">{% for u in ['Unidad','Caja','Pack'] %}<option {% if (item.purchase_unit or 'Unidad')==u %}selected{% endif %}>{{u}}</option>{% endfor %}</select></label>
-<label>Unidad stock<select name="stock_unit[]">{% for u in ['Unidad','Tubo','Paleta','Pelota'] %}<option {% if (item.stock_unit or 'Unidad')==u %}selected{% endif %}>{{u}}</option>{% endfor %}</select></label>
-<label>Unidades por compra<input name="conversion_factor[]" type="number" min="1" value="{{item.conversion_factor or 1}}" required></label>
-<label>Costo por unidad de compra<input name="unit_cost[]" type="number" min="0" step="0.01" value="{{'%.2f'|format(item.unit_cost)}}" required oninput="calcEdit()"></label>
-<div class="line-subtotal"><span>Subtotal</span><strong>ARS {{'%.2f'|format(item.subtotal)}}</strong></div>
+<div class="page-head">
+  <div>
+    <a class="back" href="{{ url_for('purchases.detail',purchase_id=purchase.id) }}">← Volver</a>
+    <span class="eyebrow">COMPRA #{{purchase.id}}</span>
+    <h1>Editar compra</h1>
+    <p>{{purchase.supplier.name}}</p>
+  </div>
 </div>
-{% endfor %}
-<div class="stats"><article><span>Nuevo total</span><strong id="new-total">ARS {{'%.2f'|format(purchase.total)}}</strong></article><article><span>Ya pagado</span><strong>ARS {{'%.2f'|format(purchase.paid or 0)}}</strong></article><article><span>Saldo</span><strong id="new-balance">ARS {{'%.2f'|format(purchase.balance)}}</strong></article></div>
-<label class="full">Observaciones<textarea name="notes">{{purchase.notes or ''}}</textarea></label>
-<div class="form-actions"><button>Guardar cambios</button><a class="button secondary" href="{{url_for('purchases.detail',purchase_id=purchase.id)}}">Cancelar</a></div>
-</form></section>
+
+<section class="panel">
+  <div class="note">
+    <b>Los pagos ya realizados se conservan.</b>
+    <p>Podés cambiar productos, costos y cantidades, eliminar líneas o agregar productos nuevos. ARVOX recalcula total, saldo, costos y stock.</p>
+  </div>
+
+  <form method="post" id="edit-purchase-form">
+    <div class="form-grid">
+      <label>Fecha<input type="date" name="date" value="{{purchase.date.isoformat()}}" required></label>
+      <label>Referencia<input name="reference" value="{{purchase.reference or ''}}"></label>
+    </div>
+
+    <h2>Productos</h2>
+    <div id="edit-lines">
+      {% for item in purchase.items %}
+      <div class="purchase-line edit-line">
+        <input type="hidden" name="item_id[]" value="{{item.id}}">
+        <input type="hidden" name="delete_line[]" value="0" class="delete-flag">
+
+        <label>Producto
+          <select name="catalog_item_id[]" required>
+            {% for cat in catalog_items %}
+            <option value="{{cat.id}}" {% if cat.brand|lower==item.product.brand|lower and cat.model|lower==item.product.model|lower %}selected{% endif %}>
+              {{cat.brand}} · {{cat.model}}
+            </option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label>Cantidad
+          <input name="quantity[]" type="number" min="1" value="{{item.quantity}}" required oninput="calcEdit()">
+        </label>
+
+        <label>Unidad compra
+          <select name="purchase_unit[]">
+            {% for u in ['Unidad','Caja','Pack'] %}
+            <option {% if (item.purchase_unit or 'Unidad')==u %}selected{% endif %}>{{u}}</option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label>Unidad stock
+          <select name="stock_unit[]">
+            {% for u in ['Unidad','Tubo','Paleta','Pelota'] %}
+            <option {% if (item.stock_unit or 'Unidad')==u %}selected{% endif %}>{{u}}</option>
+            {% endfor %}
+          </select>
+        </label>
+
+        <label>Unidades por compra
+          <input name="conversion_factor[]" type="number" min="1" value="{{item.conversion_factor or 1}}" required>
+        </label>
+
+        <label>Costo por unidad de compra
+          <input name="unit_cost[]" type="number" min="0" step="0.01" value="{{'%.2f'|format(item.unit_cost)}}" required oninput="calcEdit()">
+        </label>
+
+        <div class="line-subtotal">
+          <span>Subtotal</span>
+          <strong>ARS {{'%.2f'|format(item.subtotal)}}</strong>
+        </div>
+
+        <button type="button" class="danger-button remove-edit-line" onclick="removeEditLine(this)">Eliminar producto</button>
+      </div>
+      {% endfor %}
+    </div>
+
+    <button type="button" class="button secondary" onclick="addEditLine()">+ Agregar producto</button>
+
+    <div class="stats">
+      <article><span>Nuevo total</span><strong id="new-total">ARS {{'%.2f'|format(purchase.total)}}</strong></article>
+      <article><span>Ya pagado</span><strong>ARS {{'%.2f'|format(purchase.paid or 0)}}</strong></article>
+      <article><span>Saldo</span><strong id="new-balance">ARS {{'%.2f'|format(purchase.balance)}}</strong></article>
+    </div>
+
+    <label class="full">Observaciones<textarea name="notes">{{purchase.notes or ''}}</textarea></label>
+
+    <div class="form-actions">
+      <button>Guardar cambios</button>
+      <a class="button secondary" href="{{url_for('purchases.detail',purchase_id=purchase.id)}}">Cancelar</a>
+    </div>
+  </form>
+</section>
+
+<template id="new-edit-line-template">
+  <div class="purchase-line edit-line">
+    <input type="hidden" name="item_id[]" value="">
+    <input type="hidden" name="delete_line[]" value="0" class="delete-flag">
+
+    <label>Producto
+      <select name="catalog_item_id[]" required>
+        <option value="">Seleccionar producto</option>
+        {% for cat in catalog_items %}
+        <option value="{{cat.id}}">{{cat.brand}} · {{cat.model}}</option>
+        {% endfor %}
+      </select>
+    </label>
+
+    <label>Cantidad
+      <input name="quantity[]" type="number" min="1" value="1" required oninput="calcEdit()">
+    </label>
+
+    <label>Unidad compra
+      <select name="purchase_unit[]"><option>Unidad</option><option>Caja</option><option>Pack</option></select>
+    </label>
+
+    <label>Unidad stock
+      <select name="stock_unit[]"><option>Unidad</option><option>Tubo</option><option>Paleta</option><option>Pelota</option></select>
+    </label>
+
+    <label>Unidades por compra
+      <input name="conversion_factor[]" type="number" min="1" value="1" required>
+    </label>
+
+    <label>Costo por unidad de compra
+      <input name="unit_cost[]" type="number" min="0" step="0.01" value="0" required oninput="calcEdit()">
+    </label>
+
+    <div class="line-subtotal"><span>Subtotal</span><strong>ARS 0.00</strong></div>
+    <button type="button" class="danger-button remove-edit-line" onclick="removeEditLine(this)">Eliminar producto</button>
+  </div>
+</template>
+
 <script>
-function calcEdit(){let total=0;document.querySelectorAll(".edit-line").forEach(l=>{const q=parseFloat(l.querySelector('[name="quantity[]"]').value||0);const c=parseFloat(l.querySelector('[name="unit_cost[]"]').value||0);const st=q*c;l.querySelector(".line-subtotal strong").textContent="ARS "+st.toFixed(2);total+=st;});const paid={{(purchase.paid or 0)|float}};const bal=total-paid;document.getElementById("new-total").textContent="ARS "+total.toFixed(2);document.getElementById("new-balance").textContent=bal>=0?"ARS "+bal.toFixed(2):"A favor ARS "+Math.abs(bal).toFixed(2);}
+function activeLines() {
+  return [...document.querySelectorAll(".edit-line")].filter(
+    line => line.querySelector(".delete-flag").value !== "1"
+  );
+}
+
+function calcEdit() {
+  let total = 0;
+  activeLines().forEach(line => {
+    const q = parseFloat(line.querySelector('[name="quantity[]"]').value || 0);
+    const c = parseFloat(line.querySelector('[name="unit_cost[]"]').value || 0);
+    const st = q * c;
+    line.querySelector(".line-subtotal strong").textContent = "ARS " + st.toFixed(2);
+    total += st;
+  });
+  const paid = {{(purchase.paid or 0)|float}};
+  const bal = total - paid;
+  document.getElementById("new-total").textContent = "ARS " + total.toFixed(2);
+  document.getElementById("new-balance").textContent =
+    bal >= 0 ? "ARS " + bal.toFixed(2) : "A favor ARS " + Math.abs(bal).toFixed(2);
+}
+
+function addEditLine() {
+  const fragment = document.getElementById("new-edit-line-template").content.cloneNode(true);
+  document.getElementById("edit-lines").appendChild(fragment);
+  calcEdit();
+}
+
+function removeEditLine(button) {
+  const line = button.closest(".edit-line");
+  const existingId = line.querySelector('[name="item_id[]"]').value;
+
+  if (!existingId) {
+    line.remove();
+  } else {
+    line.querySelector(".delete-flag").value = "1";
+    line.style.display = "none";
+  }
+  calcEdit();
+}
+
+calcEdit();
 </script>
 {% endblock %}

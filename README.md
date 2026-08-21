@@ -78,3 +78,19 @@
 - Conservar los pagos realizados.
 - Reasignar stock automáticamente cuando una compra recibida cambia de producto.
 - Bloquear cambios que dejarían stock negativo.
+
+
+## v6.3.2.1 — Hotfix detalle de compra
+- Elimina los bloques duplicados de Registrar pago.
+- Deja un único formulario de pago al final del detalle.
+- Corrige la estructura visual del encabezado.
+- No modifica compras, stock, pagos ni saldos existentes.
+
+
+## v6.3.3 — Agregar y eliminar productos en compras
+- Editar compra permite agregar productos nuevos.
+- Permite eliminar líneas existentes.
+- Recalcula total, saldo, costos y stock.
+- En compras recibidas valida el impacto antes de guardar.
+- Bloquea cambios que dejen stock negativo.
+- La compra debe conservar al menos un producto.
