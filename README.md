@@ -102,3 +102,11 @@
 - Agrega selección de cuenta financiera (Caja chica / Ualá) al registrar el cobro.
 - Corrige la estructura del template para que la pantalla quede desplazable y estable.
 - No modifica ventas, stock, cobros ni saldos existentes.
+
+
+## v6.3.3.3 — Dashboard claro + hotfix de ventas
+- Dashboard: la tarjeta Compras ahora indica "Total comprado en el período".
+- Mantiene el cálculo de compras realizadas en el período, independientemente de si ya fueron pagadas.
+- Mantiene el hotfix de Ventas: un único bloque "Registrar cobro".
+- El cobro permite seleccionar la cuenta financiera.
+- No modifica compras, ventas, stock, pagos, cobros ni saldos existentes.
