@@ -251,6 +251,7 @@ def index():
         catalog_items=catalog_items,
         catalog_brands=catalog_brands,
         suppliers=suppliers,
+        accounts=FinancialAccount.query.filter_by(active=True).order_by(FinancialAccount.id).all(),
         totals=totals,
         q=q,
         selected_status=status,

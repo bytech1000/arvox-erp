@@ -110,3 +110,12 @@
 - Mantiene el hotfix de Ventas: un único bloque "Registrar cobro".
 - El cobro permite seleccionar la cuenta financiera.
 - No modifica compras, ventas, stock, pagos, cobros ni saldos existentes.
+
+
+## v6.3.3.4 — Cuenta financiera en nueva compra
+- Corrige el selector "Cuenta del pago" en Nueva compra completa.
+- Carga las cuentas financieras activas (por ejemplo Caja chica y Ualá).
+- Si Pagado es mayor a 0, elegir una cuenta es obligatorio.
+- Si Pagado es 0, la cuenta puede quedar vacía.
+- El pago inicial se registra como egreso en la cuenta seleccionada.
+- Conserva v6.3.3.3: Dashboard claro y hotfix de Ventas.
